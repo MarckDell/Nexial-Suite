@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Nexial Suite · Supervisor Senior</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter','Segoe UI',system-ui,sans-serif; background:#f4f6fb; color:#1a1f36; line-height:1.6; touch-action:manipulation; }
+        .navbar { position:fixed; top:0; width:100%; background:rgba(10,15,30,0.94); backdrop-filter:blur(14px); z-index:1000; border-bottom:1px solid rgba(255,255,255,0.05); padding:0 32px; height:72px; display:flex; align-items:center; justify-content:space-between; }
+        .logo-area { display:flex; align-items:center; gap:12px; text-decoration:none; }
+        .logo-icon { font-size:2.2rem; background:linear-gradient(135deg,#1a56db,#00a3ff); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 0 12px rgba(26,86,219,0.6)); animation:subtleGlow 3s ease-in-out infinite alternate; }
+        @keyframes subtleGlow { 0%{filter:drop-shadow(0 0 8px rgba(26,86,219,0.4));} 100%{filter:drop-shadow(0 0 18px rgba(0,163,255,0.8));} }
+        .logo-text { font-size:1.5rem; font-weight:700; background:linear-gradient(to right,#ffffff,#c0d0f0); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+        .nav-actions { display:flex; align-items:center; gap:20px; }
+        .user-info { display:flex; align-items:center; gap:14px; color:white; padding:8px 20px; border-radius:14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); backdrop-filter:blur(8px); transition:0.25s; }
+        .user-info:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.18); }
+        .user-icon { font-size:1.6rem; color:#1a56db; filter:drop-shadow(0 0 6px rgba(26,86,219,0.5)); }
+        .user-details { display:flex; flex-direction:column; line-height:1.3; }
+        .user-name { font-weight:700; font-size:1.15rem; letter-spacing:0.2px; color:#fff; }
+        .user-role-badge { font-size:0.7rem; font-weight:600; background:linear-gradient(135deg,#1a56db,#4a8eff); padding:3px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:0.8px; width:fit-content; margin-top:4px; color:#fff; box-shadow:0 2px 8px rgba(26,86,219,0.3); }
+        .btn-outline { background:transparent; border:1.5px solid rgba(255,255,255,0.35); color:white; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.25s; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
+        .btn-outline:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.7); box-shadow:0 0 18px rgba(0,150,255,0.3); }
+        .btn-solid { background:#1a56db; border:none; color:white; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.25s; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
+        .btn-solid:hover { background:#1340a0; box-shadow:0 0 18px rgba(26,86,219,0.5); }
+        .btn-icon { background:rgba(255,255,255,0.1); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; transition:0.2s; }
+        .btn-icon:hover { background:rgba(255,255,255,0.2); }
+        .dashboard-container { margin-top:72px; display:flex; min-height:calc(100vh - 72px); }
+        .sidebar { width:260px; background:white; border-right:1px solid #e5e7eb; padding:20px 0; display:flex; flex-direction:column; position:fixed; top:72px; bottom:0; overflow-y:auto; z-index:900; }
+        .sidebar-menu { list-style:none; flex:1; }
+        .sidebar-menu li { padding:0 16px; margin-bottom:2px; }
+        .sidebar-menu a { display:flex; align-items:center; gap:12px; padding:12px 18px; border-radius:12px; color:#475569; font-weight:500; font-size:0.9rem; text-decoration:none; transition:0.2s; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background:#f1f5f9; color:#1a56db; font-weight:600; }
+        .sidebar-menu a i { font-size:1.1rem; width:22px; text-align:center; }
+        .sidebar-menu a.external-link i.fa-external-link-alt { font-size:0.7rem; margin-left:auto; opacity:0.5; }
+        .main-content { margin-left:260px; flex:1; padding:32px; background:#f4f6fb; }
+        .section-panel { display:none; }
+        .section-panel.active { display:block; }
+        .card { background:white; border-radius:24px; padding:28px; box-shadow:0 4px 20px rgba(0,0,0,0.03); margin-bottom:24px; border:1px solid #f0f2f5; }
+        .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:14px; }
+        .card-header h2 { font-size:1.4rem; font-weight:700; color:#0f172a; }
+        .filtros { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+        .filtros select, .filtros input, .filtros button { padding:8px 14px; border-radius:30px; border:1.5px solid #e2e8f0; font-family:'Inter',sans-serif; background:white; font-size:0.84rem; }
+        .filtros button { background:#1a56db; color:white; border:none; cursor:pointer; font-weight:600; }
+        .filtros button:hover { background:#1340a0; }
+        .filtro-group { display:flex; align-items:center; gap:6px; background:#f8fafc; padding:4px 14px; border-radius:30px; border:1px solid #e2e8f0; }
+        .filtro-group label { font-size:0.8rem; font-weight:600; color:#475569; white-space:nowrap; }
+        .table-wrapper { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; }
+        th, td { padding:12px 14px; text-align:left; border-bottom:1px solid #e2e8f0; font-size:0.88rem; }
+        th { background:#f8fafc; color:#475569; font-weight:600; text-transform:uppercase; font-size:0.73rem; letter-spacing:0.5px; }
+        tr:hover td { background:#f1f5f9; }
+        .action-buttons { display:flex; gap:6px; flex-wrap:wrap; align-items:center; position:relative; overflow:visible; }
+        .btn-sm { padding:6px 12px; border-radius:18px; font-size:0.78rem; font-weight:600; border:none; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+        .btn-edit { background:#e0f2fe; color:#0369a1; }
+        .btn-delete { background:#fee2e2; color:#991b1b; }
+        .btn-activate { background:#dcfce7; color:#166534; }
+        .btn-remove-permanent { background:#ffedd5; color:#9a3412; }
+        .btn-whatsapp { background:#dcfce7; color:#075e54; text-decoration:none; }
+        .btn-whatsapp:hover { background:#b9f5d8; }
+        .btn-edit:hover { background:#bae6fd; }
+        .btn-delete:hover { background:#fecaca; }
+        .btn-activate:hover { background:#bbf7d0; }
+        .btn-remove-permanent:hover { background:#fed7aa; }
+        .btn-add-phone { background:#e0f2fe; color:#0369a1; border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:0.8rem; font-weight:600; display:inline-flex; align-items:center; gap:6px; transition:0.2s; font-family:'Inter',sans-serif; }
+        .btn-add-phone:hover { background:#bae6fd; }
+        .btn-remove-phone { background:#fee2e2; color:#991b1b; border:none; width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:0.8rem; display:inline-flex; align-items:center; justify-content:center; transition:0.2s; flex-shrink:0; }
+        .btn-remove-phone:hover { background:#fecaca; }
+        .phone-input-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+        .phone-input-row input { flex:1; }
+        .phone-input-row input.tag-input { flex:0 0 100px; }
+        .gps-input-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+        .gps-input-row input { flex:1; }
+        .gps-input-row input.tag-input { flex:0 0 110px; }
+        .btn-gps-location { background:none; border:none; color:#1a56db; cursor:pointer; font-size:1rem; transition:0.2s; padding:4px; }
+        .btn-gps-location:hover { color:#1340a0; transform:scale(1.2); }
+        .whatsapp-dropdown { position:relative; display:inline-block; overflow:visible; }
+        .whatsapp-dropdown-content { display:none; position:fixed; background:white; min-width:200px; box-shadow:0 12px 28px rgba(0,0,0,0.25); border-radius:16px; z-index:9999; overflow:hidden; border:1px solid #e2e8f0; }
+        .whatsapp-dropdown-content.show { display:block; }
+        .whatsapp-dropdown-content a { display:block; padding:12px 18px; color:#075e54; text-decoration:none; font-size:0.9rem; font-weight:500; transition:0.15s; border-bottom:1px solid #f0f0f0; }
+        .whatsapp-dropdown-content a:last-child { border-bottom:none; }
+        .whatsapp-dropdown-content a:hover { background:#dcfce7; }
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,18,0.8); backdrop-filter:blur(8px); z-index:2000; display:none; align-items:flex-start; justify-content:center; padding:24px; overflow-y:auto; }
+        .modal-overlay.active { display:flex; }
+        .modal { background:white; border-radius:28px; padding:36px 32px; max-width:1050px; width:100%; box-shadow:0 30px 60px rgba(0,0,0,0.4); animation:modalIn 0.3s ease; position:relative; margin:auto 0; }
+        .modal-sm { max-width:440px; padding:32px; text-align:center; }
+        @keyframes modalIn { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+        .modal-header h2 { font-size:1.7rem; font-weight:700; color:#0f172a; }
+        .close-modal { background:none; border:none; font-size:1.8rem; cursor:pointer; color:#64748b; }
+        .form-row { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:12px; }
+        .form-col { flex:1; min-width:160px; }
+        .form-group { margin-bottom:2px; position:relative; }
+        .form-group label { font-size:0.73rem; font-weight:700; text-transform:uppercase; color:#334155; display:flex; align-items:center; gap:5px; margin-bottom:5px; }
+        .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:12px; font-size:0.88rem; font-family:'Inter',sans-serif; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#1a56db; outline:none; box-shadow:0 0 0 3px rgba(26,86,219,0.08); }
+        .form-group textarea { resize:vertical; min-height:60px; }
+        .password-toggle { position:absolute; right:12px; top:34px; cursor:pointer; color:#64748b; background:none; border:none; font-size:1rem; z-index:2; }
+        .notification { position:fixed; top:24px; right:32px; background:#1a1f36; color:white; padding:14px 28px; border-radius:60px; font-weight:500; z-index:3000; box-shadow:0 12px 28px rgba(0,0,0,0.3); display:none; align-items:center; gap:10px; font-size:0.9rem; }
+        .notification.error { background:#c2412c; }
+        .notification.success { background:#2c6e49; }
+        .badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:0.7rem; font-weight:600; }
+        .badge-success { background:#dcfce7; color:#166534; }
+        .badge-danger { background:#fee2e2; color:#991b1b; }
+        .tabs-compact { display:flex; gap:4px; margin-bottom:20px; background:#f1f5f9; padding:4px; border-radius:30px; width:fit-content; }
+        .tab-btn-compact { padding:8px 20px; border-radius:26px; border:none; background:transparent; font-weight:600; font-size:0.82rem; cursor:pointer; color:#64748b; transition:0.2s; font-family:'Inter',sans-serif; }
+        .tab-btn-compact.active { background:white; color:#1a56db; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+        .tooltip-trigger { position:relative; display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px; border-radius:50%; background:#cbd5e1; color:white; font-size:0.65rem; font-weight:700; cursor:help; transition:0.2s; flex-shrink:0; }
+        .tooltip-trigger:hover { background:#1a56db; transform:scale(1.1); }
+        #tooltip-global { position:fixed; background:#0f172a; color:#f1f5f9; padding:10px 16px; border-radius:12px; font-size:0.76rem; font-weight:400; white-space:normal; width:260px; text-align:left; line-height:1.5; box-shadow:0 12px 28px rgba(0,0,0,0.25); z-index:5000; pointer-events:none; opacity:0; visibility:hidden; transition:opacity 0.2s ease, visibility 0.2s ease; }
+        #tooltip-global.visible { opacity:1; visibility:visible; }
+        .chart-container { position:relative; height:400px; width:100%; margin-top:20px; }
+        .orden-select { padding:8px 16px; border-radius:30px; border:1.5px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:500; background:white; color:#1e293b; cursor:pointer; min-width:200px; }
+        .confirm-buttons { display:flex; gap:12px; justify-content:center; margin-top:24px; }
+        .info-banner { background:#f0f9ff; border:1px solid #bae6fd; border-radius:16px; padding:14px 20px; margin-bottom:20px; font-size:0.85rem; color:#0369a1; display:flex; align-items:flex-start; gap:10px; }
+        .info-banner i { font-size:1.2rem; margin-top:2px; flex-shrink:0; }
+        @media (max-width:900px) {
+            .sidebar { width:100%; height:auto; position:relative; top:auto; bottom:auto; flex-direction:row; overflow-x:auto; padding:8px; border-right:none; border-bottom:1px solid #e2e8f0; }
+            .sidebar-menu { display:flex; gap:4px; }
+            .sidebar-menu li { padding:0; }
+            .sidebar-menu a { padding:8px 14px; font-size:0.78rem; white-space:nowrap; }
+            .main-content { margin-left:0; padding:16px; }
+            .dashboard-container { flex-direction:column; }
+            .navbar { padding:0 12px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo-area">
+            <i class="fas fa-brain logo-icon"></i>
+            <span class="logo-text">Nexial Suite</span>
+        </a>
+        <div class="nav-actions">
+            <div class="user-info" id="user-display"></div>
+            <button class="btn-icon" onclick="recargarTodo()" title="Actualizar datos"><i class="fas fa-sync-alt"></i></button>
+            <button class="btn-outline" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+        </div>
+    </nav>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#" data-panel="inicio" class="active"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="#" data-panel="equipo"><i class="fas fa-users"></i> Equipo</a></li>
+                <li><a href="#" data-panel="clientes"><i class="fas fa-building"></i> Clientes</a></li>
+                <li><a href="#" data-panel="productos"><i class="fas fa-box"></i> Productos</a></li>
+                <li><a href="asignacion_rutas.html" class="external-link"><i class="fas fa-route"></i> Asignación de rutas <i class="fas fa-external-link-alt"></i></a></li>
+                <li><a href="asignacion_carga.html" class="external-link"><i class="fas fa-truck-loading"></i> Asignación de carga <i class="fas fa-external-link-alt"></i></a></li>
+            </ul>
+        </aside>
+        <main class="main-content">
+            <section id="panel-inicio" class="section-panel active"></section>
+            <section id="panel-equipo" class="section-panel"></section>
+            <section id="panel-clientes" class="section-panel"></section>
+            <section id="panel-productos" class="section-panel"></section>
+        </main>
+    </div>
+
+    <!-- Confirmación modal -->
+    <div class="modal-overlay" id="modal-confirm">
+        <div class="modal modal-sm">
+            <div class="modal-header" style="justify-content:center;"><h2 id="confirm-titulo">Confirmar acción</h2></div>
+            <p id="confirm-mensaje" style="color:#475569; font-size:0.95rem; margin-bottom:8px;"></p>
+            <div class="confirm-buttons">
+                <button class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalConfirm(false)">Cancelar</button>
+                <button class="btn-solid" style="background:#c2412c;" id="confirm-btn-ok" onclick="cerrarModalConfirm(true)">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Usuario -->
+    <div class="modal-overlay" id="modal-usuario">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="titulo-modal-usuario">Nuevo Miembro</h2>
+                <button class="close-modal" onclick="cerrarModalUsuario()">&times;</button>
+            </div>
+            <form id="form-usuario" autocomplete="off">
+                <input type="hidden" id="usuario-id"><input type="hidden" id="empleado-id">
+                <div class="info-banner"><i class="fas fa-info-circle"></i> Complete primero el <strong>País</strong> para que los campos de documento, moneda, estados y ciudades se configuren automáticamente.</div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>País <span class="tooltip-trigger" data-tooltip="País de residencia del empleado. Determina extensión telefónica, moneda y tipos de documento.">?</span></label><input id="usr-pais" list="usr-paises-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="usr-paises-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Extensión Tel.</label><input id="usr-extension" readonly style="background:#f1f5f9;"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Nombres *</label><input id="usr-nombres" required oninput="capitalizarInput(this)"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Apellido Paterno *</label><input id="usr-ap" required oninput="capitalizarInput(this)"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Apellido Materno</label><input id="usr-am" oninput="capitalizarInput(this)"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Email *</label><input id="usr-email" type="email" required></div></div>
+                    <div class="form-col"><div class="form-group"><label>Rol * <span class="tooltip-trigger" data-tooltip="Define permisos: Ejecutivo Comercial (ventas), Especialista Logístico (distribución), Gestor de Almacén (inventario).">?</span></label><select id="usr-rol" required></select></div></div>
+                    <div class="form-col"><div class="form-group"><label>Teléfonos <span class="tooltip-trigger" data-tooltip="Añada números con etiqueta (casa, trabajo, etc.). Se guardan como objetos.">?</span></label>
+                        <div id="telefonos-container"></div>
+                        <button type="button" class="btn-add-phone" onclick="agregarTelefono()" title="Agregar teléfono" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar teléfono</button>
+                    </div></div>
+                </div>
+                <div class="form-row" id="password-fields">
+                    <div class="form-col" style="position:relative;"><div class="form-group"><label>Contraseña *</label><input id="usr-password" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div><button type="button" class="password-toggle" tabindex="-1" onclick="togglePassword('usr-password', this)"><i class="far fa-eye"></i></button></div>
+                    <div class="form-col" style="position:relative;"><div class="form-group"><label>Repetir contraseña *</label><input id="usr-password2" type="password" placeholder="Repita la contraseña" autocomplete="new-password"></div><button type="button" class="password-toggle" tabindex="-1" onclick="togglePassword('usr-password2', this)"><i class="far fa-eye"></i></button></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Tipo Documento <span class="tooltip-trigger" data-tooltip="Seleccione según país. Ej: CI - Cédula de Identidad.">?</span></label><select id="usr-tipo-doc"></select></div></div>
+                    <div class="form-col"><div class="form-group"><label>Número Documento</label><input id="usr-num-doc"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Fecha Nacimiento</label><input id="usr-fecha-nac" type="date"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Dirección</label><input id="usr-direccion" oninput="capitalizarInput(this)"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Estado / Provincia</label><input id="usr-estado" list="usr-estados-list" autocomplete="off"><datalist id="usr-estados-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="usr-ciudad" list="usr-ciudades-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="usr-ciudades-list"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Puesto</label><input id="usr-puesto" list="puestos-list" oninput="capitalizarInput(this)"><datalist id="puestos-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Departamento</label><input id="usr-departamento" list="departamentos-list" oninput="capitalizarInput(this)"><datalist id="departamentos-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Supervisor</label><select id="usr-supervisor"><option value="">Sin supervisor</option></select></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Salario Base</label><input id="usr-salario" type="number" step="0.01" min="0"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Moneda Salario</label><input id="usr-moneda-salario" list="monedas-global-list-emp"><datalist id="monedas-global-list-emp"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Tipo Contrato</label><input id="usr-tipo-contrato" list="tipos-contrato-list" oninput="capitalizarInput(this)"><datalist id="tipos-contrato-list"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Fecha Contratación</label><input id="usr-fecha-contrato" type="date"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Fecha Fin (opcional)</label><input id="usr-fecha-fin" type="date"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Imagen</label><input type="file" id="file-usr-imagen" accept="image/*"></div></div>
+                </div>
+                <div class="form-row" id="row-capacidad-vehiculo" style="display:none;">
+                    <div class="form-col"><div class="form-group"><label>Capacidad Vehículo <span class="tooltip-trigger" data-tooltip="Capacidad de carga del vehículo. Ej: 2.5 (toneladas).">?</span></label><input id="usr-capacidad-vehiculo" type="number" step="0.01" min="0" placeholder="Ej: 2.5"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Unidad Capacidad <span class="tooltip-trigger" data-tooltip="Unidad: toneladas, kg, m³, litros.">?</span></label><input id="usr-unidad-capacidad" list="unidad-cap-list" placeholder="toneladas, kg, m³..."><datalist id="unidad-cap-list"></datalist></div></div>
+                </div>
+                <div style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
+                    <button type="button" class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalUsuario()">Cancelar</button>
+                    <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Producto -->
+    <div class="modal-overlay" id="modal-producto">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="titulo-modal-producto">Nuevo Producto</h2>
+                <button class="close-modal" onclick="cerrarModalProducto()">&times;</button>
+            </div>
+            <form id="form-producto" autocomplete="off">
+                <input type="hidden" id="producto-id">
+                <div class="info-banner"><i class="fas fa-info-circle"></i> Todos los campos con <strong>*</strong> son obligatorios. Pase el cursor sobre <span class="tooltip-trigger" style="display:inline-flex;vertical-align:middle;">?</span> para ayuda.</div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>SKU * <span class="tooltip-trigger" data-tooltip="Código único alfanumérico. Ej: PROD-001.">?</span></label><input id="prod-sku" required oninput="this.value = this.value.toUpperCase()"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Código de Barras <span class="tooltip-trigger" data-tooltip="Código estándar EAN-13, UPC-A.">?</span></label><input id="prod-codigo-barras"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Unidades por Caja <span class="tooltip-trigger" data-tooltip="Cantidad de unidades en un empaque master.">?</span></label><input id="prod-unidades-caja" type="number" step="1" min="1"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Nombre * <span class="tooltip-trigger" data-tooltip="Nombre comercial del producto.">?</span></label><input id="prod-nombre" required oninput="capitalizarInput(this)"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Descripción <span class="tooltip-trigger" data-tooltip="Características, beneficios, especificaciones.">?</span></label><input id="prod-descripcion"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Categoría <span class="tooltip-trigger" data-tooltip="Ej: Bebidas, Lácteos.">?</span></label><input id="prod-categoria" list="cat-list" oninput="capitalizarInput(this)"><datalist id="cat-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Marca <span class="tooltip-trigger" data-tooltip="Marca o fabricante.">?</span></label><input id="prod-marca" list="marca-list" oninput="capitalizarInput(this)"><datalist id="marca-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Modelo <span class="tooltip-trigger" data-tooltip="Modelo o referencia.">?</span></label><input id="prod-modelo" list="modelo-list" oninput="capitalizarInput(this)"><datalist id="modelo-list"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Unidad de Medida <span class="tooltip-trigger" data-tooltip="Unidad, Pieza, Caja, Kilogramo, Litro...">?</span></label><input id="prod-unidad" list="unidad-list" onchange="autocompletarUnidadPeso()"><datalist id="unidad-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Peso <span class="tooltip-trigger" data-tooltip="Peso del producto para logística.">?</span></label><input id="prod-peso" type="number" step="0.01" min="0"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Unidad de Peso <span class="tooltip-trigger" data-tooltip="kg, g, lb, oz, ton.">?</span></label><input id="prod-peso-unidad" list="peso-unidad-list"><datalist id="peso-unidad-list"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Volumen <span class="tooltip-trigger" data-tooltip="Volumen para almacenamiento y transporte.">?</span></label><input id="prod-volumen" type="number" step="0.01" min="0"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Unidad de Volumen <span class="tooltip-trigger" data-tooltip="m³, cm³, litro, ml, galón.">?</span></label><input id="prod-volumen-unidad" list="vol-unidad-list"><datalist id="vol-unidad-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Impuesto (%) <span class="tooltip-trigger" data-tooltip="Porcentaje de impuesto. Ej: 16 para IVA.">?</span></label><input id="prod-impuesto" type="number" step="0.01" min="0" max="100"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Tipo de Impuesto <span class="tooltip-trigger" data-tooltip="IVA, ISC, IEPS, GST, VAT, Exento.">?</span></label><input id="prod-tipo-impuesto" list="tipo-impuesto-list"><datalist id="tipo-impuesto-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Precio Venta Base * <span class="tooltip-trigger" data-tooltip="Precio de venta al público sin impuestos.">?</span></label><input id="prod-precio" type="number" step="0.01" min="0" required></div></div>
+                    <div class="form-col"><div class="form-group"><label>Moneda Precio <span class="tooltip-trigger" data-tooltip="Moneda del precio. Se autocompleta con la empresa.">?</span></label><input id="prod-moneda-precio" list="monedas-global-list-prod"><datalist id="monedas-global-list-prod"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Costo Unitario <span class="tooltip-trigger" data-tooltip="Costo de adquisición por unidad.">?</span></label><input id="prod-costo" type="number" step="0.01" min="0"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Moneda Costo <span class="tooltip-trigger" data-tooltip="Moneda del costo.">?</span></label><input id="prod-moneda-costo" list="monedas-global-list-prod"><datalist id="monedas-global-list-prod"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Stock Mínimo <span class="tooltip-trigger" data-tooltip="Alerta de reabastecimiento.">?</span></label><input id="prod-stock-min" type="number" step="1" min="0"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Stock Máximo <span class="tooltip-trigger" data-tooltip="Límite para evitar sobreinventario.">?</span></label><input id="prod-stock-max" type="number" step="1" min="0"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Días de Vida Útil <span class="tooltip-trigger" data-tooltip="Días antes de caducar.">?</span></label><input id="prod-dias-vida" type="number" step="1" min="0" oninput="calcularFechaDesdeDias()"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Fecha de Vencimiento <span class="tooltip-trigger" data-tooltip="Si se define, calcula los días de vida útil desde hoy.">?</span></label><input id="prod-fecha-vencimiento" type="date" onchange="calcularDiasDesdeFecha()"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Maneja Lote <span class="tooltip-trigger" data-tooltip="¿Rastreo por número de lote?">?</span></label><select id="prod-lote"><option value="false">No</option><option value="true">Sí</option></select></div></div>
+                    <div class="form-col"><div class="form-group"><label>Maneja Vencimiento <span class="tooltip-trigger" data-tooltip="¿Tiene fecha de caducidad?">?</span></label><select id="prod-vencimiento"><option value="false">No</option><option value="true">Sí</option></select></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Imagen <span class="tooltip-trigger" data-tooltip="Fotografía del producto. Recomendado 800x800px.">?</span></label><input type="file" id="file-prod-imagen" accept="image/*"></div></div>
+                </div>
+                <div style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
+                    <button type="button" class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalProducto()">Cancelar</button>
+                    <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Cliente -->
+    <div class="modal-overlay" id="modal-cliente">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="titulo-modal-cliente">Nuevo Cliente</h2>
+                <button class="close-modal" onclick="cerrarModalCliente()">&times;</button>
+            </div>
+            <form id="form-cliente" autocomplete="off">
+                <input type="hidden" id="cliente-id">
+                <div class="info-banner"><i class="fas fa-info-circle"></i> Complete primero el <strong>País</strong> para configurar documentos y moneda.</div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>País</label><input id="cli-pais" list="cli-paises-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="cli-paises-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Tipo Persona <span class="tooltip-trigger" data-tooltip="Natural: persona con nombre. Jurídica: empresa con razón social.">?</span></label><select id="cli-tipo-persona" onchange="toggleClientePersona()"><option value="natural">Persona Natural</option><option value="juridica">Persona Jurídica</option></select></div></div>
+                </div>
+                <div class="form-row" id="row-cli-natural">
+                    <div class="form-col"><div class="form-group"><label>Nombres</label><input id="cli-nombres" oninput="capitalizarInput(this)"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Apellido Paterno</label><input id="cli-ap" oninput="capitalizarInput(this)"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Apellido Materno</label><input id="cli-am" oninput="capitalizarInput(this)"></div></div>
+                </div>
+                <div class="form-row" id="row-cli-juridica" style="display:none;">
+                    <div class="form-col"><div class="form-group"><label>Razón Social *</label><input id="cli-razon-social" oninput="capitalizarInput(this)"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Tipo Documento <span class="tooltip-trigger" data-tooltip="Documento de identidad fiscal según país.">?</span></label><select id="cli-tipo-doc"></select></div></div>
+                    <div class="form-col"><div class="form-group"><label>Número Documento</label><input id="cli-num-doc"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Email</label><input id="cli-email" type="email"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Teléfonos <span class="tooltip-trigger" data-tooltip="Añada números con etiqueta (casa, trabajo...).">?</span></label>
+                        <div id="cli-telefonos-container"></div>
+                        <button type="button" class="btn-add-phone" onclick="agregarTelefonoCliente()" title="Agregar teléfono" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar teléfono</button>
+                    </div></div>
+                    <div class="form-col"><div class="form-group"><label>Dirección</label><input id="cli-direccion" oninput="capitalizarInput(this)"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Coordenadas GPS de Entrega * <span class="tooltip-trigger" data-tooltip="Ingrese coordenadas y etiqueta (Tienda, Almacén). Puede agregar varios puntos.">?</span></label>
+                        <div id="gps-entrega-container"></div>
+                        <button type="button" class="btn-add-phone" onclick="agregarPuntoGPS()" title="Agregar punto GPS" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar punto GPS</button>
+                    </div></div>
+                    <div class="form-col"><div class="form-group"><label>Estado / Provincia</label><input id="cli-estado" list="cli-estados-list" autocomplete="off"><datalist id="cli-estados-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="cli-ciudad" list="cli-ciudades-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="cli-ciudades-list"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Tipo Cliente <span class="tooltip-trigger" data-tooltip="Mayorista, Minorista, Distribuidor, Consumidor Final...">?</span></label><input id="cli-tipo-cliente" list="cli-tipo-cliente-list"><datalist id="cli-tipo-cliente-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Segmento Mercado <span class="tooltip-trigger" data-tooltip="Premium, Estándar, Económico, Industrial, Masivo.">?</span></label><input id="cli-segmento" list="cli-segmento-list"><datalist id="cli-segmento-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Canal Venta <span class="tooltip-trigger" data-tooltip="Venta Directa, Online, Retail...">?</span></label><input id="cli-canal" list="cli-canal-list"><datalist id="cli-canal-list"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Tipo de Negocio <span class="tooltip-trigger" data-tooltip="Ej: Tienda, Mecánica, Abarrotes, Carnicería, Farmacia...">?</span></label><input id="cli-tipo-negocio" list="tipo-negocio-list" oninput="capitalizarInput(this)"><datalist id="tipo-negocio-list"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Límite Crédito <span class="tooltip-trigger" data-tooltip="Monto máximo de deuda permitido.">?</span></label><input id="cli-limite-credito" type="number" step="0.01" min="0"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Moneda Crédito <span class="tooltip-trigger" data-tooltip="Moneda del crédito.">?</span></label><input id="cli-moneda-credito" list="monedas-global-list-cli"><datalist id="monedas-global-list-cli"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Días Crédito <span class="tooltip-trigger" data-tooltip="Plazo en días para pagar. 0 = contado.">?</span></label><input id="cli-dias-credito" type="number" step="1" min="0"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Vendedor Asignado</label><select id="cli-vendedor"><option value="">Sin asignar</option></select></div></div>
+                    <div class="form-col"><div class="form-group"><label>Imagen</label><input type="file" id="file-cli-imagen" accept="image/*"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Lista de Precios Especiales <span class="tooltip-trigger" data-tooltip="Producto: SKU-001, Precio: 9.99">?</span></label><textarea id="cli-lista-precios" rows="2" placeholder="Producto: SKU-001, Precio: 9.99"></textarea></div></div>
+                    <div class="form-col"><div class="form-group"><label>Sucursales Adicionales <span class="tooltip-trigger" data-tooltip="Nombre: Sucursal Norte, Dirección: Calle 123">?</span></label><textarea id="cli-sucursales" rows="2" placeholder="Nombre: Sucursal Norte, Dirección: Calle 123"></textarea></div></div>
+                </div>
+                <div style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
+                    <button type="button" class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalCliente()">Cancelar</button>
+                    <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"><i class="fas fa-circle-info"></i><span></span></div>
+    <div id="tooltip-global"></div>
+    <iframe id="whatsapp-iframe" style="display:none;width:0;height:0;border:0;"></iframe>
+
+    <script>
+        const SUPABASE_URL = 'https://zgzwhyywkervutpvazqp.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
+        const STORAGE_BUCKET = 'empresas';
+        const GEO_API_BASE = 'https://city-state-country.vercel.app';
+        let currentUser = null, empresaMonedaCodigo = 'USD', empresaPais = '';
+        let paisesData = [], todasLasMonedas = [];
+        let chartVentas = null, chartProductos = null;
+        let ventasDataCache = [], productosMapCache = {};
+        let currentDesde = null, currentHasta = null;
+        let confirmCallback = null;
+        let productosVentasCache = [], productosChartDesde = null, productosChartHasta = null;
+        let soloUnDiaActivo = true;
+
+        const rolesDisponibles = ['Ejecutivo Comercial', 'Especialista Logístico', 'Gestor de Almacén'];
+        const puestoPorRol = { 'Ejecutivo Comercial':'Ejecutivo Comercial', 'Especialista Logístico':'Especialista Logístico', 'Gestor de Almacén':'Gestor de Almacén' };
+        const deptosPorRol = { 'Ejecutivo Comercial':'Ventas', 'Especialista Logístico':'Logística', 'Gestor de Almacén':'Almacén' };
+        const tiposDocCompletos = { 'CI':'CI - Cédula de Identidad', 'Pasaporte':'Pasaporte', 'NIT':'NIT - Número de Identificación Tributaria', 'DNI':'DNI - Documento Nacional de Identidad', 'CUIT':'CUIT - Clave Única de Identificación Tributaria', 'RUC':'RUC - Registro Único de Contribuyentes', 'RUN':'RUN - Rol Único Nacional', 'RUT':'RUT - Rol Único Tributario', 'CC':'CC - Cédula de Ciudadanía', 'INE':'INE - Instituto Nacional Electoral', 'RFC':'RFC - Registro Federal de Contribuyentes', 'NIE':'NIE - Número de Identidad de Extranjero', 'SSN':'SSN - Social Security Number', 'Driver License':'Driver License - Licencia de Conducir' };
+        const tiposDocPorPais = { 'Bolivia':['CI','Pasaporte','NIT'], 'Argentina':['DNI','Pasaporte','CUIT'], 'Perú':['DNI','Pasaporte','RUC'], 'Chile':['RUN','Pasaporte','RUT'], 'Colombia':['CC','Pasaporte','NIT'], 'Ecuador':['CI','Pasaporte','RUC'], 'Paraguay':['CI','Pasaporte','RUC'], 'Uruguay':['CI','Pasaporte','RUT'], 'México':['INE','Pasaporte','RFC'], 'España':['DNI','Pasaporte','NIE'], 'Estados Unidos':['Pasaporte','SSN','Driver License'] };
+        const contratosBase = { 'Bolivia':['Indefinido','Plazo fijo','Por obra','Temporal','Consultoría'], 'Argentina':['Indefinido','Plazo fijo','Temporal','Pasantía','Freelance'], 'default':['Indefinido','Plazo fijo','Temporal','Pasantía','Freelance','Consultoría'] };
+        const unidadPesoMap = { 'Kilogramo':'kg', 'Gramo':'g', 'Tonelada':'ton', 'Libra':'lb', 'Onza':'oz' };
+        const unidadVolumenMap = { 'Litro':'litro', 'Mililitro':'ml', 'Metro cúbico':'m³', 'Centímetro cúbico':'cm³', 'Galón':'galón' };
+
+        function capitalizarInput(el) {
+            let val = el.value;
+            let pos = el.selectionStart;
+            val = val.replace(/(?:^|\s)(\p{L})/gu, (match, p1) => match.toUpperCase());
+            el.value = val;
+            el.setSelectionRange(pos, pos);
+        }
+
+        function verificarSesion() {
+            const s = sessionStorage.getItem('currentUser');
+            if (!s) { window.location.href = 'login.html'; return; }
+            currentUser = JSON.parse(s);
+            if (currentUser.rol !== 'Supervisor Senior' && currentUser.rol !== 'Director General' && currentUser.rol !== 'Director Financiero') {
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('user-display').innerHTML = `
+            <i class="fas fa-shield-haltered user-icon"></i>
+            <div class="user-details">
+                <span class="user-name">${currentUser.nombres} ${currentUser.apellido_paterno} ${currentUser.apellido_materno || ''}</span>
+                <span class="user-role-badge">${currentUser.rol}</span>
+            </div>`;
+        }
+
+        function cerrarSesion() { sessionStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
+
+        function showNotification(m, t = 'success') {
+            const n = document.getElementById('notification');
+            n.querySelector('span').innerText = m;
+            n.className = `notification ${t}`;
+            n.style.display = 'flex';
+            setTimeout(() => n.style.display = 'none', 4500);
+        }
+
+        function mostrarConfirmacion(mensaje, titulo, callback) {
+            document.getElementById('confirm-mensaje').innerText = mensaje;
+            document.getElementById('confirm-titulo').innerText = titulo || 'Confirmar acción';
+            document.getElementById('modal-confirm').classList.add('active');
+            confirmCallback = callback;
+        }
+        function cerrarModalConfirm(resultado) { document.getElementById('modal-confirm').classList.remove('active'); if (confirmCallback && resultado) confirmCallback(); confirmCallback = null; }
+
+        async function apiFetch(endpoint, method = 'GET', body = null) {
+            const headers = { 'Content-Type':'application/json', 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}` };
+            if (method === 'POST' || method === 'PATCH') headers['Prefer'] = 'return=representation';
+            const opts = { method, headers };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, opts);
+            if (!res.ok) { const e = await res.text(); throw new Error(e); }
+            const txt = await res.text();
+            return txt ? JSON.parse(txt) : {};
+        }
+
+        async function uploadFile(file, folder) {
+            const name = `${folder}/${Date.now()}-${file.name}`;
+            const fd = new FormData(); fd.append('', file);
+            const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${name}`, { method:'POST', headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}, body:fd });
+            if (!res.ok) throw new Error('Error al subir');
+            return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${name}`;
+        }
+
+        function extraerTelefonosParaMostrar(telefonos) {
+            if (!telefonos) return '';
+            const arr = Array.isArray(telefonos) ? telefonos : [];
+            return arr.map(item => typeof item === 'string' ? item : (item.numero || '')).filter(Boolean).join(', ');
+        }
+
+        function jsonATelefonosDesdeInputs(containerSelector) {
+            const rows = document.querySelectorAll(containerSelector + ' .phone-input-row');
+            const tels = [];
+            rows.forEach(row => {
+                const tagInput = row.querySelector('input.tag-input');
+                const numInput = row.querySelector('input:not(.tag-input)');
+                const etiqueta = tagInput ? tagInput.value.trim() : '';
+                const numero = numInput ? numInput.value.trim() : '';
+                if (numero || etiqueta) tels.push({ etiqueta, numero });
+            });
+            return tels;
+        }
+
+        function jsonACoordenadasDesdeInputs() {
+            const rows = document.querySelectorAll('#gps-entrega-container .gps-input-row');
+            const coords = [];
+            rows.forEach(row => {
+                const tagInput = row.querySelector('input.tag-input');
+                const coordInput = row.querySelector('input:not(.tag-input)');
+                const etiqueta = tagInput ? tagInput.value.trim() : '';
+                const coordenadas = coordInput ? coordInput.value.trim() : '';
+                if (coordenadas || etiqueta) coords.push({ etiqueta, coordenadas });
+            });
+            return coords;
+        }
+
+        function llenarInputsTelefonoDesdeJson(containerSelector, telefonos) {
+            const container = document.querySelector(containerSelector); if (!container) return;
+            container.innerHTML = '';
+            const lista = Array.isArray(telefonos) ? telefonos : [];
+            if (!lista.length) lista.push({ etiqueta:'', numero:'' });
+            lista.forEach(item => {
+                let etiqueta='', numero='';
+                if (typeof item === 'string') { numero = item; }
+                else if (item && typeof item === 'object') { etiqueta = item.etiqueta || ''; numero = item.numero || ''; }
+                const row = document.createElement('div'); row.className = 'phone-input-row';
+                const tagInp = document.createElement('input'); tagInp.type='text'; tagInp.className='tag-input'; tagInp.placeholder='Etiqueta'; tagInp.value=etiqueta;
+                tagInp.addEventListener('input', function() { capitalizarInput(this); });
+                const numInp = document.createElement('input'); numInp.type='text'; numInp.placeholder='555-1234'; numInp.value=numero;
+                row.appendChild(tagInp); row.appendChild(numInp);
+                container.appendChild(row);
+            });
+            actualizarEstadoTelefonos(containerSelector);
+        }
+
+        function llenarCoordenadasGPSDesdeArray(coordenadas) {
+            const container = document.getElementById('gps-entrega-container'); if (!container) return;
+            container.innerHTML = '';
+            const lista = Array.isArray(coordenadas) ? coordenadas : [];
+            if (!lista.length) lista.push({ etiqueta:'', coordenadas:'' });
+            lista.forEach(item => {
+                let etiqueta='', coord='';
+                if (typeof item === 'string') { coord = item; }
+                else if (item && typeof item === 'object') { etiqueta = item.etiqueta || ''; coord = item.coordenadas || ''; }
+                const row = document.createElement('div'); row.className = 'gps-input-row';
+                const tagInp = document.createElement('input'); tagInp.type='text'; tagInp.className='tag-input'; tagInp.placeholder='Ej: Tienda'; tagInp.value=etiqueta;
+                tagInp.addEventListener('input', function() { capitalizarInput(this); });
+                const coordInp = document.createElement('input'); coordInp.type='text'; coordInp.placeholder='lat, lng'; coordInp.value=coord;
+                const gpsBtn = document.createElement('button'); gpsBtn.type='button'; gpsBtn.className='btn-gps-location'; gpsBtn.innerHTML='<i class="fas fa-map-marker-alt"></i>'; gpsBtn.title='Usar ubicación actual';
+                gpsBtn.onclick = function() { obtenerUbicacionGPSInput(coordInp); };
+                row.appendChild(tagInp); row.appendChild(coordInp); row.appendChild(gpsBtn);
+                container.appendChild(row);
+            });
+            actualizarEstadoGPS();
+        }
+
+        function agregarTelefonoGenerico(containerSelector) {
+            const container = document.querySelector(containerSelector); if (!container) return;
+            const row = document.createElement('div'); row.className = 'phone-input-row';
+            const tagInp = document.createElement('input'); tagInp.type='text'; tagInp.className='tag-input'; tagInp.placeholder='Etiqueta';
+            tagInp.addEventListener('input', function() { capitalizarInput(this); });
+            const numInp = document.createElement('input'); numInp.type='text'; numInp.placeholder='555-1234';
+            row.appendChild(tagInp); row.appendChild(numInp);
+            container.appendChild(row);
+            actualizarEstadoTelefonos(containerSelector);
+        }
+        function agregarTelefono() { agregarTelefonoGenerico('#telefonos-container'); }
+        function agregarTelefonoCliente() { agregarTelefonoGenerico('#cli-telefonos-container'); }
+
+        function actualizarEstadoTelefonos(containerSelector) {
+            const container = document.querySelector(containerSelector); if (!container) return;
+            const filas = container.querySelectorAll('.phone-input-row');
+            filas.forEach(fila => {
+                const existingBtn = fila.querySelector('.btn-remove-phone');
+                if (filas.length === 1 && existingBtn) existingBtn.remove();
+                else if (filas.length > 1 && !existingBtn) {
+                    const btn = document.createElement('button'); btn.type='button'; btn.className='btn-remove-phone'; btn.innerHTML='<i class="fas fa-minus"></i>'; btn.title='Eliminar';
+                    btn.onclick = function() { fila.remove(); actualizarEstadoTelefonos(containerSelector); };
+                    fila.appendChild(btn);
+                }
+            });
+        }
+
+        function actualizarEstadoGPS() {
+            const container = document.getElementById('gps-entrega-container'); if (!container) return;
+            const filas = container.querySelectorAll('.gps-input-row');
+            filas.forEach(fila => {
+                const existingBtn = fila.querySelector('.btn-remove-phone');
+                if (filas.length === 1 && existingBtn) existingBtn.remove();
+                else if (filas.length > 1 && !existingBtn) {
+                    const btn = document.createElement('button'); btn.type='button'; btn.className='btn-remove-phone'; btn.innerHTML='<i class="fas fa-minus"></i>'; btn.title='Eliminar';
+                    btn.onclick = function() { fila.remove(); actualizarEstadoGPS(); };
+                    fila.appendChild(btn);
+                }
+            });
+        }
+
+        function agregarPuntoGPS() {
+            const container = document.getElementById('gps-entrega-container'); if (!container) return;
+            const row = document.createElement('div'); row.className = 'gps-input-row';
+            const tagInp = document.createElement('input'); tagInp.type='text'; tagInp.className='tag-input'; tagInp.placeholder='Ej: Tienda';
+            tagInp.addEventListener('input', function() { capitalizarInput(this); });
+            const coordInp = document.createElement('input'); coordInp.type='text'; coordInp.placeholder='lat, lng';
+            const gpsBtn = document.createElement('button'); gpsBtn.type='button'; gpsBtn.className='btn-gps-location'; gpsBtn.innerHTML='<i class="fas fa-map-marker-alt"></i>'; gpsBtn.title='Usar ubicación actual';
+            gpsBtn.onclick = function() { obtenerUbicacionGPSInput(coordInp); };
+            row.appendChild(tagInp); row.appendChild(coordInp); row.appendChild(gpsBtn);
+            container.appendChild(row);
+            actualizarEstadoGPS();
+        }
+
+        function obtenerUbicacionGPSInput(inputElement) {
+            if (!navigator.geolocation) { showNotification('Geolocalización no soportada.', 'error'); return; }
+            navigator.geolocation.getCurrentPosition(pos => {
+                inputElement.value = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+                showNotification('Coordenadas actualizadas.');
+            }, () => showNotification('No se pudo obtener la ubicación.', 'error'));
+        }
+
+        async function getCurrentUserEmpleadoId() {
+            const empId = currentUser.empresa_id;
+            const email = currentUser.email;
+            const emps = await apiFetch(`empleados?empresa_id=eq.${empId}&email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
+            return emps.length ? emps[0].id : null;
+        }
+
+        async function cargarDatosIniciales() {
+            const resp = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2,idd,currencies');
+            paisesData = await resp.json();
+            ['usr-paises-list','cli-paises-list'].forEach(id => {
+                const dl = document.getElementById(id); if (!dl) return; dl.innerHTML = '';
+                paisesData.forEach(p => { const o = document.createElement('option'); o.value = p.name.common; dl.appendChild(o); });
+            });
+            const monSet = new Map();
+            paisesData.forEach(p => { if (p.currencies) Object.entries(p.currencies).forEach(([c,i]) => { if (!monSet.has(c)) monSet.set(c, { name:i.name, symbol:i.symbol||'' }); }); });
+            todasLasMonedas = Array.from(monSet, ([c,d]) => ({ codigo:c, nombre:d.name, simbolo:d.symbol }));
+            try {
+                const bdMonedas = await apiFetch('monedas?select=codigo,nombre,simbolo');
+                bdMonedas.forEach(m => { if (!todasLasMonedas.find(t => t.codigo === m.codigo)) todasLasMonedas.push({ codigo:m.codigo, nombre:m.nombre, simbolo:m.simbolo||'' }); });
+            } catch(e) {}
+            ['monedas-global-list-emp','monedas-global-list-prod','monedas-global-list-cli'].forEach(id => {
+                const dl = document.getElementById(id); if (!dl) return; dl.innerHTML = '';
+                todasLasMonedas.forEach(m => { const o = document.createElement('option'); o.value = `${m.codigo} - ${m.nombre}`; dl.appendChild(o); });
+            });
+            if (currentUser && currentUser.empresa_id) {
+                const emp = await apiFetch(`empresas?id=eq.${currentUser.empresa_id}&select=moneda_principal_id,pais`);
+                if (emp.length > 0) {
+                    if (emp[0].moneda_principal_id) { const mon = await apiFetch(`monedas?id=eq.${emp[0].moneda_principal_id}&select=codigo`); if (mon.length > 0) empresaMonedaCodigo = mon[0].codigo; }
+                    empresaPais = emp[0].pais || '';
+                }
+            }
+            cargarDatalistsEstaticos();
+            initTooltips();
+        }
+
+        function cargarDatalistsEstaticos() {
+            const caps = ['toneladas','kg','m³','litros','unidades','pallets'];
+            const dlCap = document.getElementById('unidad-cap-list'); if (dlCap) { dlCap.innerHTML = ''; caps.forEach(u => { const o = document.createElement('option'); o.value = u; dlCap.appendChild(o); }); }
+            const tiposCliente = ['Mayorista','Minorista','Distribuidor','Consumidor Final','Gubernamental','Corporativo'];
+            const dlTc = document.getElementById('cli-tipo-cliente-list'); if (dlTc) { dlTc.innerHTML = ''; tiposCliente.forEach(u => { const o = document.createElement('option'); o.value = u; dlTc.appendChild(o); }); }
+            const segmentos = ['Premium','Estándar','Económico','Industrial','Masivo'];
+            const dlSg = document.getElementById('cli-segmento-list'); if (dlSg) { dlSg.innerHTML = ''; segmentos.forEach(u => { const o = document.createElement('option'); o.value = u; dlSg.appendChild(o); }); }
+            const canales = ['Venta Directa','Distribuidor','Online','Retail','Telemarketing'];
+            const dlCn = document.getElementById('cli-canal-list'); if (dlCn) { dlCn.innerHTML = ''; canales.forEach(u => { const o = document.createElement('option'); o.value = u; dlCn.appendChild(o); }); }
+            const tiposNegocio = ['Tienda','Mecánica','Abarrotes','Carnicería','Farmacia','Ferretería','Panadería','Restaurante','Veterinaria','Librería'];
+            const dlTn = document.getElementById('tipo-negocio-list'); if (dlTn) { dlTn.innerHTML = ''; tiposNegocio.forEach(u => { const o = document.createElement('option'); o.value = u; dlTn.appendChild(o); }); }
+            const unidades = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón'];
+            const dlUnidad = document.getElementById('unidad-list'); if (dlUnidad) { dlUnidad.innerHTML = ''; unidades.forEach(u => { const o = document.createElement('option'); o.value = u; dlUnidad.appendChild(o); }); }
+            const pesos = ['kg','g','lb','oz','ton'];
+            const dlPeso = document.getElementById('peso-unidad-list'); if (dlPeso) { dlPeso.innerHTML = ''; pesos.forEach(u => { const o = document.createElement('option'); o.value = u; dlPeso.appendChild(o); }); }
+            const vols = ['m³','cm³','litro','ml','galón'];
+            const dlVol = document.getElementById('vol-unidad-list'); if (dlVol) { dlVol.innerHTML = ''; vols.forEach(u => { const o = document.createElement('option'); o.value = u; dlVol.appendChild(o); }); }
+            const impuestos = ['IVA','ISC','IEPS','GST','VAT','Exento'];
+            const dlImp = document.getElementById('tipo-impuesto-list'); if (dlImp) { dlImp.innerHTML = ''; impuestos.forEach(u => { const o = document.createElement('option'); o.value = u; dlImp.appendChild(o); }); }
+        }
+
+        function initTooltips() {
+            const tooltip = document.getElementById('tooltip-global');
+            document.querySelectorAll('.tooltip-trigger').forEach(trigger => {
+                trigger.addEventListener('mouseenter', function(e) {
+                    const text = this.getAttribute('data-tooltip'); if (!text) return;
+                    tooltip.textContent = text; tooltip.classList.add('visible');
+                });
+                trigger.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
+                trigger.addEventListener('mousemove', function(e) {
+                    tooltip.style.left = e.clientX - 130 + 'px';
+                    tooltip.style.top = e.clientY - 10 - tooltip.offsetHeight + 'px';
+                });
+            });
+        }
+
+        function extraerCodigo(v) { return (v.split(' - ')[0] || '').trim().toUpperCase(); }
+
+        async function ensureCurrency(input) {
+            const cod = extraerCodigo(input); if (!cod) throw new Error('Moneda inválida');
+            const exist = await apiFetch(`monedas?codigo=eq.${encodeURIComponent(cod)}&select=id`);
+            if (exist.length) return exist[0].id;
+            const data = todasLasMonedas.find(m => m.codigo === cod) || { nombre:cod, symbol:null };
+            const nueva = await apiFetch('monedas', 'POST', { codigo:cod, nombre:data.nombre, simbolo:data.symbol });
+            return Array.isArray(nueva) ? nueva[0].id : nueva.id;
+        }
+
+        async function ensureUnidadMedida(nombre) {
+            if (!nombre || !nombre.trim()) return null;
+            const nm = nombre.trim();
+            const exist = await apiFetch(`unidades_medida?nombre=eq.${encodeURIComponent(nm)}&select=id`);
+            if (exist.length) return exist[0].id;
+            const nueva = await apiFetch('unidades_medida', 'POST', { nombre:nm, codigo:nm.substring(0,20), abreviacion:nm.substring(0,10) });
+            return Array.isArray(nueva) ? nueva[0].id : nueva.id;
+        }
+
+        async function buscarPaisId(nombre) {
+            try { const r = await fetch(`${GEO_API_BASE}/countries/search/${encodeURIComponent(nombre)}`); if (!r.ok) return null; const d = await r.json(); return d.length ? d[0].id : null; }
+            catch { return null; }
+        }
+        async function cargarEstados(paisNombre, datalistId) {
+            const dl = document.getElementById(datalistId); if (!dl) return; dl.innerHTML = '';
+            const id = await buscarPaisId(paisNombre); if (!id) return;
+            const r = await fetch(`${GEO_API_BASE}/countries/${id}/states`); if (!r.ok) return;
+            const estados = await r.json();
+            estados.forEach(e => { const o = document.createElement('option'); o.value = e.name; dl.appendChild(o); });
+        }
+        async function cargarCiudades(paisNombre, estadoNombre, datalistId) {
+            const dl = document.getElementById(datalistId); if (!dl) return; dl.innerHTML = '';
+            const paisId = await buscarPaisId(paisNombre); if (!paisId) return;
+            const r = await fetch(`${GEO_API_BASE}/countries/${paisId}/states`); if (!r.ok) return;
+            const estados = await r.json();
+            const est = estados.find(e => e.name.toLowerCase() === estadoNombre.toLowerCase()); if (!est) return;
+            const c = await fetch(`${GEO_API_BASE}/states/${est.id}/cities`); if (!c.ok) return;
+            const cities = await c.json();
+            cities.forEach(city => { const o = document.createElement('option'); o.value = city.name; dl.appendChild(o); });
+        }
+
+        function monedaPorDefecto() {
+            const mon = todasLasMonedas.find(m => m.codigo === empresaMonedaCodigo);
+            return mon ? `${mon.codigo} - ${mon.nombre}` : empresaMonedaCodigo;
+        }
+
+        function actualizarExtensionTelefono(paisVal) {
+            const extInput = document.getElementById('usr-extension'); if (!extInput || !paisVal) return;
+            const pais = paisesData.find(p => p.name.common.toLowerCase() === paisVal.toLowerCase());
+            if (pais && pais.idd) extInput.value = (pais.idd.root || '') + (pais.idd.suffixes?.[0] || '');
+            else extInput.value = '';
+        }
+
+        function actualizarDependenciasPaisEmpleado(paisVal) {
+            if (!paisVal) return;
+            actualizarExtensionTelefono(paisVal);
+            actualizarMonedaConPais({ value:paisVal }, 'usr-moneda-salario');
+            cargarEstados(paisVal, 'usr-estados-list');
+            actualizarSelectTiposDocumento(paisVal, 'usr-tipo-doc');
+            actualizarTiposContrato(paisVal);
+            document.getElementById('usr-estado').value = '';
+            document.getElementById('usr-ciudad').value = '';
+            document.getElementById('usr-ciudades-list').innerHTML = '';
+        }
+
+        function actualizarSelectTiposDocumento(pais, selectId) {
+            const sel = document.getElementById(selectId); if (!sel) return; sel.innerHTML = '';
+            const clave = Object.keys(tiposDocPorPais).find(k => k.toLowerCase() === pais.toLowerCase());
+            const tipos = clave ? tiposDocPorPais[clave] : ['CI','Pasaporte','DNI','RUC','NIT'];
+            tipos.forEach(codigo => { const o = document.createElement('option'); o.value = codigo; o.text = tiposDocCompletos[codigo] || codigo; sel.appendChild(o); });
+        }
+        function actualizarTiposContrato(pais) {
+            const dl = document.getElementById('tipos-contrato-list'); if (!dl) return; dl.innerHTML = '';
+            const clave = Object.keys(contratosBase).find(k => k.toLowerCase() === pais.toLowerCase());
+            const lista = contratosBase[clave] || contratosBase['default'];
+            lista.forEach(c => { const o = document.createElement('option'); o.value = c; dl.appendChild(o); });
+        }
+        function actualizarMonedaConPais(paisInput, monedaInputId) {
+            const val = typeof paisInput === 'string' ? paisInput : paisInput.value.trim();
+            if (val.length > 1) {
+                const pais = paisesData.find(p => p.name.common.toLowerCase() === val.toLowerCase());
+                if (pais && pais.currencies) {
+                    const cod = Object.keys(pais.currencies)[0];
+                    document.getElementById(monedaInputId).value = `${cod} - ${pais.currencies[cod].name}`;
+                }
+            }
+        }
+
+        function autocompletarUnidadPeso() {
+            const unidad = document.getElementById('prod-unidad').value.trim();
+            const pesoUnidad = document.getElementById('prod-peso-unidad');
+            const volUnidad = document.getElementById('prod-volumen-unidad');
+            if (unidadPesoMap[unidad]) pesoUnidad.value = unidadPesoMap[unidad];
+            else if (unidadVolumenMap[unidad]) volUnidad.value = unidadVolumenMap[unidad];
+        }
+
+        function calcularDiasDesdeFecha() {
+            const fecha = document.getElementById('prod-fecha-vencimiento').value;
+            if (fecha) {
+                const diff = Math.ceil((new Date(fecha) - new Date()) / (1000 * 60 * 60 * 24));
+                document.getElementById('prod-dias-vida').value = diff > 0 ? diff : 0;
+            }
+        }
+
+        function calcularFechaDesdeDias() {
+            const dias = parseInt(document.getElementById('prod-dias-vida').value);
+            if (dias > 0) {
+                const fecha = new Date(Date.now() + dias * 24 * 60 * 60 * 1000);
+                document.getElementById('prod-fecha-vencimiento').value = fecha.toISOString().slice(0,10);
+            }
+        }
+
+        document.getElementById('usr-pais').addEventListener('input', function() { actualizarDependenciasPaisEmpleado(this.value.trim()); });
+        document.getElementById('usr-estado').addEventListener('input', function() {
+            const pais = document.getElementById('usr-pais').value.trim();
+            const est = this.value.trim();
+            if (pais && est) cargarCiudades(pais, est, 'usr-ciudades-list');
+        });
+        document.getElementById('cli-pais').addEventListener('input', function() {
+            const val = this.value.trim();
+            if (val.length > 1) {
+                actualizarSelectTiposDocumento(val, 'cli-tipo-doc');
+                actualizarMonedaConPais(this, 'cli-moneda-credito');
+                cargarEstados(val, 'cli-estados-list');
+                document.getElementById('cli-estado').value = '';
+                document.getElementById('cli-ciudad').value = '';
+                document.getElementById('cli-ciudades-list').innerHTML = '';
+            }
+        });
+        document.getElementById('cli-estado').addEventListener('input', function() {
+            const pais = document.getElementById('cli-pais').value.trim();
+            const est = this.value.trim();
+            if (pais && est) cargarCiudades(pais, est, 'cli-ciudades-list');
+        });
+        document.getElementById('usr-rol').addEventListener('change', function() {
+            const rol = this.value;
+            document.getElementById('usr-puesto').value = puestoPorRol[rol] || '';
+            document.getElementById('usr-departamento').value = deptosPorRol[rol] || '';
+            const rowCap = document.getElementById('row-capacidad-vehiculo');
+            if (rol === 'Especialista Logístico') { rowCap.style.display = 'flex'; }
+            else { rowCap.style.display = 'none'; document.getElementById('usr-capacidad-vehiculo').value = ''; document.getElementById('usr-unidad-capacidad').value = ''; }
+        });
+
+        function toggleClientePersona() {
+            const tipo = document.getElementById('cli-tipo-persona').value;
+            document.getElementById('row-cli-natural').style.display = tipo === 'natural' ? 'flex' : 'none';
+            document.getElementById('row-cli-juridica').style.display = tipo === 'juridica' ? 'flex' : 'none';
+        }
+
+        function abrirWhatsApp(numero) {
+            const iframe = document.getElementById('whatsapp-iframe');
+            iframe.src = `whatsapp://send?phone=${numero}`;
+            setTimeout(() => { iframe.src = ''; }, 2000);
+        }
+
+        function toggleWhatsAppDropdown(btn, idUnico) {
+            const dd = document.getElementById(idUnico); if (!dd) return;
+            const isOpening = !dd.classList.contains('show');
+            document.querySelectorAll('.whatsapp-dropdown-content.show').forEach(d => d.classList.remove('show'));
+            if (isOpening) {
+                const btnRect = btn.getBoundingClientRect();
+                dd.style.top = (btnRect.bottom + 4) + 'px';
+                dd.style.left = (btnRect.left - 100) + 'px';
+                dd.classList.add('show');
+            }
+        }
+        document.addEventListener('click', function(e) {
+            const dropdowns = document.querySelectorAll('.whatsapp-dropdown-content.show');
+            let clickedInside = false;
+            dropdowns.forEach(dd => { if (dd.contains(e.target)) clickedInside = true; });
+            if (!clickedInside) dropdowns.forEach(dd => dd.classList.remove('show'));
+        });
+
+        function generarBotonWhatsApp(telefonosJson) {
+            const numeros = [];
+            if (Array.isArray(telefonosJson)) {
+                telefonosJson.forEach(item => {
+                    if (typeof item === 'string') numeros.push(item);
+                    else if (item && item.numero) numeros.push(item.numero);
+                });
+            } else if (typeof telefonosJson === 'string') numeros.push(...telefonosJson.split(',').map(t => t.trim()).filter(t => t));
+            if (!numeros.length) return '';
+            if (numeros.length === 1) return `<button class="btn-sm btn-whatsapp" onclick="abrirWhatsApp('${numeros[0]}')" title="Hablar por WhatsApp"><i class="fab fa-whatsapp"></i></button>`;
+            const idUnico = 'whatsapp-dd-' + Math.random().toString(36).substr(2,9);
+            let opciones = numeros.map(n => `<a href="#" onclick="event.preventDefault(); abrirWhatsApp('${n}'); document.getElementById('${idUnico}').classList.remove('show');">📞 ${n}</a>`).join('');
+            return `<div class="whatsapp-dropdown"><button class="btn-sm btn-whatsapp" onclick="event.stopPropagation(); toggleWhatsAppDropdown(this, '${idUnico}')"><i class="fab fa-whatsapp"></i> <i class="fas fa-caret-down" style="font-size:0.7rem;"></i></button><div class="whatsapp-dropdown-content" id="${idUnico}">${opciones}</div></div>`;
+        }
+
+        async function llenarSelectVendedores(selectId, vendedorSeleccionado = '') {
+            const sel = document.getElementById(selectId); if (!sel) return;
+            const empId = currentUser.empresa_id;
+            sel.innerHTML = '<option value="">Sin asignar</option>';
+            try {
+                const todos = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
+                const comerciales = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent('Ejecutivo Comercial')}&select=email&limit=1000`);
+                const emails = comerciales.map(u => u.email.toLowerCase());
+                let vendedores = todos.filter(e => emails.includes((e.email||'').toLowerCase()));
+                if (vendedores.length === 0) vendedores = todos;
+                vendedores.forEach(v => { const o = document.createElement('option'); o.value = v.id; o.text = `${v.nombres} ${v.apellido_paterno}`; if (v.id === vendedorSeleccionado) o.selected = true; sel.appendChild(o); });
+            } catch(e) {
+                const todos = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno&limit=1000`);
+                todos.forEach(v => { const o = document.createElement('option'); o.value = v.id; o.text = `${v.nombres} ${v.apellido_paterno}`; if (v.id === vendedorSeleccionado) o.selected = true; sel.appendChild(o); });
+            }
+        }
+        async function llenarSelectSupervisores(selectId, seleccionado = '') {
+            const sel = document.getElementById(selectId); if (!sel) return;
+            const empId = currentUser.empresa_id;
+            sel.innerHTML = '<option value="">Sin supervisor</option>';
+            try {
+                const supervisoresUsuarios = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent('Supervisor Senior')}&select=email&limit=1000`);
+                const emails = supervisoresUsuarios.map(u => u.email.toLowerCase());
+                let query = `empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`;
+                const emps = await apiFetch(query);
+                const filtrados = emps.filter(e => emails.includes((e.email||'').toLowerCase()));
+                filtrados.forEach(e => { const o = document.createElement('option'); o.value = e.id; o.text = `${e.nombres} ${e.apellido_paterno}`; if (e.id === seleccionado) o.selected = true; sel.appendChild(o); });
+            } catch(e) {}
+        }
+
+        async function cargarInicio(desde = null, hasta = null) {
+            const empId = currentUser.empresa_id;
+            if (!desde || !hasta) {
+                const hoy = new Date(); const fechaHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+                desde = fechaHoy.toISOString(); hasta = new Date(fechaHoy.getTime() + 86399999).toISOString();
+            }
+            currentDesde = desde; currentHasta = hasta;
+            ventasDataCache = await apiFetch(`ventas?empresa_id=eq.${empId}&fecha=gte.${encodeURIComponent(desde)}&fecha=lte.${encodeURIComponent(hasta)}&select=vendedor_id,total_linea,cantidad,producto_id&limit=1000`);
+            const prodRes = await apiFetch(`productos?empresa_id=eq.${empId}&select=id,peso&activo=eq.true&limit=1000`);
+            productosMapCache = {}; prodRes.forEach(p => { productosMapCache[p.id] = p.peso ? parseFloat(p.peso) : 0; });
+            const fechaDesdeFormato = new Date(desde).toISOString().slice(0,10);
+            const fechaHastaFormato = new Date(hasta).toISOString().slice(0,10);
+            document.getElementById('panel-inicio').innerHTML = `
+            <div class="card">
+                <div class="card-header"><h2>Avance de Ventas por Vendedor</h2></div>
+                <div class="filtros">
+                    <div class="filtro-group"><label>Desde:</label><input type="date" id="fecha-desde-inicio" value="${fechaDesdeFormato}"></div>
+                    <div class="filtro-group" id="hasta-group" style="display:${soloUnDiaActivo ? 'none' : 'flex'};"><label>Hasta:</label><input type="date" id="fecha-hasta-inicio" value="${fechaHastaFormato}"></div>
+                    <div class="filtro-group"><label><input type="checkbox" id="chk-solo-dia" ${soloUnDiaActivo ? 'checked' : ''} onchange="toggleFiltroUnDia()"> Solo un día</label></div>
+                    <button onclick="filtrarVentasInicio()"><i class="fas fa-filter"></i> Filtrar</button>
+                </div>
+                <div class="info-banner"><i class="fas fa-lightbulb"></i> Seleccione el rango o active <strong>"Solo un día"</strong> para ver una fecha concreta. Luego ordene con el selector.</div>
+                <div style="display:flex; flex-wrap:wrap; align-items:center; gap:20px; margin-bottom:16px;">
+                    <div class="filtro-group"><label>Ordenar por:</label>
+                        <select id="orden-ventas" class="orden-select" onchange="actualizarGrafico()">
+                            <option value="monto_desc">Monto: Mayor a Menor</option><option value="monto_asc">Monto: Menor a Mayor</option>
+                            <option value="carga_desc">Carga Total: Mayor a Menor</option><option value="carga_asc">Carga Total: Menor a Mayor</option>
+                            <option value="variedad_desc">Variedad: Mayor a Menor</option><option value="variedad_asc">Variedad: Menor a Mayor</option>
+                        </select></div>
+                </div>
+                <div class="chart-container"><canvas id="grafico-ventas"></canvas></div>
+            </div>`;
+            actualizarGrafico(); initTooltips();
+        }
+
+        function toggleFiltroUnDia() {
+            const chk = document.getElementById('chk-solo-dia');
+            const hastaGroup = document.getElementById('hasta-group');
+            const hastaInput = document.getElementById('fecha-hasta-inicio');
+            const desdeInput = document.getElementById('fecha-desde-inicio');
+            if (chk && chk.checked) {
+                soloUnDiaActivo = true;
+                hastaGroup.style.display = 'none';
+                if (desdeInput && hastaInput) hastaInput.value = desdeInput.value;
+            } else {
+                soloUnDiaActivo = false;
+                hastaGroup.style.display = 'flex';
+            }
+        }
+
+        function actualizarGrafico() {
+            if (!ventasDataCache.length) return;
+            const empleadosMap = {}; const resumen = {};
+            ventasDataCache.forEach(v => {
+                const vid = v.vendedor_id || 'sin_asignar';
+                if (!resumen[vid]) resumen[vid] = { monto:0, cantidad:0, productos:new Set(), carga:0 };
+                resumen[vid].monto += parseFloat(v.total_linea); resumen[vid].cantidad += v.cantidad;
+                resumen[vid].productos.add(v.producto_id);
+                resumen[vid].carga += v.cantidad * (productosMapCache[v.producto_id] || 0);
+            });
+            apiFetch(`empleados?empresa_id=eq.${currentUser.empresa_id}&select=id,nombres,apellido_paterno&activo=eq.true&limit=1000`).then(emps => {
+                emps.forEach(e => empleadosMap[e.id] = `${e.nombres} ${e.apellido_paterno}`);
+            }).finally(() => {
+                const vendors = Object.entries(resumen).map(([id,d]) => ({ id, nombre: id==='sin_asignar' ? 'Sin vendedor' : (empleadosMap[id]||'Desconocido'), monto:d.monto, carga:d.carga, variedad:d.productos.size }));
+                const orden = document.getElementById('orden-ventas')?.value || 'monto_desc';
+                const [campo, dir] = orden.split('_');
+                vendors.sort((a,b) => dir==='desc' ? b[campo]-a[campo] : a[campo]-b[campo]);
+                if (chartVentas) chartVentas.destroy();
+                const ctx = document.getElementById('grafico-ventas')?.getContext('2d'); if (!ctx) return;
+                chartVentas = new Chart(ctx, { type:'bar', data:{ labels: vendors.map(v=>v.nombre), datasets:[
+                    { label:'Monto ($)', data: vendors.map(v=>v.monto), backgroundColor:'#2563eb', borderColor:'#1d4ed8', borderWidth:1, borderRadius:8 },
+                    { label:'Carga Total', data: vendors.map(v=>v.carga), backgroundColor:'#f59e0b', borderColor:'#d97706', borderWidth:1, borderRadius:8 },
+                    { label:'Variedad (productos)', data: vendors.map(v=>v.variedad), backgroundColor:'#10b981', borderColor:'#059669', borderWidth:1, borderRadius:8 }
+                ]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ usePointStyle:true, font:{ size:12 } } } } } });
+            });
+        }
+
+        function filtrarVentasInicio() {
+            const desde = document.getElementById('fecha-desde-inicio')?.value;
+            let hasta = document.getElementById('fecha-hasta-inicio')?.value;
+            if (soloUnDiaActivo) hasta = desde;
+            if (desde && hasta) {
+                if (hasta < desde) { showNotification('La fecha "Hasta" no puede ser menor que "Desde".', 'error'); return; }
+                cargarInicio(desde + 'T00:00:00', hasta + 'T23:59:59');
+            } else showNotification('Seleccione al menos la fecha "Desde"', 'error');
+        }
+
+        async function cargarDatalistsProductos() {
+            const empId = currentUser.empresa_id;
+            const prods = await apiFetch(`productos?empresa_id=eq.${empId}&select=categoria,marca,modelo&limit=1000`);
+            const cats = [...new Set(prods.map(p=>p.categoria).filter(Boolean))];
+            const marcas = [...new Set(prods.map(p=>p.marca).filter(Boolean))];
+            const modelos = [...new Set(prods.map(p=>p.modelo).filter(Boolean))];
+            ['cat-list','marca-list','modelo-list'].forEach(id => { const dl = document.getElementById(id); if(dl) dl.innerHTML = ''; });
+            cats.forEach(c => { const o = document.createElement('option'); o.value = c; document.getElementById('cat-list')?.appendChild(o); });
+            marcas.forEach(m => { const o = document.createElement('option'); o.value = m; document.getElementById('marca-list')?.appendChild(o); });
+            modelos.forEach(m => { const o = document.createElement('option'); o.value = m; document.getElementById('modelo-list')?.appendChild(o); });
+        }
+
+        async function cargarProductos(categoria = '') {
+            const empId = currentUser.empresa_id;
+            let query = `productos?empresa_id=eq.${empId}&select=*&activo=eq.true&limit=1000`;
+            if (categoria) query += `&categoria=eq.${encodeURIComponent(categoria)}`;
+            const productos = await apiFetch(query);
+            const todasCategorias = await apiFetch(`productos?empresa_id=eq.${empId}&select=categoria&activo=eq.true&limit=1000`);
+            const categorias = [...new Set(todasCategorias.map(p=>p.categoria).filter(Boolean))].sort();
+            let filas = '';
+            productos.forEach(p => {
+                filas += `<tr><td>${p.sku}</td><td>${p.nombre}</td><td>${p.categoria||'-'}</td><td>${p.marca||'-'}</td><td>${p.modelo||'-'}</td><td>$${parseFloat(p.precio_venta_base||0).toFixed(2)}</td><td>${p.stock_minimo||0}</td><td>${p.stock_maximo||'-'}</td><td class="action-buttons"><button class="btn-sm btn-edit" onclick="editarProducto('${p.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-delete" onclick="eliminarProducto('${p.id}')"><i class="fas fa-ban"></i></button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteProducto('${p.id}')"><i class="fas fa-trash-alt"></i></button></td></tr>`;
+            });
+            if (!filas) filas = '<tr><td colspan="9" style="text-align:center;">No hay productos.</td></tr>';
+            if (!productosChartDesde) { const hoy = new Date(); productosChartDesde = new Date(hoy.getFullYear(), hoy.getMonth(),1).toISOString(); productosChartHasta = new Date(hoy.getFullYear(), hoy.getMonth()+1,0,23,59,59).toISOString(); }
+            document.getElementById('panel-productos').innerHTML = `
+            <div class="card">
+                <div class="card-header"><h2>Ventas por Producto</h2></div>
+                <div class="filtros">
+                    <div class="filtro-group"><label>Desde:</label><input type="date" id="fecha-desde-productos" value="${new Date(productosChartDesde).toISOString().slice(0,10)}"></div>
+                    <div class="filtro-group"><label>Hasta:</label><input type="date" id="fecha-hasta-productos" value="${new Date(productosChartHasta).toISOString().slice(0,10)}"></div>
+                    <button onclick="filtrarProductosGrafico()"><i class="fas fa-filter"></i> Filtrar</button>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; align-items:center; gap:20px; margin-bottom:16px;">
+                    <div class="filtro-group"><label>Ordenar por:</label><select id="orden-productos-chart" class="orden-select" onchange="actualizarGraficoProductos()"><option value="total_desc">Monto: Mayor a Menor</option><option value="total_asc">Monto: Menor a Mayor</option><option value="cantidad_desc">Cantidad: Mayor a Menor</option><option value="cantidad_asc">Cantidad: Menor a Mayor</option><option value="carga_desc">Carga Total: Mayor a Menor</option><option value="carga_asc">Carga Total: Menor a Mayor</option></select></div>
+                </div>
+                <div class="chart-container"><canvas id="grafico-productos"></canvas></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h2>Catálogo de Productos</h2><button class="btn-solid" onclick="abrirModalProducto()"><i class="fas fa-plus"></i> Nuevo Producto</button></div>
+                <div class="filtros"><div class="filtro-group"><label>Categoría:</label><select id="filtro-categoria-productos" onchange="cargarProductos(this.value)"><option value="">Todas</option>${categorias.map(c => `<option value="${c}" ${c===categoria?'selected':''}>${c}</option>`).join('')}</select></div><button onclick="cargarProductos(document.getElementById('filtro-categoria-productos').value)"><i class="fas fa-filter"></i> Filtrar</button></div>
+                <div class="table-wrapper"><table><thead><tr><th>SKU</th><th>Nombre</th><th>Categoría</th><th>Marca</th><th>Modelo</th><th>Precio</th><th>Stock Mín</th><th>Stock Máx</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div>
+            </div>`;
+            await cargarDatosProductosGrafico(); actualizarGraficoProductos(); initTooltips();
+        }
+
+        async function cargarDatosProductosGrafico() {
+            const empId = currentUser.empresa_id;
+            const desde = document.getElementById('fecha-desde-productos')?.value, hasta = document.getElementById('fecha-hasta-productos')?.value;
+            if (desde && hasta) { productosChartDesde = desde+'T00:00:00'; productosChartHasta = hasta+'T23:59:59'; }
+            productosVentasCache = await apiFetch(`ventas?empresa_id=eq.${empId}&fecha=gte.${encodeURIComponent(productosChartDesde)}&fecha=lte.${encodeURIComponent(productosChartHasta)}&select=producto_id,total_linea,cantidad&limit=1000`);
+        }
+        function filtrarProductosGrafico() { cargarDatosProductosGrafico().then(() => actualizarGraficoProductos()); }
+        function actualizarGraficoProductos() {
+            apiFetch(`productos?empresa_id=eq.${currentUser.empresa_id}&select=id,nombre,peso&activo=eq.true&limit=1000`).then(productos => {
+                const prodMap={}, pesoMap={};
+                productos.forEach(p => { prodMap[p.id]=p.nombre; pesoMap[p.id]=p.peso?parseFloat(p.peso):0; });
+                const resumen={};
+                productosVentasCache.forEach(v => {
+                    if (!resumen[v.producto_id]) resumen[v.producto_id]={ total:0, cantidad:0, carga:0 };
+                    resumen[v.producto_id].total += parseFloat(v.total_linea);
+                    resumen[v.producto_id].cantidad += v.cantidad;
+                    resumen[v.producto_id].carga += v.cantidad * (pesoMap[v.producto_id]||0);
+                });
+                const data = Object.entries(resumen).map(([id,d]) => ({ id, nombre:prodMap[id]||'Sin nombre', total:d.total, cantidad:d.cantidad, carga:d.carga }));
+                const orden = document.getElementById('orden-productos-chart')?.value || 'total_desc';
+                const [campo,dir] = orden.split('_');
+                data.sort((a,b) => dir==='desc' ? b[campo]-a[campo] : a[campo]-b[campo]);
+                const top = data.slice(0,15);
+                if (chartProductos) chartProductos.destroy();
+                const ctx = document.getElementById('grafico-productos')?.getContext('2d'); if(!ctx) return;
+                chartProductos = new Chart(ctx, { type:'bar', data:{ labels:top.map(d=>d.nombre), datasets:[
+                    { label:'Monto ($)', data:top.map(d=>d.total), backgroundColor:'#2563eb', borderColor:'#1d4ed8', borderWidth:1, borderRadius:8 },
+                    { label:'Cantidad', data:top.map(d=>d.cantidad), backgroundColor:'#f59e0b', borderColor:'#d97706', borderWidth:1, borderRadius:8 },
+                    { label:'Carga Total', data:top.map(d=>d.carga), backgroundColor:'#10b981', borderColor:'#059669', borderWidth:1, borderRadius:8 }
+                ]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ usePointStyle:true, font:{ size:12 } } } } } });
+            });
+        }
+
+        function abrirModalProducto(id=null) {
+            document.getElementById('modal-producto').classList.add('active');
+            document.getElementById('form-producto').reset(); document.getElementById('producto-id').value='';
+            document.getElementById('titulo-modal-producto').textContent='Nuevo Producto';
+            document.getElementById('prod-moneda-precio').value=monedaPorDefecto();
+            document.getElementById('prod-moneda-costo').value=monedaPorDefecto();
+            document.getElementById('prod-lote').value='false'; document.getElementById('prod-vencimiento').value='false';
+            cargarDatalistsProductos(); if(id) editarProducto(id); initTooltips();
+        }
+        function cerrarModalProducto() { document.getElementById('modal-producto').classList.remove('active'); }
+
+        async function editarProducto(id) {
+            const p = await apiFetch(`productos?id=eq.${id}&select=*`); if(!p.length) return;
+            const prod = p[0];
+            document.getElementById('producto-id').value = prod.id;
+            document.getElementById('prod-sku').value = prod.sku||'';
+            document.getElementById('prod-codigo-barras').value = prod.codigo_barras||'';
+            document.getElementById('prod-nombre').value = prod.nombre||'';
+            document.getElementById('prod-descripcion').value = prod.descripcion||'';
+            document.getElementById('prod-categoria').value = prod.categoria||'';
+            document.getElementById('prod-marca').value = prod.marca||'';
+            document.getElementById('prod-modelo').value = prod.modelo||'';
+            document.getElementById('prod-unidad').value = '';
+            document.getElementById('prod-peso').value = prod.peso||''; document.getElementById('prod-peso-unidad').value = prod.peso_unidad||'';
+            document.getElementById('prod-volumen').value = prod.volumen||''; document.getElementById('prod-volumen-unidad').value = prod.volumen_unidad||'';
+            document.getElementById('prod-impuesto').value = prod.impuesto_porcentaje||'';
+            document.getElementById('prod-tipo-impuesto').value = prod.tipo_impuesto||'';
+            document.getElementById('prod-precio').value = prod.precio_venta_base||'';
+            document.getElementById('prod-costo').value = prod.costo_unitario||'';
+            document.getElementById('prod-stock-min').value = prod.stock_minimo||'';
+            document.getElementById('prod-stock-max').value = prod.stock_maximo||'';
+            document.getElementById('prod-dias-vida').value = prod.dias_vida_util||'';
+            document.getElementById('prod-fecha-vencimiento').value = '';
+            document.getElementById('prod-lote').value = prod.maneja_lote?'true':'false';
+            document.getElementById('prod-vencimiento').value = prod.maneja_vencimiento?'true':'false';
+            document.getElementById('prod-unidades-caja').value = prod.unidades_por_caja||'';
+            document.getElementById('prod-moneda-precio').value = monedaPorDefecto();
+            document.getElementById('prod-moneda-costo').value = monedaPorDefecto();
+            if(prod.moneda_precio_id) { const mon = await apiFetch(`monedas?id=eq.${prod.moneda_precio_id}&select=codigo,nombre`); if(mon.length) document.getElementById('prod-moneda-precio').value = `${mon[0].codigo} - ${mon[0].nombre}`; }
+            if(prod.moneda_costo_id) { const mon = await apiFetch(`monedas?id=eq.${prod.moneda_costo_id}&select=codigo,nombre`); if(mon.length) document.getElementById('prod-moneda-costo').value = `${mon[0].codigo} - ${mon[0].nombre}`; }
+            if(prod.unidad_medida_id) { const um = await apiFetch(`unidades_medida?id=eq.${prod.unidad_medida_id}&select=nombre`); if(um.length) document.getElementById('prod-unidad').value = um[0].nombre; }
+            if(prod.dias_vida_util) { calcularFechaDesdeDias(); }
+            document.getElementById('titulo-modal-producto').textContent = 'Editar Producto';
+            document.getElementById('modal-producto').classList.add('active'); cargarDatalistsProductos(); initTooltips();
+        }
+        function eliminarProducto(id) { mostrarConfirmacion('¿Desactivar producto?','Desactivar Producto', async ()=>{ await apiFetch(`productos?id=eq.${id}`, 'PATCH', { activo:false }); cargarProductos(document.getElementById('filtro-categoria-productos')?.value||''); showNotification('Producto desactivado'); }); }
+        function eliminarDefinitivamenteProducto(id) { mostrarConfirmacion('¿Eliminar permanentemente este producto? Esta acción no se puede deshacer.','Eliminar Producto', async ()=>{ await apiFetch(`productos?id=eq.${id}`, 'DELETE'); cargarProductos(document.getElementById('filtro-categoria-productos')?.value||''); showNotification('Producto eliminado'); }); }
+
+        document.getElementById('form-producto').addEventListener('submit', async function(e) {
+            e.preventDefault(); const id = document.getElementById('producto-id').value;
+            const monPrecioId = await ensureCurrency(document.getElementById('prod-moneda-precio').value.trim());
+            const monCostoId = await ensureCurrency(document.getElementById('prod-moneda-costo').value.trim());
+            const unidadId = await ensureUnidadMedida(document.getElementById('prod-unidad').value.trim());
+            const payload = {
+                sku: document.getElementById('prod-sku').value.trim(), codigo_barras: document.getElementById('prod-codigo-barras').value.trim()||null,
+                nombre: document.getElementById('prod-nombre').value.trim(), descripcion: document.getElementById('prod-descripcion').value.trim()||null,
+                categoria: document.getElementById('prod-categoria').value.trim()||null, marca: document.getElementById('prod-marca').value.trim()||null,
+                modelo: document.getElementById('prod-modelo').value.trim()||null, unidad_medida_id: unidadId,
+                peso: parseFloat(document.getElementById('prod-peso').value)||null, peso_unidad: document.getElementById('prod-peso-unidad').value.trim()||null,
+                volumen: parseFloat(document.getElementById('prod-volumen').value)||null, volumen_unidad: document.getElementById('prod-volumen-unidad').value.trim()||null,
+                impuesto_porcentaje: parseFloat(document.getElementById('prod-impuesto').value)||null, tipo_impuesto: document.getElementById('prod-tipo-impuesto').value.trim()||null,
+                precio_venta_base: parseFloat(document.getElementById('prod-precio').value)||0, moneda_precio_id: monPrecioId,
+                costo_unitario: parseFloat(document.getElementById('prod-costo').value)||null, moneda_costo_id: monCostoId,
+                stock_minimo: parseInt(document.getElementById('prod-stock-min').value)||0, stock_maximo: parseInt(document.getElementById('prod-stock-max').value)||null,
+                dias_vida_util: parseInt(document.getElementById('prod-dias-vida').value)||null,
+                maneja_lote: document.getElementById('prod-lote').value==='true', maneja_vencimiento: document.getElementById('prod-vencimiento').value==='true',
+                unidades_por_caja: parseInt(document.getElementById('prod-unidades-caja').value)||null, empresa_id: currentUser.empresa_id
+            };
+            try { const file = document.getElementById('file-prod-imagen').files[0]; if(file) payload.imagen = await uploadFile(file, 'productos'); } catch {}
+            try {
+                if(id) { delete payload.empresa_id; await apiFetch(`productos?id=eq.${id}`, 'PATCH', payload); }
+                else await apiFetch('productos', 'POST', payload);
+                cerrarModalProducto(); cargarProductos(document.getElementById('filtro-categoria-productos')?.value||''); showNotification(id?'Producto actualizado':'Producto creado');
+            } catch(err) { showNotification('Error: '+err.message, 'error'); }
+        });
+
+        function llenarRolesSelect() { const sel = document.getElementById('usr-rol'); if(!sel) return; sel.innerHTML = ''; rolesDisponibles.forEach(r => { const o = document.createElement('option'); o.value = r; o.text = r; sel.appendChild(o); }); }
+        async function cargarEquipo(tab='comercial') {
+            const empId = currentUser.empresa_id; let rolesFiltro = tab==='comercial' ? ['Ejecutivo Comercial'] : ['Especialista Logístico','Gestor de Almacén'];
+            // CORREGIDO: codificar correctamente la cláusula IN para roles con espacios
+            const rolesEncoded = rolesFiltro.map(r => encodeURIComponent(`"${r}"`)).join(',');
+            const usuarios = await apiFetch(`usuarios?empresa_id=eq.${empId}&select=*&order=apellido_paterno&rol=in.(${rolesEncoded})&limit=1000`);
+            let filas = '';
+            usuarios.forEach(u => {
+                const telsMostrar = extraerTelefonosParaMostrar(u.telefonos);
+                filas += `<tr><td>${u.nombres} ${u.apellido_paterno} ${u.apellido_materno||''}</td><td>${u.email}</td><td>${u.rol}</td><td>${telsMostrar||'-'}</td><td><span class="badge ${u.activo?'badge-success':'badge-danger'}">${u.activo?'Activo':'Inactivo'}</span></td><td class="action-buttons"><button class="btn-sm btn-edit" onclick="editarUsuario('${u.id}')"><i class="fas fa-edit"></i></button>${u.activo ? `<button class="btn-sm btn-delete" onclick="toggleUsuario('${u.id}',false)"><i class="fas fa-ban"></i></button>` : `<button class="btn-sm btn-activate" onclick="toggleUsuario('${u.id}',true)"><i class="fas fa-check"></i></button>`}<button class="btn-sm btn-remove-permanent" onclick="eliminarUsuarioDefinitivo('${u.id}')"><i class="fas fa-trash-alt"></i></button>${telsMostrar ? generarBotonWhatsApp(u.telefonos) : ''}</td></tr>`;
+            });
+            if(!filas) filas = '<tr><td colspan="6" style="text-align:center;">No hay miembros.</td></tr>';
+            document.getElementById('panel-equipo').innerHTML = `
+            <div class="tabs-compact"><button class="tab-btn-compact ${tab==='comercial'?'active':''}" onclick="cargarEquipo('comercial')"><i class="fas fa-user-tie"></i> Comercial</button><button class="tab-btn-compact ${tab==='distribucion'?'active':''}" onclick="cargarEquipo('distribucion')"><i class="fas fa-truck"></i> Distribución</button></div>
+            <div class="card"><div class="card-header"><h2>${tab==='comercial'?'Equipo Comercial':'Equipo Distribución'}</h2><button class="btn-solid" onclick="abrirModalUsuario(null,'${tab}')"><i class="fas fa-plus"></i> Nuevo Miembro</button></div><div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Teléfonos</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div></div>`;
+            llenarRolesSelect(); initTooltips();
+        }
+
+        async function abrirModalUsuario(id=null, tab=null) {
+            document.getElementById('modal-usuario').classList.add('active');
+            document.getElementById('form-usuario').reset(); document.getElementById('usuario-id').value=''; document.getElementById('empleado-id').value='';
+            document.getElementById('password-fields').style.display='flex';
+            document.getElementById('titulo-modal-usuario').textContent='Nuevo Miembro';
+            document.getElementById('row-capacidad-vehiculo').style.display='none';
+            document.getElementById('usr-moneda-salario').value=monedaPorDefecto();
+            document.getElementById('usr-pais').value=empresaPais;
+            if(empresaPais) actualizarDependenciasPaisEmpleado(empresaPais);
+            else { actualizarSelectTiposDocumento('','usr-tipo-doc'); actualizarTiposContrato(''); }
+            llenarInputsTelefonoDesdeJson('#telefonos-container', [{etiqueta:'', numero:''}]);
+            llenarRolesSelect(); await llenarSelectSupervisores('usr-supervisor'); cargarDatalistsEstaticos();
+            if(tab==='distribucion') { document.getElementById('usr-rol').value='Especialista Logístico'; document.getElementById('usr-rol').dispatchEvent(new Event('change')); }
+            else if(tab==='comercial') { document.getElementById('usr-rol').value='Ejecutivo Comercial'; document.getElementById('usr-rol').dispatchEvent(new Event('change')); }
+            if(id) editarUsuario(id); initTooltips();
+        }
+        function cerrarModalUsuario() { document.getElementById('modal-usuario').classList.remove('active'); }
+
+        async function editarUsuario(id) {
+            const usuarios = await apiFetch(`usuarios?id=eq.${id}&select=*`); if(!usuarios.length) return;
+            const u = usuarios[0];
+            document.getElementById('usuario-id').value = u.id;
+            document.getElementById('usr-nombres').value = u.nombres; document.getElementById('usr-ap').value = u.apellido_paterno; document.getElementById('usr-am').value = u.apellido_materno||'';
+            document.getElementById('usr-email').value = u.email; document.getElementById('usr-rol').value = u.rol;
+            document.getElementById('usr-extension').value = u.extension||''; document.getElementById('usr-fecha-nac').value = u.fecha_nacimiento||'';
+            document.getElementById('password-fields').style.display = 'none';
+            document.getElementById('titulo-modal-usuario').textContent = 'Editar Miembro';
+            const rowCap = document.getElementById('row-capacidad-vehiculo');
+            if(u.rol==='Especialista Logístico') rowCap.style.display='flex'; else { rowCap.style.display='none'; document.getElementById('usr-capacidad-vehiculo').value=''; document.getElementById('usr-unidad-capacidad').value=''; }
+            document.getElementById('usr-puesto').value = puestoPorRol[u.rol]||''; document.getElementById('usr-departamento').value = deptosPorRol[u.rol]||'';
+            document.getElementById('usr-moneda-salario').value = monedaPorDefecto();
+            const empleados = await apiFetch(`empleados?empresa_id=eq.${currentUser.empresa_id}&email=eq.${encodeURIComponent(u.email)}&select=*&order=creado_en.desc&limit=1`);
+            if(empleados.length) {
+                const e = empleados[0];
+                document.getElementById('empleado-id').value = e.id;
+                document.getElementById('usr-tipo-doc').value = e.tipo_documento||''; document.getElementById('usr-num-doc').value = e.numero_documento||'';
+                document.getElementById('usr-direccion').value = e.direccion||''; document.getElementById('usr-pais').value = e.pais||empresaPais;
+                document.getElementById('usr-estado').value = e.estado_provincia||''; document.getElementById('usr-ciudad').value = e.ciudad||'';
+                document.getElementById('usr-puesto').value = e.puesto||''; document.getElementById('usr-departamento').value = e.departamento||'';
+                document.getElementById('usr-salario').value = e.salario_base||''; document.getElementById('usr-fecha-contrato').value = e.fecha_contratacion||'';
+                document.getElementById('usr-fecha-fin').value = e.fecha_fin_contrato||''; document.getElementById('usr-tipo-contrato').value = e.tipo_contrato||'';
+                document.getElementById('usr-capacidad-vehiculo').value = e.capacidad_vehiculo||''; document.getElementById('usr-unidad-capacidad').value = e.unidad_capacidad_vehiculo||'';
+                if(e.moneda_salario_id) { const mon = await apiFetch(`monedas?id=eq.${e.moneda_salario_id}&select=codigo,nombre`); if(mon.length) document.getElementById('usr-moneda-salario').value = `${mon[0].codigo} - ${mon[0].nombre}`; }
+                actualizarDependenciasPaisEmpleado(e.pais||empresaPais);
+                llenarInputsTelefonoDesdeJson('#telefonos-container', u.telefonos||e.telefonos||[{etiqueta:'', numero:''}]);
+                await llenarSelectSupervisores('usr-supervisor', e.supervisor_id||'');
+            } else {
+                llenarInputsTelefonoDesdeJson('#telefonos-container', u.telefonos||[{etiqueta:'', numero:''}]);
+                if(empresaPais) actualizarDependenciasPaisEmpleado(empresaPais); else { actualizarSelectTiposDocumento('','usr-tipo-doc'); actualizarTiposContrato(''); }
+                await llenarSelectSupervisores('usr-supervisor');
+            }
+            document.getElementById('modal-usuario').classList.add('active'); initTooltips();
+        }
+
+        function toggleUsuario(id, activo) { const accion = activo?'activar':'desactivar'; mostrarConfirmacion(`¿${accion} usuario?`,'Cambiar estado', async ()=>{ await apiFetch(`usuarios?id=eq.${id}`, 'PATCH', { activo }); cargarEquipo(document.querySelector('#panel-equipo .tab-btn-compact.active')?.dataset.tab||'comercial'); showNotification(activo?'Usuario activado':'Usuario desactivado'); }); }
+        function eliminarUsuarioDefinitivo(id) { mostrarConfirmacion('¿Eliminar permanentemente este usuario y su empleado asociado?','Eliminar Usuario', async ()=>{ await apiFetch(`usuarios?id=eq.${id}`, 'DELETE'); cargarEquipo(document.querySelector('#panel-equipo .tab-btn-compact.active')?.dataset.tab||'comercial'); showNotification('Usuario eliminado'); }); }
+
+        function togglePassword(fid, btn) { const i = document.getElementById(fid); i.type = i.type==='password'?'text':'password'; btn.querySelector('i').classList.toggle('fa-eye'); btn.querySelector('i').classList.toggle('fa-eye-slash'); }
+
+        document.getElementById('form-usuario').addEventListener('submit', async function(e) {
+            e.preventDefault(); const userId = document.getElementById('usuario-id').value, empleadoId = document.getElementById('empleado-id').value;
+            const rol = document.getElementById('usr-rol').value;
+            const telefonosArray = jsonATelefonosDesdeInputs('#telefonos-container');
+            const payloadUsuario = {
+                nombres: document.getElementById('usr-nombres').value.trim(), apellido_paterno: document.getElementById('usr-ap').value.trim(),
+                apellido_materno: document.getElementById('usr-am').value.trim()||null, email: document.getElementById('usr-email').value.trim(),
+                rol: rol, telefonos: telefonosArray, extension: document.getElementById('usr-extension').value.trim()||null,
+                fecha_nacimiento: document.getElementById('usr-fecha-nac').value||null
+            };
+            const tipoDocVal = document.getElementById('usr-tipo-doc').value.trim();
+            const payloadEmpleado = {
+                tipo_documento: tipoDocVal||null, numero_documento: document.getElementById('usr-num-doc').value.trim()||null,
+                nombres: payloadUsuario.nombres, apellido_paterno: payloadUsuario.apellido_paterno, apellido_materno: payloadUsuario.apellido_materno,
+                email: payloadUsuario.email, telefonos: telefonosArray, direccion: document.getElementById('usr-direccion').value.trim()||null,
+                pais: document.getElementById('usr-pais').value.trim()||null, estado_provincia: document.getElementById('usr-estado').value.trim()||null,
+                ciudad: document.getElementById('usr-ciudad').value.trim()||null, fecha_nacimiento: payloadUsuario.fecha_nacimiento,
+                puesto: document.getElementById('usr-puesto').value.trim()||null, departamento: document.getElementById('usr-departamento').value.trim()||null,
+                salario_base: parseFloat(document.getElementById('usr-salario').value)||null, tipo_contrato: document.getElementById('usr-tipo-contrato').value.trim()||null,
+                fecha_contratacion: document.getElementById('usr-fecha-contrato').value||null, fecha_fin_contrato: document.getElementById('usr-fecha-fin').value||null,
+                supervisor_id: document.getElementById('usr-supervisor').value||null
+            };
+            if(rol==='Especialista Logístico') { payloadEmpleado.capacidad_vehiculo = parseFloat(document.getElementById('usr-capacidad-vehiculo').value)||null; payloadEmpleado.unidad_capacidad_vehiculo = document.getElementById('usr-unidad-capacidad').value.trim()||null; }
+            else { payloadEmpleado.capacidad_vehiculo = null; payloadEmpleado.unidad_capacidad_vehiculo = null; }
+            const monSal = document.getElementById('usr-moneda-salario').value.trim();
+            if(monSal) payloadEmpleado.moneda_salario_id = await ensureCurrency(monSal);
+            try { const file = document.getElementById('file-usr-imagen').files[0]; if(file) { const url = await uploadFile(file, 'empleados'); payloadUsuario.imagen = url; payloadEmpleado.imagen = url; } } catch {}
+            try {
+                if(!userId) {
+                    const pass = document.getElementById('usr-password').value, pass2 = document.getElementById('usr-password2').value;
+                    if(!pass||pass.length<6) { showNotification('Contraseña mínima 6 caracteres','error'); return; }
+                    if(pass!==pass2) { showNotification('Las contraseñas no coinciden','error'); return; }
+                    const hashResp = await apiFetch('rpc/crypt_password', 'POST', { pass });
+                    payloadUsuario.password_hash = typeof hashResp === 'string' ? hashResp : hashResp.crypt_password;
+                    payloadUsuario.empresa_id = currentUser.empresa_id;
+                    await apiFetch('usuarios', 'POST', payloadUsuario);
+                    payloadEmpleado.empresa_id = currentUser.empresa_id;
+                    await apiFetch('empleados', 'POST', payloadEmpleado);
+                } else {
+                    await apiFetch(`usuarios?id=eq.${userId}`, 'PATCH', payloadUsuario);
+                    if(empleadoId) await apiFetch(`empleados?id=eq.${empleadoId}`, 'PATCH', payloadEmpleado);
+                    else { payloadEmpleado.empresa_id = currentUser.empresa_id; await apiFetch('empleados', 'POST', payloadEmpleado); }
+                }
+                cerrarModalUsuario(); cargarEquipo(document.querySelector('#panel-equipo .tab-btn-compact.active')?.dataset.tab||'comercial');
+                showNotification(userId?'Usuario actualizado':'Usuario creado');
+            } catch(err) { showNotification('Error: '+err.message, 'error'); }
+        });
+
+        async function cargarClientes(vendedorId='', filtroTipo='', filtroSegmento='', filtroCanal='', filtroNegocio='') {
+            const empId = currentUser.empresa_id; let query = `clientes?empresa_id=eq.${empId}&select=*&activo=eq.true&limit=1000`;
+            if(vendedorId) query += `&vendedor_asignado_id=eq.${vendedorId}`; if(filtroTipo) query += `&tipo_cliente=eq.${encodeURIComponent(filtroTipo)}`;
+            if(filtroSegmento) query += `&segmento_mercado=eq.${encodeURIComponent(filtroSegmento)}`; if(filtroCanal) query += `&canal_venta=eq.${encodeURIComponent(filtroCanal)}`;
+            if(filtroNegocio) query += `&tipo_negocio=eq.${encodeURIComponent(filtroNegocio)}`;
+            const clientes = await apiFetch(query);
+            const vendedores = await apiFetch(`empleados?empresa_id=eq.${empId}&select=id,nombres,apellido_paterno&activo=eq.true&limit=1000`);
+            const vendedorMap = {}; vendedores.forEach(v => vendedorMap[v.id] = v.nombres+' '+v.apellido_paterno);
+            let filas = '';
+            clientes.forEach(c => {
+                const nombre = c.razon_social || (c.nombres||'')+' '+(c.apellido_paterno||'');
+                const gpsCount = Array.isArray(c.direcciones_entrega) ? c.direcciones_entrega.length : 0;
+                filas += `<tr><td>${nombre.trim()||'-'}</td><td>${c.email||'-'}</td><td>${c.ciudad||'-'}, ${c.pais||'-'}</td><td>${c.tipo_cliente||'-'}</td><td>${c.tipo_negocio||'-'}</td><td>${gpsCount > 0 ? `<i class="fas fa-map-marker-alt" style="color:#1a56db;" title="${gpsCount} punto(s) de entrega"></i> ${gpsCount}` : '-'}</td><td>${c.vendedor_asignado_id ? (vendedorMap[c.vendedor_asignado_id]||'Asignado') : 'Sin asignar'}</td><td class="action-buttons"><button class="btn-sm btn-edit" onclick="editarCliente('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-delete" onclick="eliminarCliente('${c.id}')"><i class="fas fa-ban"></i></button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button></td></tr>`;
+            });
+            if(!filas) filas = '<tr><td colspan="8" style="text-align:center;">No se encontraron clientes.</td></tr>';
+            document.getElementById('panel-clientes').innerHTML = `
+            <div class="card"><div class="card-header"><h2>Clientes</h2><button class="btn-solid" onclick="abrirModalCliente()"><i class="fas fa-plus"></i> Nuevo Cliente</button></div>
+            <div class="filtros"><div class="filtro-group"><label>Vendedor:</label><select id="filtro-vendedor-clientes" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
+            <div class="filtro-group"><label>Tipo:</label><select id="filtro-tipo-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
+            <div class="filtro-group"><label>Segmento:</label><select id="filtro-segmento-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
+            <div class="filtro-group"><label>Canal:</label><select id="filtro-canal-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
+            <div class="filtro-group"><label>Negocio:</label><select id="filtro-negocio-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div></div>
+            <div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Email</th><th>Ubicación</th><th>Tipo</th><th>Negocio</th><th>GPS</th><th>Vendedor</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div></div>`;
+            const selVend = document.getElementById('filtro-vendedor-clientes'); vendedores.forEach(v => { const o = document.createElement('option'); o.value=v.id; o.text=v.nombres+' '+v.apellido_paterno; if(v.id===vendedorId) o.selected=true; selVend.appendChild(o); });
+            const tipos = [...new Set(clientes.map(c=>c.tipo_cliente).filter(Boolean))].sort();
+            const segs = [...new Set(clientes.map(c=>c.segmento_mercado).filter(Boolean))].sort();
+            const canales = [...new Set(clientes.map(c=>c.canal_venta).filter(Boolean))].sort();
+            const negocios = [...new Set(clientes.map(c=>c.tipo_negocio).filter(Boolean))].sort();
+            ['filtro-tipo-cliente','filtro-segmento-cliente','filtro-canal-cliente','filtro-negocio-cliente'].forEach((id,i) => {
+                const sel = document.getElementById(id), arr = [tipos,segs,canales,negocios][i], val = [filtroTipo,filtroSegmento,filtroCanal,filtroNegocio][i];
+                arr.forEach(v => { const o = document.createElement('option'); o.value=v; o.text=v; if(v===val) o.selected=true; sel.appendChild(o); });
+            });
+            initTooltips();
+        }
+        function aplicarFiltrosClientes() { cargarClientes(document.getElementById('filtro-vendedor-clientes')?.value||'', document.getElementById('filtro-tipo-cliente')?.value||'', document.getElementById('filtro-segmento-cliente')?.value||'', document.getElementById('filtro-canal-cliente')?.value||'', document.getElementById('filtro-negocio-cliente')?.value||''); }
+
+        function abrirModalCliente(id=null) {
+            document.getElementById('modal-cliente').classList.add('active');
+            document.getElementById('form-cliente').reset(); document.getElementById('cliente-id').value='';
+            document.getElementById('titulo-modal-cliente').textContent='Nuevo Cliente';
+            document.getElementById('cli-tipo-persona').value='natural'; document.getElementById('cli-moneda-credito').value=monedaPorDefecto();
+            document.getElementById('cli-pais').value=empresaPais; document.getElementById('cli-lista-precios').value=''; document.getElementById('cli-sucursales').value='';
+            document.getElementById('cli-tipo-negocio').value='';
+            if(empresaPais) { actualizarSelectTiposDocumento(empresaPais, 'cli-tipo-doc'); actualizarMonedaConPais(document.getElementById('cli-pais'), 'cli-moneda-credito'); cargarEstados(empresaPais, 'cli-estados-list'); }
+            else actualizarSelectTiposDocumento('', 'cli-tipo-doc');
+            llenarInputsTelefonoDesdeJson('#cli-telefonos-container', [{etiqueta:'', numero:''}]);
+            llenarCoordenadasGPSDesdeArray([{etiqueta:'', coordenadas:''}]);
+            toggleClientePersona(); llenarSelectVendedores('cli-vendedor');
+            if(id) editarCliente(id); initTooltips();
+        }
+        function cerrarModalCliente() { document.getElementById('modal-cliente').classList.remove('active'); }
+
+        async function editarCliente(id) {
+            const c = await apiFetch(`clientes?id=eq.${id}&select=*`); if(!c.length) return;
+            const cli = c[0];
+            document.getElementById('cliente-id').value = cli.id;
+            document.getElementById('cli-tipo-persona').value = cli.razon_social ? 'juridica' : 'natural'; toggleClientePersona();
+            document.getElementById('cli-pais').value = cli.pais||empresaPais;
+            document.getElementById('cli-tipo-doc').value = cli.tipo_documento||''; document.getElementById('cli-num-doc').value = cli.numero_documento||'';
+            document.getElementById('cli-nombres').value = cli.nombres||''; document.getElementById('cli-ap').value = cli.apellido_paterno||''; document.getElementById('cli-am').value = cli.apellido_materno||'';
+            document.getElementById('cli-razon-social').value = cli.razon_social||'';
+            document.getElementById('cli-email').value = cli.email||''; document.getElementById('cli-direccion').value = cli.direccion||'';
+            document.getElementById('cli-estado').value = cli.estado_provincia||''; document.getElementById('cli-ciudad').value = cli.ciudad||'';
+            document.getElementById('cli-tipo-cliente').value = cli.tipo_cliente||''; document.getElementById('cli-segmento').value = cli.segmento_mercado||''; document.getElementById('cli-canal').value = cli.canal_venta||'';
+            document.getElementById('cli-tipo-negocio').value = cli.tipo_negocio||'';
+            document.getElementById('cli-limite-credito').value = cli.limite_credito||''; document.getElementById('cli-dias-credito').value = cli.dias_credito||'';
+            document.getElementById('cli-moneda-credito').value = monedaPorDefecto();
+            document.getElementById('cli-lista-precios').value = cli.lista_precios ? JSON.stringify(cli.lista_precios, null, 2) : '';
+            document.getElementById('cli-sucursales').value = cli.sucursales ? JSON.stringify(cli.sucursales, null, 2) : '';
+            llenarInputsTelefonoDesdeJson('#cli-telefonos-container', cli.telefonos||[{etiqueta:'', numero:''}]);
+            llenarCoordenadasGPSDesdeArray(cli.direcciones_entrega||[{etiqueta:'', coordenadas:''}]);
+            if(cli.moneda_credito_id) { const mon = await apiFetch(`monedas?id=eq.${cli.moneda_credito_id}&select=codigo,nombre`); if(mon.length) document.getElementById('cli-moneda-credito').value = `${mon[0].codigo} - ${mon[0].nombre}`; }
+            await llenarSelectVendedores('cli-vendedor', cli.vendedor_asignado_id||'');
+            const paisVal = cli.pais||empresaPais;
+            if(paisVal) { actualizarSelectTiposDocumento(paisVal, 'cli-tipo-doc'); actualizarMonedaConPais(document.getElementById('cli-pais'), 'cli-moneda-credito'); cargarEstados(paisVal, 'cli-estados-list'); }
+            else actualizarSelectTiposDocumento('', 'cli-tipo-doc');
+            document.getElementById('titulo-modal-cliente').textContent = 'Editar Cliente';
+            document.getElementById('modal-cliente').classList.add('active'); initTooltips();
+        }
+        function eliminarCliente(id) { mostrarConfirmacion('¿Desactivar cliente?','Desactivar Cliente', async ()=>{ await apiFetch(`clientes?id=eq.${id}`, 'PATCH', { activo:false }); cargarClientes(); showNotification('Cliente desactivado'); }); }
+        function eliminarDefinitivamenteCliente(id) { mostrarConfirmacion('¿Eliminar permanentemente este cliente? Se perderán sus datos asociados.','Eliminar Cliente', async ()=>{ await apiFetch(`clientes?id=eq.${id}`, 'DELETE'); cargarClientes(); showNotification('Cliente eliminado'); }); }
+
+        document.getElementById('form-cliente').addEventListener('submit', async function(e) {
+            e.preventDefault(); const id = document.getElementById('cliente-id').value;
+            const tipoPersona = document.getElementById('cli-tipo-persona').value;
+            const monCreditoId = await ensureCurrency(document.getElementById('cli-moneda-credito').value.trim());
+            const gpsArray = jsonACoordenadasDesdeInputs();
+            const telefonosArray = jsonATelefonosDesdeInputs('#cli-telefonos-container');
+            const payload = {
+                empresa_id: currentUser.empresa_id,
+                tipo_documento: document.getElementById('cli-tipo-doc').value.trim()||null,
+                numero_documento: document.getElementById('cli-num-doc').value.trim()||null,
+                nombres: tipoPersona==='natural' ? document.getElementById('cli-nombres').value.trim() : null,
+                apellido_paterno: tipoPersona==='natural' ? document.getElementById('cli-ap').value.trim() : null,
+                apellido_materno: tipoPersona==='natural' ? document.getElementById('cli-am').value.trim() : null,
+                razon_social: tipoPersona==='juridica' ? document.getElementById('cli-razon-social').value.trim() : null,
+                email: document.getElementById('cli-email').value.trim()||null,
+                telefonos: telefonosArray,
+                direccion: document.getElementById('cli-direccion').value.trim()||null,
+                direcciones_entrega: gpsArray,
+                pais: document.getElementById('cli-pais').value.trim()||null,
+                estado_provincia: document.getElementById('cli-estado').value.trim()||null,
+                ciudad: document.getElementById('cli-ciudad').value.trim()||null,
+                tipo_cliente: document.getElementById('cli-tipo-cliente').value.trim()||null,
+                segmento_mercado: document.getElementById('cli-segmento').value.trim()||null,
+                canal_venta: document.getElementById('cli-canal').value.trim()||null,
+                tipo_negocio: document.getElementById('cli-tipo-negocio').value.trim()||null,
+                limite_credito: parseFloat(document.getElementById('cli-limite-credito').value)||null,
+                moneda_credito_id: monCreditoId,
+                dias_credito: parseInt(document.getElementById('cli-dias-credito').value)||null,
+                vendedor_asignado_id: document.getElementById('cli-vendedor').value||null,
+                lista_precios: parseJsonSeguro(document.getElementById('cli-lista-precios').value),
+                sucursales: parseJsonSeguro(document.getElementById('cli-sucursales').value)
+            };
+            try { const file = document.getElementById('file-cli-imagen').files[0]; if(file) payload.imagen = await uploadFile(file, 'clientes'); } catch {}
+            try {
+                if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); }
+                else await apiFetch('clientes', 'POST', payload);
+                cerrarModalCliente(); cargarClientes(); showNotification(id?'Cliente actualizado':'Cliente creado');
+            } catch(err) { showNotification('Error: '+err.message, 'error'); }
+        });
+        function parseJsonSeguro(valor) { if(!valor||!valor.trim()) return null; try { return JSON.parse(valor); } catch(e) { return null; } }
+
+        function prevenirSubmitEnter(e) {
+            if (e.key === 'Enter') {
+                const target = e.target;
+                if (target.tagName === 'TEXTAREA') return;
+                if (target.tagName === 'SELECT') { e.preventDefault(); return; }
+                if (target.tagName === 'INPUT' && (target.hasAttribute('list') || target.type === 'date' || target.type === 'number')) { e.preventDefault(); return; }
+                if (target.closest('button[type="submit"]')) return;
+                e.preventDefault();
+            }
+        }
+        document.querySelectorAll('form').forEach(f => { f.addEventListener('keydown', prevenirSubmitEnter); });
+
+        function navegarA(panel) {
+            document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+            document.querySelector(`.sidebar-menu a[data-panel="${panel}"]`)?.classList.add('active');
+            document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(`panel-${panel}`)?.classList.add('active');
+            if(panel==='inicio') cargarInicio(); else if(panel==='productos') cargarProductos(); else if(panel==='equipo') cargarEquipo('comercial'); else if(panel==='clientes') cargarClientes();
+        }
+        document.querySelectorAll('.sidebar-menu a[data-panel]').forEach(a => a.addEventListener('click', function(e) { e.preventDefault(); navegarA(this.dataset.panel); }));
+        function recargarTodo() { const panelActivo = document.querySelector('.section-panel.active')?.id?.replace('panel-',''); if(panelActivo) navegarA(panelActivo); showNotification('Datos actualizados'); }
+        window.onload = async function() { verificarSesion(); if(currentUser) { await cargarDatosIniciales(); llenarRolesSelect(); cargarInicio(); } };
+    </script>
+</body>
+</html>
