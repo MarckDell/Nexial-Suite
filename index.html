@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexial Suite · ERP Corporativo Inteligente</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; }
+        .navbar { position: fixed; top: 0; width: 100%; background: rgba(15,23,42,0.92); backdrop-filter: blur(12px); z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 0 32px; height: 72px; display: flex; align-items: center; justify-content: space-between; }
+        .logo-area { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon { font-size: 2.2rem; background: linear-gradient(135deg, #0066ff, #00c2ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 12px rgba(0,102,255,0.6)); animation: subtleGlow 3s ease-in-out infinite alternate; }
+        @keyframes subtleGlow { 0% { filter: drop-shadow(0 0 8px rgba(0,102,255,0.4)); } 100% { filter: drop-shadow(0 0 18px rgba(0,194,255,0.8)); } }
+        .logo-text { font-size: 1.5rem; font-weight: 700; background: linear-gradient(to right, #ffffff, #b0c4de); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-actions { display: flex; align-items: center; gap: 16px; }
+        .btn-outline { background: transparent; border: 1.5px solid rgba(255,255,255,0.35); color: white; padding: 10px 24px; border-radius: 40px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.25s; display: inline-flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.7); box-shadow: 0 0 18px rgba(0,150,255,0.3); }
+        .btn-solid { background: linear-gradient(135deg, #0066ff, #0080ff); border: none; color: white; padding: 11px 28px; border-radius: 40px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.25s; display: inline-flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; box-shadow: 0 8px 18px -6px rgba(0,102,255,0.5); }
+        .btn-solid:hover { background: linear-gradient(135deg, #0052cc, #0066ff); transform: translateY(-2px); }
+        .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 20% 20%, #0a1530, #040b1a); position: relative; overflow: hidden; padding: 120px 32px 80px; }
+        .hero::before { content: ""; position: absolute; width: 700px; height: 700px; background: radial-gradient(circle, rgba(0,102,255,0.15) 0%, transparent 70%); top: -200px; right: -100px; border-radius: 50%; }
+        .hero-content { position: relative; z-index: 2; max-width: 900px; text-align: center; }
+        .hero h1 { font-size: 3.8rem; font-weight: 700; background: linear-gradient(135deg, #ffffff 0%, #90b4f0 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 24px; letter-spacing: -0.02em; line-height: 1.2; }
+        .hero p { font-size: 1.25rem; color: #cbd5e6; max-width: 680px; margin: 0 auto 44px; }
+        .hero-buttons { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+        .btn-hero { padding: 16px 36px; font-size: 1rem; border-radius: 50px; font-weight: 600; transition: 0.3s; cursor: pointer; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 12px; }
+        .btn-hero-primary { background: white; color: #0a1530; border: none; box-shadow: 0 12px 28px -10px rgba(0,102,255,0.5); }
+        .btn-hero-primary:hover { background: #eef4ff; transform: translateY(-3px); }
+        .btn-hero-secondary { background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.3); color: white; }
+        .btn-hero-secondary:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.7); }
+        .section { padding: 100px 32px; max-width: 1300px; margin: 0 auto; }
+        .section-dark { background: #0f172a; color: #f1f5f9; }
+        .section-tag { display: inline-block; background: #e2e8f0; color: #1e3a5f; padding: 6px 18px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 16px; }
+        .section-dark .section-tag { background: #1e293b; color: #93c5fd; }
+        .section h2 { font-size: 2.8rem; font-weight: 700; margin-bottom: 24px; color: #0f172a; }
+        .section-dark h2 { color: #ffffff; }
+        .section .subtitle { font-size: 1.2rem; color: #475569; max-width: 700px; margin-bottom: 60px; }
+        .section-dark .subtitle { color: #94a3b8; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; }
+        .feature-card { background: white; border-radius: 28px; padding: 36px 28px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid #eef2f8; transition: 0.25s; }
+        .feature-card:hover { transform: translateY(-6px); box-shadow: 0 22px 38px -12px rgba(0,0,0,0.08); }
+        .feature-icon { font-size: 2.4rem; background: linear-gradient(135deg, #0066ff, #00a6ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
+        .feature-card h3 { font-size: 1.4rem; margin-bottom: 12px; color: #0f2b3d; }
+        .feature-card p { color: #4b5563; font-size: 0.95rem; }
+        .dark-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .dark-card h3 { color: #f1f5f9; }
+        .dark-card p { color: #cbd5e1; }
+        .trust-message { text-align: center; font-size: 1.25rem; color: #1e293b; font-weight: 500; margin-top: 40px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; text-align: center; margin-top: 40px; }
+        .stat-number { font-size: 3rem; font-weight: 700; background: linear-gradient(135deg, #0066ff, #00c2ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2,6,18,0.8); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 24px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 32px; padding: 40px 36px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 60px rgba(0,0,0,0.4); animation: modalIn 0.3s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .modal-header h2 { font-size: 1.8rem; font-weight: 700; color: #0f172a; }
+        .close-modal { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #64748b; }
+        .close-modal:hover { color: #0f172a; }
+        .form-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; }
+        .form-col { flex: 1; min-width: 180px; }
+        .form-group { margin-bottom: 4px; position: relative; }
+        .form-group label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #334155; display: block; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 14px; font-size: 0.9rem; font-family: 'Inter', sans-serif; }
+        .form-group input:focus { border-color: #0066ff; outline: none; box-shadow: 0 0 0 3px rgba(0,102,255,0.08); }
+        .error-input { border-color: #e74c3c !important; background: #fff9f8; }
+        .error-msg { color: #e74c3c; font-size: 0.7rem; margin-top: 4px; display: none; }
+        .error-msg.visible { display: block; }
+        .password-toggle { position: absolute; right: 14px; top: 38px; cursor: pointer; color: #64748b; background: none; border: none; font-size: 1.1rem; }
+        .modal-footer { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; flex-wrap: wrap; }
+        .notification { position: fixed; top: 24px; right: 32px; background: #1e293b; color: white; padding: 14px 28px; border-radius: 60px; font-weight: 500; z-index: 3000; box-shadow: 0 12px 28px rgba(0,0,0,0.3); display: none; align-items: center; gap: 10px; font-size: 0.9rem; }
+        .notification.error { background: #c2412c; }
+        .notification.success { background: #2c6e49; }
+        .footer { background: #0f172a; color: #94a3b8; text-align: center; padding: 32px; font-size: 0.85rem; }
+        .billing-note { font-size: 0.8rem; color: #5a6b7a; margin-top: 8px; }
+
+        /* Modal de bienvenida */
+        .welcome-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 20, 50, 0.85); backdrop-filter: blur(10px);
+            z-index: 4000; display: none; align-items: center; justify-content: center;
+        }
+        .welcome-overlay.active { display: flex; }
+        .welcome-card {
+            background: white; border-radius: 36px; padding: 48px 40px;
+            text-align: center; max-width: 480px; box-shadow: 0 40px 70px rgba(0,0,0,0.5);
+            animation: fadeInUp 0.5s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .welcome-card i { font-size: 4rem; background: linear-gradient(135deg, #0066ff, #00c2ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; display: block; }
+        .welcome-card h2 { font-size: 2rem; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+        .welcome-card p { color: #475569; margin-bottom: 24px; font-size: 1.1rem; }
+        .welcome-card .btn-solid { margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="#" class="logo-area">
+            <i class="fas fa-brain logo-icon"></i>
+            <span class="logo-text">Nexial Suite</span>
+        </a>
+        <div class="nav-actions">
+            <button class="btn-outline" onclick="window.location.href='login.html'">
+                <i class="fas fa-arrow-right-to-bracket"></i> Ingresar
+            </button>
+            <button class="btn-solid" onclick="abrirModalRegistro()">
+                <i class="fas fa-rocket"></i> Registrar Empresa
+            </button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>El ERP que acelera las grandes corporaciones</h1>
+            <p>Nexial Suite unifica finanzas, inventarios, ventas y talento humano en una plataforma diseñada para escalar sin límites. Seguridad empresarial, analítica en tiempo real y control total.</p>
+            <div class="hero-buttons">
+                <button class="btn-hero btn-hero-primary" onclick="window.location.href='login.html'">
+                    <i class="fas fa-building-columns"></i> Acceder a mi cuenta
+                </button>
+                <button class="btn-hero btn-hero-secondary" onclick="abrirModalRegistro()">
+                    <i class="fas fa-play"></i> Comenzar ahora
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN: Módulos explicados de forma sencilla -->
+    <section class="section">
+        <span class="section-tag">¿Qué hace Nexial Suite por su empresa?</span>
+        <h2>Beneficios claros para cada área de su negocio</h2>
+        <p class="subtitle">Piense en Nexial Suite como el asistente digital que ordena, conecta y acelera todas las operaciones diarias de su empresa, sin complicaciones técnicas.</p>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-pie"></i></div><h3>Vea la salud de su empresa en un solo vistazo</h3><p>Dashboard inteligente que muestra ganancias, gastos, deudas y tendencias. Tome decisiones con datos reales, no con intuición.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-boxes-stacked"></i></div><h3>Sepa exactamente qué tiene en cada almacén</h3><p>Control de inventario por lote, fecha de vencimiento y ubicación. Evite quiebres de stock o pérdidas por productos vencidos.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-file-invoice-dollar"></i></div><h3>Facture fácil y cobre más rápido</h3><p>Cree facturas profesionales en segundos, maneje múltiples monedas e impuestos, y envíe recordatorios de pago automáticos.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-users-gear"></i></div><h3>Administre a su equipo sin papeles</h3><p>Registre empleados, calcule nóminas, controle vacaciones y evalúe desempeño desde un solo lugar. RH sin estrés.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-truck-ramp-box"></i></div><h3>Compre mejor y reciba a tiempo</h3><p>Gestione proveedores, órdenes de compra y entregas. Sepa cuánto gasta y negocie con información precisa.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-shield-haltered"></i></div><h3>Proteja los datos de su empresa como un banco</h3><p>Cada usuario tiene acceso solo a lo que necesita. Cifrado de grado militar y copias de seguridad automáticas.</p></div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN: Ventajas operativas reales -->
+    <section class="section-dark" style="padding: 100px 32px;">
+        <div style="max-width: 1300px; margin: 0 auto;">
+            <span class="section-tag">Resultados comprobables</span>
+            <h2>Lo que consigue al cambiar a Nexial Suite</h2>
+            <p class="subtitle">Estas mejoras han sido medidas en empresas reales que ya utilizan nuestra plataforma. Sin trucos, sin promesas falsas.</p>
+            <div class="stats-grid">
+                <div><div class="stat-number">40%</div><p style="color: #94a3b8;">menos tiempo para cerrar la contabilidad mensual</p></div>
+                <div><div class="stat-number">99.9%</div><p style="color: #94a3b8;">de disponibilidad: el sistema siempre está en línea</p></div>
+                <div><div class="stat-number">+250</div><p style="color: #94a3b8;">funciones listas para usar, sin necesidad de programar</p></div>
+                <div><div class="stat-number">24/7</div><p style="color: #94a3b8;">soporte en español e inglés para resolver dudas</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN: Funcionalidades avanzadas explicadas -->
+    <section class="section">
+        <span class="section-tag">Más allá de lo básico</span>
+        <h2>Características que realmente facilitan el día a día</h2>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-globe"></i></div><h3>Trabaje en cualquier moneda y país</h3><p>El sistema se adapta a la moneda local de donde opere. Ideal si tiene sucursales en varios países.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-code-branch"></i></div><h3>Aprobaciones automáticas</h3><p>Defina quién autoriza compras o descuentos. Así evita gastos no permitidos y mantiene el control.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-robot"></i></div><h3>Alertas inteligentes</h3><p>Reciba avisos cuando un producto esté por agotarse, una factura venza o un empleado cumpla años.</p></div>
+            <div class="feature-card"><div class="feature-icon"><i class="fas fa-plug"></i></div><h3>Conéctelo con lo que ya usa</h3><p>Nexial Suite se comunica con otros programas mediante una API estándar. No tendrá que cambiar todo de golpe.</p></div>
+        </div>
+    </section>
+
+    <section class="section" style="padding-top: 20px;">
+        <span class="section-tag">Confianza</span>
+        <h2>Respaldo empresarial</h2>
+        <p class="subtitle">Corporaciones de distintos sectores ya optimizan sus operaciones con nuestra plataforma.</p>
+        <div class="trust-message">
+            <i class="fas fa-shield-alt" style="color: #0066ff; margin-right: 8px;"></i>
+            “Una plataforma robusta y segura que se adapta a procesos complejos sin perder simplicidad.”
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2026 Nexial Suite · ERP Corporativo. Todos los derechos reservados. | contacto@nexialsuite.com</p>
+    </footer>
+
+    <!-- MODAL DE REGISTRO -->
+    <div class="modal-overlay" id="modal-registro">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-building-circle-check"></i> Registrar empresa y administrador</h2>
+                <button class="close-modal" onclick="cerrarModalRegistro()">&times;</button>
+            </div>
+            <p style="margin-bottom: 20px; color: #475569; font-size: 0.9rem;">
+                Complete los datos de su corporación y del usuario administrador principal. Todos los campos con * son obligatorios.
+            </p>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Razón Social *</label><input id="reg-razon" placeholder="MI EMPRESA S.A." oninput="this.value = this.value.toUpperCase()" style="text-transform:uppercase;"></div></div>
+                <div class="form-col"><div class="form-group"><label>Nombre Comercial *</label><input id="reg-nombre" placeholder="Nombre Comercial" oninput="this.value = this.value.toUpperCase()" style="text-transform:uppercase;"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>NIT *</label><input id="reg-nit" placeholder="NIT o RUC"><div id="reg-nit-error" class="error-msg">Este NIT ya está registrado.</div></div></div>
+                <div class="form-col"><div class="form-group"><label>País</label><input id="reg-pais" list="paises-list" placeholder="Seleccione su país" autocomplete="off"><datalist id="paises-list"></datalist></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Estado / Provincia</label><input id="reg-estado" list="estados-list" placeholder="Estado o provincia" autocomplete="off"><datalist id="estados-list"></datalist></div></div>
+                <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="reg-ciudad" list="ciudades-list" placeholder="Ciudad" autocomplete="off"><datalist id="ciudades-list"></datalist></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Dirección</label><input id="reg-direccion" placeholder="Calle, número, piso" oninput="capitalizeWords(this)"></div></div>
+                <div class="form-col"><div class="form-group"><label>Teléfono</label><input id="reg-telefono" placeholder="Prefijo + número"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Email corporativo</label><input id="reg-email-empresa" type="email" placeholder="empresa@correo.com"></div></div>
+            </div>
+            <div class="billing-note" style="margin-bottom: 12px;">
+                <i class="fas fa-info-circle"></i> La plataforma operará en la moneda local de su país. Los servicios de Nexial Suite se facturan en dólares estadounidenses.
+            </div>
+            <hr style="margin: 16px 0; border-color: #e2e8f0;">
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Nombres *</label><input id="reg-nombres" placeholder="Juan" oninput="capitalizeWords(this)"></div></div>
+                <div class="form-col"><div class="form-group"><label>Apellido Paterno *</label><input id="reg-ap" placeholder="Pérez" oninput="capitalizeWords(this)"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Apellido Materno</label><input id="reg-am" placeholder="Gómez" oninput="capitalizeWords(this)"></div></div>
+                <div class="form-col"><div class="form-group"><label>Email *</label><input id="reg-email" type="email" placeholder="admin@empresa.com"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Teléfono</label><input id="reg-tel-usuario" placeholder="Prefijo + número"></div></div>
+                <div class="form-col"><div class="form-group"><label>Extensión</label><input id="reg-extension" placeholder="Código país" readonly style="background:#f1f5f9;"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Fecha de nacimiento</label><input id="reg-fecha-nac" type="date"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col" style="position:relative;">
+                    <div class="form-group"><label>Contraseña *</label><input id="reg-password" type="password" placeholder="Mínimo 6 caracteres"></div>
+                    <button type="button" class="password-toggle" tabindex="-1" onclick="togglePassword('reg-password', this)"><i class="far fa-eye"></i></button>
+                </div>
+                <div class="form-col" style="position:relative;">
+                    <div class="form-group"><label>Repetir contraseña *</label><input id="reg-password2" type="password" placeholder="Repita la contraseña"></div>
+                    <button type="button" class="password-toggle" tabindex="-1" onclick="togglePassword('reg-password2', this)"><i class="far fa-eye"></i></button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalRegistro()">Cancelar</button>
+                <button class="btn-solid" id="btn-registrar" onclick="registrarEmpresaYUsuario()">
+                    <i class="fas fa-check-circle"></i> Crear cuenta corporativa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE BIENVENIDA -->
+    <div class="welcome-overlay" id="welcomeOverlay">
+        <div class="welcome-card">
+            <i class="fas fa-brain"></i>
+            <h2>¡Bienvenido a Nexial Suite!</h2>
+            <p>Su empresa y cuenta de administrador han sido creadas exitosamente. A partir de ahora, usted tiene el control total de su gestión empresarial.</p>
+            <p style="font-size:0.85rem; color:#64748b;">Será redirigido a su panel de Director General en unos segundos...</p>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"><i class="fas fa-circle-info"></i><span></span></div>
+
+    <script>
+        const SUPABASE_URL = 'https://zgzwhyywkervutpvazqp.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
+        let paisesData = [];
+        let paisSeleccionado = null;
+        let estadosDisponibles = [];
+
+        // Función para capitalizar solo la primera letra después de espacios (respeta tildes)
+        function capitalizeWords(input) {
+            input.value = input.value.replace(/(^|\s)\S/g, function(c) {
+                return c.toUpperCase();
+            });
+        }
+
+        function showNotification(msg, type = 'success') {
+            const notif = document.getElementById('notification');
+            notif.querySelector('span').innerText = msg;
+            notif.className = `notification ${type}`;
+            notif.style.display = 'flex';
+            setTimeout(() => { notif.style.display = 'none'; }, 4000);
+        }
+
+        function showWelcomeModal() {
+            const overlay = document.getElementById('welcomeOverlay');
+            overlay.classList.add('active');
+            setTimeout(() => {
+                window.location.href = 'director_general.html';
+            }, 3500);
+        }
+
+        async function apiFetch(endpoint, method = 'GET', body = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`
+            };
+            if (method === 'POST' || method === 'PATCH') {
+                headers['Prefer'] = 'return=representation';
+            }
+            const options = { method, headers };
+            if (body) options.body = JSON.stringify(body);
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, options);
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(errText || `HTTP ${response.status}`);
+            }
+            const text = await response.text();
+            return text ? JSON.parse(text) : {};
+        }
+
+        async function cargarPaises() {
+            try {
+                const resp = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2,idd,currencies');
+                paisesData = await resp.json();
+                const datalist = document.getElementById('paises-list');
+                datalist.innerHTML = '';
+                paisesData.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.name.common;
+                    datalist.appendChild(opt);
+                });
+            } catch (e) {
+                console.warn('No se pudieron cargar los países');
+            }
+        }
+
+        function actualizarDatosPorPais(nombrePais) {
+            const pais = paisesData.find(p => p.name.common.toLowerCase() === nombrePais.toLowerCase());
+            if (!pais) {
+                paisSeleccionado = null;
+                document.getElementById('reg-extension').value = '';
+                document.getElementById('reg-telefono').value = '';
+                document.getElementById('reg-tel-usuario').value = '';
+                estadosDisponibles = [];
+                document.getElementById('estados-list').innerHTML = '';
+                document.getElementById('ciudades-list').innerHTML = '';
+                return;
+            }
+            paisSeleccionado = pais;
+            const rootCode = pais.idd?.root || '';
+            const suffixes = pais.idd?.suffixes || [];
+            const dialCode = suffixes.length === 1 ? rootCode + suffixes[0] : rootCode;
+            document.getElementById('reg-extension').value = dialCode || '';
+            if (dialCode) {
+                document.getElementById('reg-telefono').value = dialCode + ' ';
+                document.getElementById('reg-tel-usuario').value = dialCode + ' ';
+            }
+            cargarEstados(pais.name.common);
+        }
+
+        async function cargarEstados(countryName) {
+            const estadosList = document.getElementById('estados-list');
+            estadosList.innerHTML = '';
+            estadosDisponibles = [];
+            try {
+                const resp = await fetch('https://countriesnow.space/api/v0.1/countries/states', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ country: countryName })
+                });
+                const data = await resp.json();
+                if (data.error) return;
+                data.data.states.forEach(s => {
+                    estadosDisponibles.push(s.name);
+                    const opt = document.createElement('option');
+                    opt.value = s.name;
+                    estadosList.appendChild(opt);
+                });
+            } catch (e) { /* silencioso */ }
+        }
+
+        async function cargarCiudades(countryName, stateName) {
+            const ciudadesList = document.getElementById('ciudades-list');
+            ciudadesList.innerHTML = '';
+            if (!estadosDisponibles.includes(stateName)) return;
+            try {
+                const resp = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ country: countryName, state: stateName })
+                });
+                if (!resp.ok) return;
+                const data = await resp.json();
+                if (data.error) return;
+                data.data.forEach(city => {
+                    const opt = document.createElement('option');
+                    opt.value = city;
+                    ciudadesList.appendChild(opt);
+                });
+            } catch (e) { /* silencioso */ }
+        }
+
+        async function ensureCurrency(code, name, symbol) {
+            const exist = await apiFetch(`monedas?codigo=eq.${code.toUpperCase()}&select=id`);
+            if (exist && exist.length > 0) return exist[0].id;
+            const nueva = await apiFetch('monedas', 'POST', {
+                codigo: code.toUpperCase(),
+                nombre: name || code,
+                simbolo: symbol || null
+            });
+            return Array.isArray(nueva) ? nueva[0].id : nueva.id;
+        }
+
+        function abrirModalRegistro() {
+            document.getElementById('modal-registro').classList.add('active');
+        }
+
+        function cerrarModalRegistro() {
+            document.getElementById('modal-registro').classList.remove('active');
+        }
+
+        function togglePassword(fieldId, btn) {
+            const input = document.getElementById(fieldId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        async function validarNitUnico(nit) {
+            try {
+                const res = await apiFetch(`empresas?select=id&nit=eq.${encodeURIComponent(nit)}`);
+                return res.length === 0;
+            } catch(e) { return true; }
+        }
+
+        async function registrarEmpresaYUsuario() {
+            const razon = document.getElementById('reg-razon').value.trim();
+            const nombre = document.getElementById('reg-nombre').value.trim();
+            const nit = document.getElementById('reg-nit').value.trim();
+            const pais = document.getElementById('reg-pais').value.trim();
+            const ciudad = document.getElementById('reg-ciudad').value.trim();
+            const estado = document.getElementById('reg-estado').value.trim();
+            const direccion = document.getElementById('reg-direccion').value.trim();
+            const telefono = document.getElementById('reg-telefono').value.trim();
+            const emailEmpresa = document.getElementById('reg-email-empresa').value.trim();
+            const nombres = document.getElementById('reg-nombres').value.trim();
+            const ap = document.getElementById('reg-ap').value.trim();
+            const am = document.getElementById('reg-am').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const telUsuario = document.getElementById('reg-tel-usuario').value.trim();
+            const extension = document.getElementById('reg-extension').value.trim();
+            const fechaNac = document.getElementById('reg-fecha-nac').value;
+            const pass = document.getElementById('reg-password').value;
+            const pass2 = document.getElementById('reg-password2').value;
+
+            if (!razon || !nombre || !nit || !nombres || !ap || !email || !pass) {
+                showNotification('Complete todos los campos obligatorios (*)', 'error');
+                return;
+            }
+            if (pass !== pass2) {
+                showNotification('Las contraseñas no coinciden', 'error');
+                return;
+            }
+            if (pass.length < 6) {
+                showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
+                return;
+            }
+
+            const nitUnico = await validarNitUnico(nit);
+            if (!nitUnico) {
+                document.getElementById('reg-nit').classList.add('error-input');
+                document.getElementById('reg-nit-error').classList.add('visible');
+                showNotification('El NIT ya está registrado.', 'error');
+                return;
+            }
+
+            try {
+                let monedaId = null;
+                if (paisSeleccionado && paisSeleccionado.currencies) {
+                    const codigos = Object.keys(paisSeleccionado.currencies);
+                    if (codigos.length > 0) {
+                        const moneda = paisSeleccionado.currencies[codigos[0]];
+                        monedaId = await ensureCurrency(codigos[0], moneda.name, moneda.symbol || null);
+                    }
+                }
+                if (!monedaId) {
+                    const usd = await apiFetch('monedas?codigo=eq.USD&select=id');
+                    monedaId = usd[0].id;
+                }
+
+                const empresaPayload = {
+                    razon_social: razon,
+                    nombre_comercial: nombre,
+                    nit: nit,
+                    moneda_principal_id: monedaId,
+                    pais: pais || null,
+                    ciudad: ciudad || null,
+                    estado_provincia: estado || null,
+                    direccion: direccion || null,
+                    telefono: telefono || null,
+                    email: emailEmpresa || null,
+                    activa: true
+                };
+
+                const empresaCreada = await apiFetch('empresas', 'POST', empresaPayload);
+                const empresaId = Array.isArray(empresaCreada) ? empresaCreada[0]?.id : empresaCreada.id;
+                if (!empresaId) throw new Error('No se obtuvo ID de empresa.');
+
+                const hashResp = await apiFetch('rpc/crypt_password', 'POST', { pass: pass });
+                const usuarioPayload = {
+                    empresa_id: empresaId,
+                    nombres, apellido_paterno: ap, apellido_materno: am || null,
+                    email, password_hash: hashResp,
+                    rol: 'Director General',
+                    telefono: telUsuario || null,
+                    extension: extension || null,
+                    fecha_nacimiento: fechaNac || null,
+                    activo: true
+                };
+                const usuarioCreado = await apiFetch('usuarios', 'POST', usuarioPayload);
+                const usuarioId = Array.isArray(usuarioCreado) ? usuarioCreado[0]?.id : usuarioCreado.id;
+                if (!usuarioId) throw new Error('No se obtuvo ID de usuario.');
+
+                const sessionUser = {
+                    id: usuarioId,
+                    empresa_id: empresaId,
+                    nombres: nombres,
+                    apellido_paterno: ap,
+                    email: email,
+                    rol: 'Director General'
+                };
+                sessionStorage.setItem('currentUser', JSON.stringify(sessionUser));
+
+                // Mostrar el modal de bienvenida en lugar de la notificación común
+                document.getElementById('modal-registro').classList.remove('active');
+                showWelcomeModal();
+
+            } catch (err) {
+                console.error(err);
+                if (err.message.includes('usuarios_email_key') || err.message.includes('duplicate key')) {
+                    showNotification('El email ya está registrado en el sistema.', 'error');
+                } else if (err.message.includes('nit')) {
+                    document.getElementById('reg-nit').classList.add('error-input');
+                    document.getElementById('reg-nit-error').classList.add('visible');
+                    showNotification('Error con el NIT.', 'error');
+                } else {
+                    showNotification('Error al registrar: ' + err.message, 'error');
+                }
+            }
+        }
+
+        document.getElementById('reg-pais').addEventListener('input', function() {
+            const val = this.value;
+            if (val.length > 0) actualizarDatosPorPais(val);
+        });
+
+        document.getElementById('reg-estado').addEventListener('input', function() {
+            const pais = document.getElementById('reg-pais').value;
+            const estado = this.value;
+            if (pais && estado && estadosDisponibles.includes(estado)) {
+                cargarCiudades(pais, estado);
+            } else {
+                document.getElementById('ciudades-list').innerHTML = '';
+            }
+        });
+
+        window.onload = () => {
+            cargarPaises();
+        };
+    </script>
+</body>
+</html>
