@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Nexial Suite | Panel Corporativo</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: #eef2f9;
+            color: #1a2c3e;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #0f172a 0%, #0b1120 100%);
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.08);
+            z-index: 10;
+        }
+
+        .brand {
+            padding: 32px 24px 28px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 24px;
+        }
+
+        .brand h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #FFFFFF 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .brand p {
+            font-size: 0.75rem;
+            color: #7c8ba0;
+            margin-top: 6px;
+        }
+
+        .nav-buttons {
+            flex: 1;
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: #cbd5e6;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: left;
+            padding: 12px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: 0.2s;
+        }
+
+        .nav-btn i { width: 24px; font-size: 1.2rem; }
+        .nav-btn:hover { background: rgba(255,255,255,0.08); color: white; }
+        .nav-btn.active { background: #2d3b5c; color: white; }
+
+        .logout-container {
+            padding: 24px 20px 32px 20px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid rgba(231, 76, 60, 0.4);
+            color: #ffaaa5;
+            padding: 12px;
+            width: 100%;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover { background: #e74c3c; color: white; border-color: #e74c3c; }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 36px;
+            background: #f8fafc;
+        }
+
+        .section { display: none; animation: fadeIn 0.25s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-header h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            background: linear-gradient(120deg, #1e293b, #2c3e66);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .btn-primary {
+            background: #1e2b3c;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
+        }
+        .btn-primary:hover { background: #0f1a2a; transform: translateY(-1px); }
+
+        .btn-success { background: #2c6e49; color: white; border: none; padding: 10px 18px; border-radius: 40px; cursor: pointer; }
+        .btn-secondary { background: #e2e8f0; color: #1e293b; border: none; padding: 10px 18px; border-radius: 40px; cursor: pointer; }
+        .btn-danger { background: #c2412c; color: white; border: none; padding: 6px 12px; border-radius: 30px; font-size: 0.75rem; cursor: pointer; margin-left: 6px; }
+        .btn-danger:hover { background: #9b2f1c; }
+
+        .form-container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+            padding: 28px 32px;
+            margin-bottom: 32px;
+            border: 1px solid #e9edf2;
+            display: none;
+        }
+        .form-container.active { display: block; }
+
+        .form-title {
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            border-left: 5px solid #2c6e49;
+            padding-left: 16px;
+        }
+
+        .row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 18px; }
+        .col { flex: 1; min-width: 180px; }
+        .form-group { margin-bottom: 6px; }
+        label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #4a5b6e; display: block; margin-bottom: 6px; }
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        input:focus, select:focus { border-color: #2d6a4f; outline: none; box-shadow: 0 0 0 3px rgba(45,106,79,0.1); }
+        .error-input { border-color: #e74c3c !important; background: #fff9f8; }
+        .error-message { color: #e74c3c; font-size: 0.7rem; margin-top: 5px; display: none; }
+        .error-message.visible { display: block; }
+
+        .data-table {
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            border-collapse: collapse;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+        .data-table th { background: #f1f5f9; padding: 16px 20px; text-align: left; font-weight: 600; font-size: 0.8rem; color: #334155; }
+        .data-table td { padding: 14px 20px; border-bottom: 1px solid #ecf3fa; font-size: 0.9rem; }
+        .data-table tr:hover td { background-color: #fafcff; }
+        .action-btn { background: none; border: none; color: #3b6e9e; cursor: pointer; padding: 6px 10px; border-radius: 40px; }
+        .action-btn:hover { background: #eef2ff; }
+
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 32px;
+            background: #1f2c38;
+            color: white;
+            padding: 14px 26px;
+            border-radius: 60px;
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            gap: 12px;
+        }
+        .notification.error { background: #c2412c; }
+        .notification.info { background: #2c6e49; }
+
+        @media (max-width: 780px) {
+            .sidebar { width: 80px; }
+            .sidebar .brand h1, .sidebar .brand p, .nav-btn span:not(i) { display: none; }
+            .nav-btn i { margin: 0 auto; font-size: 1.5rem; }
+            .nav-btn { justify-content: center; padding: 12px 0; }
+            .logout-btn span { display: none; }
+            .main-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="brand">
+        <h1><i class="fas fa-brain"></i> Nexial Suite</h1>
+        <p>Corporate Governance</p>
+    </div>
+    <div class="nav-buttons">
+        <button class="nav-btn active" onclick="showSection('empresas')"><i class="fas fa-building"></i><span>Empresas</span></button>
+        <button class="nav-btn" onclick="showSection('usuarios')"><i class="fas fa-users"></i><span>Usuarios</span></button>
+    </div>
+    <div class="logout-container">
+        <button class="logout-btn" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i><span>Cerrar sesión</span></button>
+    </div>
+</div>
+
+<div class="main-content">
+    <div id="notification" class="notification"><i class="fas fa-circle-info"></i><span></span></div>
+
+    <!-- SECCIÓN EMPRESAS -->
+    <div id="empresas-section" class="section active">
+        <div class="page-header">
+            <h1><i class="fas fa-building"></i> Gestión de Empresas</h1>
+            <button class="btn-primary" onclick="toggleFormularioEmpresa(true)"><i class="fas fa-plus-circle"></i> Nueva empresa</button>
+        </div>
+
+        <div id="empresa-form" class="form-container">
+            <div class="form-title">➕ Registrar empresa</div>
+            <input type="hidden" id="empresa-id">
+            <div class="row">
+                <div class="col"><div class="form-group"><label>Razón Social *</label><input id="emp-razon"></div></div>
+                <div class="col"><div class="form-group"><label>Nombre Comercial *</label><input id="emp-nombre"></div></div>
+            </div>
+            <div class="row">
+                <div class="col"><div class="form-group"><label>NIT *</label><input id="emp-nit"><div id="nit-error" class="error-message">⚠️ Este NIT ya está registrado</div></div></div>
+                <div class="col"><div class="form-group"><label>Moneda Principal</label><select id="emp-moneda"></select></div></div>
+            </div>
+            <div class="row">
+                <div class="col"><div class="form-group"><label>Dirección</label><input id="emp-direccion"></div></div>
+                <div class="col"><div class="form-group"><label>Ciudad</label><input id="emp-ciudad"></div></div>
+            </div>
+            <div class="row">
+                <div class="col"><div class="form-group"><label>Estado / Provincia</label><input id="emp-estado"></div></div>
+                <div class="col"><div class="form-group"><label>País</label><input id="emp-pais"></div></div>
+            </div>
+            <div class="row">
+                <div class="col"><div class="form-group"><label>Teléfono</label><input id="emp-telefono"></div></div>
+                <div class="col"><div class="form-group"><label>Email</label><input id="emp-email" type="email"></div></div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-success" onclick="guardarEmpresa()"><i class="fas fa-save"></i> Guardar</button>
+                <button class="btn-secondary" onclick="toggleFormularioEmpresa(false)">Cancelar</button>
+            </div>
+        </div>
+
+        <table class="data-table" id="empresas-table">
+            <thead><tr><th>Razón Social</th><th>NIT</th><th>Ciudad</th><th>Moneda</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- SECCIÓN USUARIOS (con jerarquía completa) -->
+    <div id="usuarios-section" class="section">
+        <div class="page-header">
+            <h1><i class="fas fa-user-shield"></i> Usuarios por jerarquía</h1>
+            <button class="btn-primary" onclick="toggleFormularioUsuario(true)"><i class="fas fa-user-plus"></i> Nuevo usuario</button>
+        </div>
+
+        <div id="usuario-form" class="form-container">
+            <div class="form-title">👤 Datos de usuario y rango</div>
+            <input type="hidden" id="usuario-id">
+            <div class="row">
+                <div class="col"><div class="form-group"><label>Nombres *</label><input id="usr-nombres"></div></div>
+                <div class="col"><div class="form-group"><label>Apellido Paterno *</label><input id="usr-ap"></div></div>
+            </div>
+            <div class="row">
+                <div class="col"><div class="form-group"><label>Apellido Materno</label><input id="usr-am"></div></div>
+                <div class="col"><div class="form-group"><label>Email *</label><input id="usr-email" type="email"></div></div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group"><label>Rango / Jerarquía *</label>
+                        <select id="usr-rol">
+                            <option value="Director Corporativo">Director Corporativo</option>
+                            <option value="Director General">Director General (CEO)</option>
+                            <option value="Director Financiero">Director Financiero (CFO)</option>
+                            <option value="Supervisor Senior">Supervisor Senior</option>
+                            <option value="Ejecutivo Comercial">Ejecutivo Comercial</option>
+                            <option value="Especialista Logístico">Especialista Logístico</option>
+                            <option value="Gestor de Almacén">Gestor de Almacén</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col"><div class="form-group"><label>Empresa *</label><select id="usr-empresa" required></select></div></div>
+            </div>
+            <div class="row">
+                <div class="col"><div class="form-group"><label>Contraseña</label><input id="usr-password" type="password" placeholder="Nueva contraseña (si se requiere cambio)"></div></div>
+                <div class="col"><div class="form-group"><label>Teléfono</label><input id="usr-telefono"></div></div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-success" onclick="guardarUsuario()"><i class="fas fa-check-circle"></i> Guardar</button>
+                <button class="btn-secondary" onclick="toggleFormularioUsuario(false)">Cancelar</button>
+            </div>
+        </div>
+
+        <table class="data-table" id="usuarios-table">
+            <thead><tr><th>Nombre completo</th><th>Email</th><th>Rango</th><th>Empresa</th><th>Activo</th><th>Acciones</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Configuración Supabase
+    const SUPABASE_URL = 'https://zgzwhyywkervutpvazqp.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
+    let currentUser = null;
+
+    // Notificaciones
+    function showNotification(msg, type = 'info') {
+        const notif = document.getElementById('notification');
+        const span = notif.querySelector('span');
+        span.innerText = msg;
+        notif.className = `notification ${type}`;
+        notif.style.display = 'flex';
+        setTimeout(() => notif.style.display = 'none', 4000);
+    }
+
+    // Verificación estricta: solo Director Corporativo
+    function checkSession() {
+        const stored = sessionStorage.getItem('currentUser');
+        if (!stored) {
+            window.location.replace('login.html');
+            return;
+        }
+        currentUser = JSON.parse(stored);
+        if (currentUser.rol !== 'Director Corporativo') {
+            alert('Acceso denegado. Solo el Director Corporativo puede acceder a este panel.');
+            window.location.replace('login.html');
+        }
+    }
+
+    // API Wrapper
+    async function apiFetch(endpoint, method = 'GET', body = null) {
+        const headers = {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+        };
+        const options = { method, headers };
+        if (body && (method === 'POST' || method === 'PATCH' || method === 'PUT')) options.body = JSON.stringify(body);
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, options);
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(errText || `HTTP ${response.status}`);
+        }
+        const text = await response.text();
+        return text ? JSON.parse(text) : {};
+    }
+
+    // ==================== ELIMINAR EMPRESA ====================
+    async function eliminarEmpresa(id, razonSocial) {
+        if (currentUser && currentUser.empresa_id === id) {
+            showNotification('No puedes eliminar tu propia empresa.', 'error');
+            return;
+        }
+        if (!confirm(`¿Eliminar permanentemente la empresa "${razonSocial}"? Se eliminarán todos sus datos asociados si no hay restricciones.`)) return;
+        try {
+            await apiFetch(`empresas?id=eq.${id}`, 'DELETE');
+            showNotification(`Empresa "${razonSocial}" eliminada.`, 'info');
+            cargarEmpresas();
+        } catch (error) {
+            if (error.message.includes('foreign key')) showNotification('No se puede eliminar: existen usuarios u otros registros vinculados.', 'error');
+            else showNotification('Error: ' + error.message, 'error');
+        }
+    }
+
+    // ==================== EMPRESAS ====================
+    async function cargarEmpresas() {
+        try {
+            const empresas = await apiFetch('empresas?select=*,monedas(codigo)');
+            const tbody = document.querySelector('#empresas-table tbody');
+            tbody.innerHTML = '';
+            for (const emp of empresas) {
+                const moneda = emp.monedas?.codigo || 'USD';
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${escapeHtml(emp.razon_social)}</td>
+                    <td>${escapeHtml(emp.nit)}</td>
+                    <td>${escapeHtml(emp.ciudad || '-')}</td>
+                    <td>${moneda}</td>
+                    <td>${emp.activa ? '✓ Activa' : 'Inactiva'}</td>
+                    <td>
+                        <button class="action-btn" onclick="editarEmpresa('${emp.id}')"><i class="fas fa-edit"></i> Editar</button>
+                        <button class="btn-danger" onclick="eliminarEmpresa('${emp.id}', '${escapeHtml(emp.razon_social).replace(/'/g, "\\'")}')"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                    </td>
+                `;
+            }
+        } catch (e) { showNotification('Error al cargar empresas', 'error'); }
+    }
+
+    async function cargarMonedas() {
+        const select = document.getElementById('emp-moneda');
+        select.innerHTML = '';
+        try {
+            const monedas = await apiFetch('monedas?select=*');
+            monedas.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.textContent = `${m.codigo} - ${m.nombre}`;
+                select.appendChild(opt);
+            });
+        } catch(e) { console.warn(e); }
+    }
+
+    function toggleFormularioEmpresa(show) {
+        const form = document.getElementById('empresa-form');
+        if (show) {
+            form.classList.add('active');
+            if (!document.getElementById('emp-moneda').options.length) cargarMonedas();
+            document.getElementById('emp-nit').classList.remove('error-input');
+            document.getElementById('nit-error').classList.remove('visible');
+        } else {
+            form.classList.remove('active');
+            document.getElementById('empresa-id').value = '';
+            document.querySelectorAll('#empresa-form input').forEach(i => i.value = '');
+        }
+    }
+
+    async function validarNitUnico(nit, excludeId = null) {
+        let query = `empresas?select=id&nit=eq.${encodeURIComponent(nit)}`;
+        if (excludeId) query += `&id=neq.${excludeId}`;
+        const res = await apiFetch(query, 'GET');
+        return res.length === 0;
+    }
+
+    async function guardarEmpresa() {
+        const id = document.getElementById('empresa-id').value;
+        const nit = document.getElementById('emp-nit').value.trim();
+        const razon = document.getElementById('emp-razon').value.trim();
+        const nombre = document.getElementById('emp-nombre').value.trim();
+        if (!razon || !nombre || !nit) { showNotification('Complete Razón Social, Nombre Comercial y NIT', 'error'); return; }
+        const nitUnico = await validarNitUnico(nit, id || null);
+        if (!nitUnico) {
+            document.getElementById('emp-nit').classList.add('error-input');
+            document.getElementById('nit-error').classList.add('visible');
+            showNotification('NIT ya registrado', 'error');
+            return;
+        } else {
+            document.getElementById('emp-nit').classList.remove('error-input');
+            document.getElementById('nit-error').classList.remove('visible');
+        }
+        const payload = {
+            razon_social: razon, nombre_comercial: nombre, nit: nit,
+            moneda_principal_id: document.getElementById('emp-moneda').value,
+            direccion: document.getElementById('emp-direccion').value,
+            ciudad: document.getElementById('emp-ciudad').value,
+            estado_provincia: document.getElementById('emp-estado').value,
+            pais: document.getElementById('emp-pais').value,
+            telefono: document.getElementById('emp-telefono').value,
+            email: document.getElementById('emp-email').value,
+            activa: true
+        };
+        try {
+            if (id) { await apiFetch(`empresas?id=eq.${id}`, 'PATCH', payload); showNotification('Empresa actualizada', 'info'); }
+            else { await apiFetch('empresas', 'POST', payload); showNotification('Empresa creada', 'info'); }
+            toggleFormularioEmpresa(false);
+            cargarEmpresas();
+        } catch (err) {
+            showNotification('Error: ' + (err.message.includes('duplicate') ? 'NIT duplicado' : err.message), 'error');
+        }
+    }
+
+    async function editarEmpresa(id) {
+        try {
+            const empresas = await apiFetch(`empresas?id=eq.${id}`);
+            if (!empresas.length) return;
+            const e = empresas[0];
+            document.getElementById('empresa-id').value = e.id;
+            document.getElementById('emp-razon').value = e.razon_social;
+            document.getElementById('emp-nombre').value = e.nombre_comercial;
+            document.getElementById('emp-nit').value = e.nit;
+            document.getElementById('emp-direccion').value = e.direccion || '';
+            document.getElementById('emp-ciudad').value = e.ciudad || '';
+            document.getElementById('emp-estado').value = e.estado_provincia || '';
+            document.getElementById('emp-pais').value = e.pais || '';
+            document.getElementById('emp-telefono').value = e.telefono || '';
+            document.getElementById('emp-email').value = e.email || '';
+            await cargarMonedas();
+            document.getElementById('emp-moneda').value = e.moneda_principal_id;
+            document.getElementById('empresa-form').classList.add('active');
+        } catch (err) { showNotification('Error al cargar empresa', 'error'); }
+    }
+
+    // ==================== USUARIOS (con jerarquía completa) ====================
+    async function cargarUsuarios() {
+        try {
+            const usuarios = await apiFetch('usuarios?select=*,empresas(razon_social)');
+            const tbody = document.querySelector('#usuarios-table tbody');
+            tbody.innerHTML = '';
+            for (const u of usuarios) {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${escapeHtml(u.nombres)} ${escapeHtml(u.apellido_paterno)}</td>
+                    <td>${escapeHtml(u.email)}</td>
+                    <td>${escapeHtml(u.rol)}</td>
+                    <td>${escapeHtml(u.empresas?.razon_social || '—')}</td>
+                    <td>${u.activo ? '✅ Activo' : '❌ Inactivo'}</td>
+                    <td><button class="action-btn" onclick="editarUsuario('${u.id}')"><i class="fas fa-pen"></i> Editar</button></td>
+                `;
+            }
+            // Cargar empresas para el select del formulario
+            const empresas = await apiFetch('empresas?select=id,razon_social');
+            const selectEmp = document.getElementById('usr-empresa');
+            selectEmp.innerHTML = '';
+            empresas.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e.id;
+                opt.textContent = e.razon_social;
+                selectEmp.appendChild(opt);
+            });
+        } catch (e) { showNotification('Error al cargar usuarios', 'error'); }
+    }
+
+    function toggleFormularioUsuario(show) {
+        const form = document.getElementById('usuario-form');
+        if (show) {
+            form.classList.add('active');
+        } else {
+            form.classList.remove('active');
+            document.getElementById('usuario-id').value = '';
+            document.querySelectorAll('#usuario-form input:not([type=hidden])').forEach(i => i.value = '');
+            document.getElementById('usr-password').value = '';
+        }
+    }
+
+    async function guardarUsuario() {
+        const id = document.getElementById('usuario-id').value;
+        const email = document.getElementById('usr-email').value.trim();
+        const nombres = document.getElementById('usr-nombres').value.trim();
+        const apPaterno = document.getElementById('usr-ap').value.trim();
+        if (!email || !nombres || !apPaterno) {
+            showNotification('Nombres, apellido paterno y email son obligatorios', 'error');
+            return;
+        }
+        const usuarioData = {
+            nombres, apellido_paterno: apPaterno,
+            apellido_materno: document.getElementById('usr-am').value.trim(),
+            email, rol: document.getElementById('usr-rol').value,
+            empresa_id: document.getElementById('usr-empresa').value,
+            telefono: document.getElementById('usr-telefono').value.trim(),
+            activo: true
+        };
+        const password = document.getElementById('usr-password').value;
+        if (password) {
+            try {
+                const hashResp = await apiFetch('rpc/crypt_password', 'POST', { pass: password });
+                usuarioData.password_hash = hashResp;
+            } catch (e) { showNotification('Error al cifrar contraseña', 'error'); return; }
+        } else if (!id) {
+            showNotification('Debe establecer una contraseña para el nuevo usuario.', 'error');
+            return;
+        }
+        try {
+            if (id) {
+                if (!password) delete usuarioData.password_hash;
+                await apiFetch(`usuarios?id=eq.${id}`, 'PATCH', usuarioData);
+                showNotification('Usuario actualizado', 'info');
+            } else {
+                await apiFetch('usuarios', 'POST', usuarioData);
+                showNotification('Usuario creado exitosamente', 'info');
+            }
+            toggleFormularioUsuario(false);
+            cargarUsuarios();
+        } catch (err) {
+            if (err.message.includes('duplicate key') || err.message.includes('email')) showNotification('El email ya está registrado.', 'error');
+            else showNotification('Error: ' + err.message, 'error');
+        }
+    }
+
+    async function editarUsuario(id) {
+        try {
+            const users = await apiFetch(`usuarios?id=eq.${id}&select=*`);
+            if (!users.length) return;
+            const u = users[0];
+            document.getElementById('usuario-id').value = u.id;
+            document.getElementById('usr-nombres').value = u.nombres;
+            document.getElementById('usr-ap').value = u.apellido_paterno;
+            document.getElementById('usr-am').value = u.apellido_materno || '';
+            document.getElementById('usr-email').value = u.email;
+            document.getElementById('usr-rol').value = u.rol;
+            document.getElementById('usr-telefono').value = u.telefono || '';
+            document.getElementById('usr-password').value = '';
+            await cargarUsuarios(); // asegura que el select de empresas esté lleno
+            document.getElementById('usr-empresa').value = u.empresa_id;
+            document.getElementById('usuario-form').classList.add('active');
+        } catch (e) { showNotification('Error al cargar usuario', 'error'); }
+    }
+
+    // ==================== NAVEGACIÓN ====================
+    function showSection(section) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(`${section}-section`).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.closest('.nav-btn').classList.add('active');
+        if (section === 'empresas') cargarEmpresas();
+        if (section === 'usuarios') cargarUsuarios();
+    }
+
+    function cerrarSesion() {
+        sessionStorage.removeItem('currentUser');
+        window.location.replace('login.html');
+    }
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ return m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'); }); }
+
+    window.onload = () => {
+        checkSession();
+        cargarEmpresas();
+        cargarMonedas();
+    };
+</script>
+</body>
+</html>
