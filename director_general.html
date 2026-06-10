@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexial Suite · Panel Directivo</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 0 32px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #0066ff, #00c2ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(0, 102, 255, 0.6));
+            animation: subtleGlow 3s ease-in-out infinite alternate;
+        }
+        @keyframes subtleGlow {
+            0% {
+                filter: drop-shadow(0 0 8px rgba(0, 102, 255, 0.4));
+            }
+            100% {
+                filter: drop-shadow(0 0 18px rgba(0, 194, 255, 0.8));
+            }
+        }
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #b0c4de);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.10);
+            backdrop-filter: blur(8px);
+            transition: 0.25s;
+        }
+        .user-info:hover {
+            background: rgba(255,255,255,0.10);
+            border-color: rgba(255,255,255,0.20);
+        }
+        .user-icon {
+            font-size: 1.6rem;
+            color: #0066ff;
+            filter: drop-shadow(0 0 6px rgba(0,102,255,0.5));
+        }
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+        }
+        .user-name {
+            font-weight: 700;
+            font-size: 1.15rem;
+            letter-spacing: 0.2px;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .user-role-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #0066ff, #4da6ff);
+            padding: 3px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            width: fit-content;
+            margin-top: 4px;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,102,255,0.3);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 18px rgba(0, 150, 255, 0.3);
+        }
+        .btn-solid {
+            background: #0066ff;
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-solid:hover {
+            background: #0052cc;
+            box-shadow: 0 0 18px rgba(0, 102, 255, 0.4);
+        }
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: 0.2s;
+        }
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .dashboard-container {
+            margin-top: 72px;
+            display: flex;
+            min-height: calc(100vh - 72px);
+        }
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 32px 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 72px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+        .sidebar-menu {
+            list-style: none;
+            flex: 1;
+        }
+        .sidebar-menu li {
+            padding: 0 24px;
+            margin-bottom: 4px;
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            border-radius: 14px;
+            color: #475569;
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: #f1f5f9;
+            color: #0066ff;
+            font-weight: 600;
+        }
+        .sidebar-menu a i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 40px;
+            background: #f8fafc;
+        }
+        .section-panel {
+            display: none;
+        }
+        .section-panel.active {
+            display: block;
+        }
+        /* PESTAÑAS (nuevo estilo) */
+        .tabs-nav {
+            display: flex;
+            gap: 0;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            padding: 14px 24px;
+            border: none;
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        .tab-btn i {
+            font-size: 1.1rem;
+        }
+        .tab-btn:hover {
+            color: #334155;
+            background: rgba(0,102,255,0.03);
+        }
+        .tab-btn.active {
+            color: #0066ff;
+            border-bottom-color: #0066ff;
+            background: rgba(0,102,255,0.04);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            margin-bottom: 28px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .card-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .filtros {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .filtros select,
+        .filtros input,
+        .filtros button {
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1.5px solid #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            background: white;
+            font-size: 0.85rem;
+        }
+        .filtros button {
+            background: #0066ff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .filtros button:hover {
+            background: #0052cc;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th,
+        td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+        th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+        tr:hover td {
+            background: #f1f5f9;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-edit {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+        .btn-delete {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .btn-activate {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .btn-edit:hover {
+            background: #bae6fd;
+        }
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+        .btn-activate:hover {
+            background: #bbf7d0;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 18, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            border-radius: 32px;
+            padding: 40px 36px;
+            max-width: 1000px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+        .modal-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .form-col {
+            flex: 1;
+            min-width: 180px;
+        }
+        .form-group {
+            margin-bottom: 4px;
+            position: relative;
+        }
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #0066ff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.08);
+        }
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 38px;
+            cursor: pointer;
+            color: #64748b;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+        }
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 32px;
+            background: #1e293b;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 60px;
+            font-weight: 500;
+            z-index: 3000;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        .notification.error {
+            background: #c2412c;
+        }
+        .notification.success {
+            background: #2c6e49;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .badge-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .graficos-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 900px) {
+            .graficos-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .grafico-box {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            min-width: 300px;
+        }
+        .grafico-box h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .file-upload-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        /* TOOLTIP PERSONALIZADO */
+        .tooltip-trigger {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: help;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .tooltip-trigger:hover {
+            background: #0066ff;
+            transform: scale(1.1);
+        }
+        .tooltip-trigger .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #f1f5f9;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 400;
+            white-space: normal;
+            width: 240px;
+            text-align: left;
+            line-height: 1.5;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+            z-index: 5000;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            letter-spacing: 0.2px;
+            text-transform: none;
+        }
+        .tooltip-trigger .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #0f172a transparent transparent transparent;
+        }
+        .tooltip-trigger:hover .tooltip-text,
+        .tooltip-trigger:focus .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        /* Ajuste para tooltips en modales (overflow) */
+        .modal .tooltip-trigger .tooltip-text {
+            position: fixed;
+            bottom: auto;
+            top: auto;
+            left: auto;
+            transform: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo-area">
+            <i class="fas fa-brain logo-icon"></i>
+            <span class="logo-text">Nexial Suite</span>
+        </a>
+        <div class="nav-actions">
+            <div class="user-info" id="user-display"></div>
+            <button class="btn-icon" onclick="recargarTodo()" title="Actualizar datos"><i class="fas fa-sync-alt"></i></button>
+            <button class="btn-outline" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#" data-panel="dashboard" class="active"><i class="fas fa-grid-2"></i> Inicio</a></li>
+                <li><a href="#" data-panel="empresa"><i class="fas fa-building"></i> Mi Empresa</a></li>
+            </ul>
+        </aside>
+        <main class="main-content">
+            <!-- PANEL INICIO -->
+            <section id="panel-dashboard" class="section-panel active">
+                <!-- PESTAÑAS -->
+                <div class="tabs-nav" id="tabs-nav">
+                    <button class="tab-btn active" data-tab="resumen"><i class="fas fa-chart-pie"></i> Resumen General</button>
+                    <button class="tab-btn" data-tab="clientes"><i class="fas fa-building"></i> Clientes</button>
+                    <button class="tab-btn" data-tab="productos"><i class="fas fa-box"></i> Productos</button>
+                    <button class="tab-btn" data-tab="equipo"><i class="fas fa-users"></i> Equipo</button>
+                </div>
+                <div id="tab-resumen" class="tab-content active"></div>
+                <div id="tab-clientes" class="tab-content"></div>
+                <div id="tab-productos" class="tab-content"></div>
+                <div id="tab-equipo" class="tab-content"></div>
+            </section>
+
+            <!-- PANEL EMPRESA -->
+            <section id="panel-empresa" class="section-panel">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Información de la Empresa</h2>
+                        <button class="btn-solid" id="btn-editar-empresa" onclick="habilitarEdicionEmpresa()"><i class="fas fa-pen-to-square"></i> Editar</button>
+                    </div>
+                    <form id="form-empresa">
+                        <div class="form-row">
+                            <div class="form-col"><div class="form-group"><label>Razón Social *</label><input id="emp-razon" disabled required style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase()"></div></div>
+                            <div class="form-col"><div class="form-group"><label>Nombre Comercial *</label><input id="emp-nombre" disabled required style="text-transform:uppercase;" oninput="this.value = this.value.toUpperCase()"></div></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col"><div class="form-group"><label>NIT *</label><input id="emp-nit" disabled required></div></div>
+                            <div class="form-col"><div class="form-group"><label>Moneda Principal *</label><input id="emp-moneda-input" list="monedas-global-list" autocomplete="off" disabled required><datalist id="monedas-global-list"></datalist></div></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col"><div class="form-group"><label>País</label><input id="emp-pais" list="paises-list-emp" autocomplete="off" disabled><datalist id="paises-list-emp"></datalist></div></div>
+                            <div class="form-col"><div class="form-group"><label>Estado</label><input id="emp-estado" list="emp-estados-list" autocomplete="off" disabled><datalist id="emp-estados-list"></datalist></div></div>
+                            <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="emp-ciudad" list="emp-ciudades-list" autocomplete="off" disabled><datalist id="emp-ciudades-list"></datalist></div></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col"><div class="form-group"><label>Dirección</label><input id="emp-direccion" disabled></div></div>
+                            <div class="form-col"><div class="form-group"><label>Teléfono</label><input id="emp-telefono" disabled></div></div>
+                            <div class="form-col"><div class="form-group"><label>Email Corporativo</label><input id="emp-email" type="email" disabled></div></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col"><div class="form-group"><label>Logotipo</label><div class="file-upload-area"><input type="file" id="file-logotipo" accept="image/*" disabled><span id="logotipo-preview"></span></div></div></div>
+                            <div class="form-col"><div class="form-group"><label>Imagen corporativa</label><div class="file-upload-area"><input type="file" id="file-imagen" accept="image/*" disabled><span id="imagen-preview"></span></div></div></div>
+                        </div>
+                        <div id="botones-edicion-empresa" style="display:none; gap:12px;">
+                            <button type="button" class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cancelarEdicionEmpresa()">Cancelar</button>
+                            <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL USUARIO -->
+    <div class="modal-overlay" id="modal-usuario">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="titulo-modal-usuario">Nuevo Usuario</h2>
+                <button class="close-modal" onclick="cerrarModalUsuario()">&times;</button>
+            </div>
+            <form id="form-usuario">
+                <input type="hidden" id="usuario-id"><input type="hidden" id="empleado-id">
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Nombres *</label><input id="usr-nombres" required oninput="this.value = this.value.replace(/\b\w/g, c => c.toUpperCase())"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Apellido Paterno *</label><input id="usr-ap" required oninput="this.value = this.value.replace(/\b\w/g, c => c.toUpperCase())"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Apellido Materno</label><input id="usr-am" oninput="this.value = this.value.replace(/\b\w/g, c => c.toUpperCase())"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Email *</label><input id="usr-email" type="email" required></div></div>
+                    <div class="form-col"><div class="form-group"><label>Rol *</label><select id="usr-rol" required></select></div></div>
+                </div>
+                <div class="form-row" id="password-fields">
+                    <div class="form-col" style="position:relative;">
+                        <div class="form-group"><label>Contraseña *</label><input id="usr-password" type="password" placeholder="Mínimo 6 caracteres"></div>
+                        <button type="button" class="password-toggle" tabindex="-1" onclick="togglePassword('usr-password', this)"><i class="far fa-eye"></i></button>
+                    </div>
+                    <div class="form-col" style="position:relative;">
+                        <div class="form-group"><label>Repetir contraseña *</label><input id="usr-password2" type="password" placeholder="Repita la contraseña"></div>
+                        <button type="button" class="password-toggle" tabindex="-1" onclick="togglePassword('usr-password2', this)"><i class="far fa-eye"></i></button>
+                    </div>
+                </div>
+                <hr style="margin:16px 0; border-color:#e2e8f0;">
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Tipo Documento</label><input id="usr-tipo-doc" list="tipos-doc-list" maxlength="20" placeholder="Seleccione según país"></div><datalist id="tipos-doc-list"></datalist></div>
+                    <div class="form-col"><div class="form-group"><label>Número Documento</label><input id="usr-num-doc"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Teléfono / Celular</label><input id="usr-telefono" maxlength="20"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Dirección</label><input id="usr-direccion"></div></div>
+                    <div class="form-col"><div class="form-group"><label>País</label><input id="usr-pais" list="usr-paises-list" autocomplete="off"><datalist id="usr-paises-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Extensión</label><input id="usr-extension" readonly style="background:#f1f5f9;"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Estado</label><input id="usr-estado" list="usr-estados-list" autocomplete="off"><datalist id="usr-estados-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="usr-ciudad" list="usr-ciudades-list" autocomplete="off"><datalist id="usr-ciudades-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Fecha Nacimiento</label><input id="usr-fecha-nac" type="date"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Puesto</label><input id="usr-puesto" list="puestos-list"><datalist id="puestos-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Departamento</label><input id="usr-departamento" list="departamentos-list"><datalist id="departamentos-list"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Salario Base</label><input id="usr-salario" type="number" step="0.01"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Moneda Salario</label><input id="usr-moneda-salario" list="monedas-global-list-emp"><datalist id="monedas-global-list-emp"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Tipo Contrato</label><input id="usr-tipo-contrato" list="tipos-contrato-list"><datalist id="tipos-contrato-list"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Fecha Contratación</label><input id="usr-fecha-contrato" type="date"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Fecha Fin (opcional)</label><input id="usr-fecha-fin" type="date"></div></div>
+                </div>
+                <div class="modal-footer" style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
+                    <button type="button" class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalUsuario()">Cancelar</button>
+                    <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL PRODUCTO (COMPLETO CON TOOLTIPS) -->
+    <div class="modal-overlay" id="modal-producto">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="titulo-modal-producto">Nuevo Producto</h2>
+                <button class="close-modal" onclick="cerrarModalProducto()">&times;</button>
+            </div>
+            <form id="form-producto">
+                <input type="hidden" id="producto-id">
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>SKU *
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Código único alfanumérico que identifica el producto dentro de su empresa. Ejemplo: PROD-001, CAM-ROJA-M. No se puede repetir. Máximo 50 caracteres.</span>
+                                </span>
+                            </label>
+                            <input id="prod-sku" required oninput="this.value = this.value.toUpperCase()">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Código de Barras
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Código numérico estándar internacional como EAN-13, UPC-A, CODE128. Se utiliza para escanear el producto en puntos de venta. Ejemplo: 1234567890123</span>
+                                </span>
+                            </label>
+                            <input id="prod-codigo-barras">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Nombre *
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Nombre comercial completo del producto. Use mayúsculas en cada palabra. Ejemplo: "Camiseta Deportiva Azul", "Tornillo Acero 5mm". Máximo 255 caracteres.</span>
+                                </span>
+                            </label>
+                            <input id="prod-nombre" required oninput="this.value = this.value.replace(/\b\w/g, c => c.toUpperCase())">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Descripción
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Breve descripción detallada del producto, incluyendo características principales, material, color, dimensiones u otros datos relevantes. Se mostrará en catálogos y facturas.</span>
+                                </span>
+                            </label>
+                            <input id="prod-descripcion">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Categoría
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Clasificación o familia del producto. Ejemplos: "Electrónicos", "Ropa Deportiva", "Ferretería", "Alimentos". Puede elegir categorías existentes o escribir una nueva.</span>
+                                </span>
+                            </label>
+                            <input id="prod-categoria" list="cat-list" oninput="this.value = this.value.replace(/\b\w/g, c => c.toUpperCase())">
+                            <datalist id="cat-list"></datalist>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Marca
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Fabricante, marca o sello del producto. Ejemplos: "Samsung", "Nike", "Bosch", "Genérico". Si no aplica, déjelo vacío o escriba "Genérico".</span>
+                                </span>
+                            </label>
+                            <input id="prod-marca" list="marca-list" oninput="this.value = this.value.replace(/\b\w/g, c => c.toUpperCase())">
+                            <datalist id="marca-list"></datalist>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Modelo
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Número de modelo, referencia o versión del producto. Ejemplos: "Galaxy S24", "T-500", "2024 Edition". Útil para identificar variantes de un mismo producto.</span>
+                                </span>
+                            </label>
+                            <input id="prod-modelo" list="modelo-list" oninput="this.value = this.value.replace(/\b\w/g, c => c.toUpperCase())">
+                            <datalist id="modelo-list"></datalist>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Unidad de Medida
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Unidad base para el inventario y ventas. Ejemplos: "Unidad", "Pieza", "Caja", "Kilogramo", "Litro", "Metro". Es obligatorio para el control de existencias.</span>
+                                </span>
+                            </label>
+                            <input id="prod-unidad" list="unidad-list">
+                            <datalist id="unidad-list"></datalist>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Peso
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Peso neto del producto. Valor numérico, use punto para decimales. Ejemplo: 1.5 (para un producto de 1.5 kg). Déjelo vacío si no aplica.</span>
+                                </span>
+                            </label>
+                            <input id="prod-peso" type="number" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Unidad de Peso
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Unidad en que se mide el peso. Ejemplos: "kg" (kilogramos), "g" (gramos), "lb" (libras), "oz" (onzas), "ton" (toneladas). Debe coincidir con el valor de peso ingresado.</span>
+                                </span>
+                            </label>
+                            <input id="prod-peso-unidad" list="peso-unidad-list">
+                            <datalist id="peso-unidad-list"></datalist>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Volumen
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Volumen del producto. Valor numérico, use punto para decimales. Ejemplo: 0.05 (para un producto de 0.05 m³). Déjelo vacío si no aplica.</span>
+                                </span>
+                            </label>
+                            <input id="prod-volumen" type="number" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Unidad de Volumen
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Unidad en que se mide el volumen. Ejemplos: "m³" (metros cúbicos), "cm³" (centímetros cúbicos), "litro", "ml" (mililitros), "galón".</span>
+                                </span>
+                            </label>
+                            <input id="prod-volumen-unidad" list="vol-unidad-list">
+                            <datalist id="vol-unidad-list"></datalist>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Impuesto (%)
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Porcentaje de impuesto aplicable al producto. Ejemplos: 16 (IVA 16%), 19 (IVA 19%), 0 (exento). Ingrese solo números, sin el símbolo %. Puede usar decimales: 10.5.</span>
+                                </span>
+                            </label>
+                            <input id="prod-impuesto" type="number" step="0.01" min="0" max="100">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Tipo de Impuesto
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Abreviatura o nombre del impuesto aplicable. Ejemplos: "IVA", "ISC", "IEPS", "GST", "VAT", "Exento". Seleccione de la lista o escriba uno nuevo.</span>
+                                </span>
+                            </label>
+                            <input id="prod-tipo-impuesto" list="tipo-impuesto-list">
+                            <datalist id="tipo-impuesto-list"></datalist>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Precio Venta *
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Precio de venta base unitario, sin impuestos incluidos. Valor numérico. Ejemplo: 150.00. Este precio se usará como referencia para las cotizaciones y facturas.</span>
+                                </span>
+                            </label>
+                            <input id="prod-precio" type="number" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Moneda Precio
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Código de moneda internacional (ISO 4217). Ejemplos: "USD - Dólar", "EUR - Euro", "BOB - Boliviano". Se predetermina según la moneda de la empresa, pero puede cambiarlo.</span>
+                                </span>
+                            </label>
+                            <input id="prod-moneda-precio" list="monedas-global-list-prod">
+                            <datalist id="monedas-global-list-prod"></datalist>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Costo Unitario
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Costo de adquisición o fabricación de una unidad del producto. Se usa para calcular márgenes de ganancia. Ingrese valor numérico positivo. Ejemplo: 85.50</span>
+                                </span>
+                            </label>
+                            <input id="prod-costo" type="number" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Moneda Costo
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Moneda en que está expresado el costo unitario. Debe ser un código ISO válido. Ejemplo: "USD - Dólar". Si es igual a la moneda del precio, seleccione la misma.</span>
+                                </span>
+                            </label>
+                            <input id="prod-moneda-costo" list="monedas-global-list-prod">
+                            <datalist id="monedas-global-list-prod"></datalist>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Stock Mínimo
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Cantidad mínima deseable en inventario. Cuando el stock baje de este número, el sistema podrá alertarle para reabastecer. Déjelo en 0 o vacío si no desea controlar.</span>
+                                </span>
+                            </label>
+                            <input id="prod-stock-min" type="number" step="1" min="0">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Stock Máximo
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Cantidad máxima permitida en inventario para evitar sobrealmacenamiento. Opcional. Déjelo vacío si no hay límite. Debe ser mayor que el stock mínimo si ambos se definen.</span>
+                                </span>
+                            </label>
+                            <input id="prod-stock-max" type="number" step="1" min="0">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Días de Vida Útil
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Cantidad de días que el producto puede permanecer almacenado antes de caducar o volverse obsoleto. Aplica para productos perecederos. Ejemplo: 365 (un año). Déjelo vacío si no aplica.</span>
+                                </span>
+                            </label>
+                            <input id="prod-dias-vida" type="number" step="1" min="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Maneja Lote
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Seleccione "Sí" si necesita rastrear este producto por número de lote de fabricación. Útil para alimentos, medicamentos o productos con control de calidad por partidas.</span>
+                                </span>
+                            </label>
+                            <select id="prod-lote">
+                                <option value="false">No</option>
+                                <option value="true">Sí</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Maneja Vencimiento
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Seleccione "Sí" si el producto tiene fecha de caducidad que debe registrarse en el inventario. Ejemplo: medicamentos, lácteos. Al activarlo, deberá ingresar la fecha al recibir mercancía.</span>
+                                </span>
+                            </label>
+                            <select id="prod-vencimiento">
+                                <option value="false">No</option>
+                                <option value="true">Sí</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Imagen
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-text">Fotografía del producto en formato JPG, PNG o WebP. Tamaño recomendado: 800x800 píxeles, fondo blanco. No es obligatorio, pero ayuda a identificar el producto visualmente.</span>
+                                </span>
+                            </label>
+                            <input type="file" id="file-prod-imagen" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
+                    <button type="button" class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalProducto()">Cancelar</button>
+                    <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"><i class="fas fa-circle-info"></i><span></span></div>
+
+    <script>
+        const SUPABASE_URL = 'https://zgzwhyywkervutpvazqp.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
+        const STORAGE_BUCKET = 'empresas';
+        const GEO_API_BASE = 'https://city-state-country.vercel.app';
+        let currentUser = null,
+            empresaActual = null,
+            empresaOriginal = {};
+        let paisesData = [],
+            todasLasMonedas = [];
+        let chartVentasVendedores = null,
+            chartEntregasAlmacen = null,
+            chartProductos = null;
+        let empresaMonedaCodigo = 'USD';
+
+        const rolesDisponibles = ['Director General', 'Director Financiero', 'Supervisor Senior', 'Ejecutivo Comercial',
+            'Especialista Logístico', 'Gestor de Almacén'
+        ];
+        const puestoPorRol = {
+            'Director General': 'Director General',
+            'Director Financiero': 'Director Financiero',
+            'Supervisor Senior': 'Supervisor Senior',
+            'Ejecutivo Comercial': 'Ejecutivo Comercial',
+            'Especialista Logístico': 'Especialista Logístico',
+            'Gestor de Almacén': 'Gestor de Almacén'
+        };
+        const deptosPorRol = {
+            'Director General': 'Dirección General',
+            'Director Financiero': 'Finanzas',
+            'Supervisor Senior': 'Operaciones',
+            'Ejecutivo Comercial': 'Ventas',
+            'Especialista Logístico': 'Logística',
+            'Gestor de Almacén': 'Almacén'
+        };
+
+        function verificarSesion() {
+            const s = sessionStorage.getItem('currentUser');
+            if (!s) { window.location.href = 'login.html'; return; }
+            currentUser = JSON.parse(s);
+            document.getElementById('user-display').innerHTML = `
+                <i class="fas fa-shield-haltered user-icon"></i>
+                <div class="user-details">
+                    <span class="user-name">${currentUser.nombres} ${currentUser.apellido_paterno} ${currentUser.apellido_materno || ''}</span>
+                    <span class="user-role-badge">${currentUser.rol}</span>
+                </div>`;
+        }
+
+        function cerrarSesion() { sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html'; }
+
+        function showNotification(m, t = 'success') {
+            const n = document.getElementById('notification');
+            n.querySelector('span').innerText = m;
+            n.className = `notification ${t}`;
+            n.style.display = 'flex';
+            setTimeout(() => n.style.display = 'none', 4500);
+        }
+        async function apiFetch(endpoint, method = 'GET', body = null) {
+            const headers = { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
+            if (method === 'POST' || method === 'PATCH') headers['Prefer'] = 'return=representation';
+            const opts = { method, headers };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, opts);
+            if (!res.ok) { const e = await res.text(); throw new Error(e); }
+            const txt = await res.text();
+            return txt ? JSON.parse(txt) : {};
+        }
+        async function uploadFile(file, folder) {
+            const name = `${folder}/${Date.now()}-${file.name}`;
+            const fd = new FormData();
+            fd.append('', file);
+            const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${name}`, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+                body: fd
+            });
+            if (!res.ok) throw new Error('Error al subir');
+            return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${name}`;
+        }
+
+        async function cargarDatosIniciales() {
+            const resp = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2,idd,currencies');
+            paisesData = await resp.json();
+            ['paises-list-emp', 'usr-paises-list'].forEach(id => {
+                const dl = document.getElementById(id);
+                if (!dl) return;
+                dl.innerHTML = '';
+                paisesData.forEach(p => { const o = document.createElement('option');
+                    o.value = p.name.common;
+                    dl.appendChild(o); });
+            });
+            const monSet = new Map();
+            paisesData.forEach(p => { if (p.currencies) Object.entries(p.currencies).forEach(([c, i]) => { if (!monSet.has(
+                        c)) monSet.set(c, { name: i.name, symbol: i.symbol || '' }); }); });
+            todasLasMonedas = Array.from(monSet, ([c, d]) => ({ codigo: c, nombre: d.name, simbolo: d.symbol }));
+            ['monedas-global-list', 'monedas-global-list-emp', 'monedas-global-list-prod'].forEach(id => {
+                const dl = document.getElementById(id);
+                if (!dl) return;
+                dl.innerHTML = '';
+                todasLasMonedas.forEach(m => { const o = document.createElement('option');
+                    o.value = `${m.codigo} - ${m.nombre}`;
+                    dl.appendChild(o); });
+            });
+            if (currentUser && currentUser.empresa_id) {
+                const emp = await apiFetch(`empresas?id=eq.${currentUser.empresa_id}&select=moneda_principal_id`);
+                if (emp.length > 0 && emp[0].moneda_principal_id) {
+                    const mon = await apiFetch(`monedas?id=eq.${emp[0].moneda_principal_id}&select=codigo`);
+                    if (mon.length > 0) empresaMonedaCodigo = mon[0].codigo;
+                }
+            }
+        }
+
+        function extraerCodigo(v) { return (v.split(' - ')[0] || '').trim().toUpperCase(); }
+        async function ensureCurrency(input) {
+            const cod = extraerCodigo(input);
+            if (!cod) throw new Error('Moneda inválida');
+            const exist = await apiFetch(`monedas?codigo=eq.${cod}&select=id`);
+            if (exist.length) return exist[0].id;
+            const data = todasLasMonedas.find(m => m.codigo === cod) || { nombre: cod, symbol: null };
+            const nueva = await apiFetch('monedas', 'POST', { codigo: cod, nombre: data.nombre, simbolo: data.symbol });
+            return Array.isArray(nueva) ? nueva[0].id : nueva.id;
+        }
+
+        async function buscarPaisId(nombre) {
+            try {
+                const r = await fetch(`${GEO_API_BASE}/countries/search/${encodeURIComponent(nombre)}`);
+                if (!r.ok) return null;
+                const d = await r.json();
+                return d.length ? d[0].id : null;
+            } catch { return null; }
+        }
+        async function cargarEstados(paisNombre, datalistId) {
+            const dl = document.getElementById(datalistId);
+            if (!dl) return;
+            dl.innerHTML = '';
+            const id = await buscarPaisId(paisNombre);
+            if (!id) return;
+            const r = await fetch(`${GEO_API_BASE}/countries/${id}/states`);
+            if (!r.ok) return;
+            const estados = await r.json();
+            estados.forEach(e => { const o = document.createElement('option');
+                o.value = e.name;
+                dl.appendChild(o); });
+        }
+        async function cargarCiudades(paisNombre, estadoNombre, datalistId) {
+            const dl = document.getElementById(datalistId);
+            if (!dl) return;
+            dl.innerHTML = '';
+            const paisId = await buscarPaisId(paisNombre);
+            if (!paisId) return;
+            const r = await fetch(`${GEO_API_BASE}/countries/${paisId}/states`);
+            if (!r.ok) return;
+            const estados = await r.json();
+            const est = estados.find(e => e.name.toLowerCase() === estadoNombre.toLowerCase());
+            if (!est) return;
+            const c = await fetch(`${GEO_API_BASE}/states/${est.id}/cities`);
+            if (!c.ok) return;
+            const cities = await c.json();
+            cities.forEach(city => { const o = document.createElement('option');
+                o.value = city.name;
+                dl.appendChild(o); });
+        }
+
+        document.getElementById('usr-pais').addEventListener('input', function() {
+            const val = this.value.trim();
+            if (val.length > 1) {
+                const pais = paisesData.find(p => p.name.common.toLowerCase() === val.toLowerCase());
+                if (pais && pais.idd) {
+                    const root = pais.idd.root || '';
+                    const suf = pais.idd.suffixes?.[0] || '';
+                    document.getElementById('usr-extension').value = root + suf;
+                } else document.getElementById('usr-extension').value = '';
+                if (pais && pais.currencies) {
+                    const cod = Object.keys(pais.currencies)[0];
+                    const mon = pais.currencies[cod];
+                    document.getElementById('usr-moneda-salario').value = `${cod} - ${mon.name}`;
+                }
+                cargarEstados(val, 'usr-estados-list');
+                actualizarTiposDocumento(val);
+                document.getElementById('usr-estado').value = '';
+                document.getElementById('usr-ciudad').value = '';
+                document.getElementById('usr-ciudades-list').innerHTML = '';
+            }
+        });
+        document.getElementById('usr-estado').addEventListener('input', function() {
+            const pais = document.getElementById('usr-pais').value.trim();
+            const est = this.value.trim();
+            if (pais && est) cargarCiudades(pais, est, 'usr-ciudades-list');
+        });
+        document.getElementById('usr-rol').addEventListener('change', function() {
+            const rol = this.value;
+            document.getElementById('usr-puesto').value = puestoPorRol[rol] || '';
+            document.getElementById('usr-departamento').value = deptosPorRol[rol] || '';
+        });
+
+        const tiposDocBase = {
+            'Bolivia': ['CI - Cédula de Identidad', 'Pasaporte', 'NIT'],
+            'Argentina': ['DNI', 'Pasaporte', 'CUIT'],
+            'Perú': ['DNI', 'Pasaporte', 'RUC'],
+            'Chile': ['RUN', 'Pasaporte', 'RUT'],
+            'Colombia': ['CC', 'Pasaporte', 'NIT'],
+            'Ecuador': ['CI', 'Pasaporte', 'RUC'],
+            'Paraguay': ['CI', 'Pasaporte', 'RUC'],
+            'Uruguay': ['CI', 'Pasaporte', 'RUT'],
+            'México': ['INE', 'Pasaporte', 'RFC'],
+            'España': ['DNI', 'Pasaporte', 'NIE'],
+            'Estados Unidos': ['Pasaporte', 'SSN', 'Driver License']
+        };
+
+        function actualizarTiposDocumento(pais) {
+            const dl = document.getElementById('tipos-doc-list');
+            if (!dl) return;
+            dl.innerHTML = '';
+            const clave = Object.keys(tiposDocBase).find(k => k.toLowerCase() === pais.toLowerCase());
+            const tipos = clave ? tiposDocBase[clave] : ['CI', 'Pasaporte', 'DNI', 'RUC', 'NIT'];
+            tipos.forEach(t => { const o = document.createElement('option');
+                o.value = t;
+                dl.appendChild(o); });
+        }
+        const contratosBase = {
+            'Bolivia': ['Indefinido', 'Plazo fijo', 'Por obra', 'Temporal', 'Consultoría'],
+            'Argentina': ['Indefinido', 'Plazo fijo', 'Temporal', 'Pasantía', 'Freelance'],
+            'default': ['Indefinido', 'Plazo fijo', 'Temporal', 'Pasantía', 'Freelance', 'Consultoría']
+        };
+
+        function actualizarTiposContrato(pais) {
+            const dl = document.getElementById('tipos-contrato-list');
+            if (!dl) return;
+            dl.innerHTML = '';
+            const clave = Object.keys(contratosBase).find(k => k.toLowerCase() === pais.toLowerCase());
+            const lista = contratosBase[clave] || contratosBase['default'];
+            lista.forEach(c => { const o = document.createElement('option');
+                o.value = c;
+                dl.appendChild(o); });
+        }
+        document.getElementById('usr-pais').addEventListener('input', function() {
+            actualizarTiposContrato(this.value.trim());
+        });
+
+        // Navegación sidebar
+        document.querySelectorAll('.sidebar-menu a').forEach(a => a.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(`panel-${this.dataset.panel}`).classList.add('active');
+            if (this.dataset.panel === 'dashboard') cargarDashboard();
+            else if (this.dataset.panel === 'empresa') cargarFormularioEmpresa();
+        }));
+
+        // Navegación por pestañas
+        document.getElementById('tabs-nav').addEventListener('click', function(e) {
+            const btn = e.target.closest('.tab-btn');
+            if (!btn) return;
+            document.querySelectorAll('#tabs-nav .tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const tabId = 'tab-' + btn.dataset.tab;
+            document.getElementById(tabId).classList.add('active');
+            if (btn.dataset.tab === 'resumen') cargarResumen();
+            else if (btn.dataset.tab === 'clientes') cargarClientes();
+            else if (btn.dataset.tab === 'productos') cargarProductos();
+            else if (btn.dataset.tab === 'equipo') cargarEquipo();
+        });
+
+        function recargarTodo() {
+            const tabActivo = document.querySelector('#tabs-nav .tab-btn.active')?.dataset.tab;
+            if (tabActivo === 'resumen') cargarResumen();
+            else if (tabActivo === 'clientes') cargarClientes();
+            else if (tabActivo === 'productos') cargarProductos();
+            else if (tabActivo === 'equipo') cargarEquipo();
+            showNotification('Datos actualizados');
+        }
+
+        async function obtenerEquipoComercial() {
+            const empId = currentUser.empresa_id;
+            const usuarios = await apiFetch(`usuarios?empresa_id=eq.${empId}&select=email&rol=in.(Ejecutivo Comercial,Especialista Logístico)&activo=eq.true`);
+            const emails = usuarios.map(u => u.email);
+            if (emails.length === 0) return [];
+            const queryEmails = emails.map(e => `"${e}"`).join(',');
+            const empleados = await apiFetch(`empleados?empresa_id=eq.${empId}&email=in.(${queryEmails})&select=id,nombres,apellido_paterno&activo=eq.true`);
+            return empleados;
+        }
+
+        async function cargarDashboard() {
+            const empId = currentUser.empresa_id;
+            const usuarios = await apiFetch(`usuarios?empresa_id=eq.${empId}&select=id&activo=eq.true`);
+            const empleados = await apiFetch(`empleados?empresa_id=eq.${empId}&select=id&activo=eq.true`);
+            const clientes = await apiFetch(`clientes?empresa_id=eq.${empId}&select=id&activo=eq.true`);
+            const productos = await apiFetch(`productos?empresa_id=eq.${empId}&select=id&activo=eq.true`);
+            // Actualizamos los textos de las pestañas
+            const btns = document.querySelectorAll('#tabs-nav .tab-btn');
+            if (btns.length >= 4) {
+                btns[0].innerHTML = `<i class="fas fa-chart-pie"></i> Resumen General <span style="font-size:0.7rem;margin-left:4px;opacity:0.7;">${usuarios.length + empleados.length}</span>`;
+                btns[1].innerHTML = `<i class="fas fa-building"></i> Clientes <span style="font-size:0.7rem;margin-left:4px;opacity:0.7;">${clientes.length}</span>`;
+                btns[2].innerHTML = `<i class="fas fa-box"></i> Productos <span style="font-size:0.7rem;margin-left:4px;opacity:0.7;">${productos.length}</span>`;
+                btns[3].innerHTML = `<i class="fas fa-users"></i> Equipo <span style="font-size:0.7rem;margin-left:4px;opacity:0.7;">${usuarios.length}</span>`;
+            }
+            cargarResumen();
+        }
+
+        function obtenerRangoFechas(periodo) {
+            const hoy = new Date();
+            let desde, hasta;
+            if (periodo === 'hoy') {
+                desde = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+                hasta = new Date(desde.getTime() + 86400000 - 1);
+            } else if (periodo === 'semana') {
+                const dia = hoy.getDay();
+                desde = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - dia);
+                hasta = new Date(desde.getTime() + 7 * 86400000 - 1);
+            } else if (periodo === 'mes') {
+                desde = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+                hasta = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0, 23, 59, 59);
+            } else if (periodo === 'año') {
+                desde = new Date(hoy.getFullYear(), 0, 1);
+                hasta = new Date(hoy.getFullYear(), 11, 31, 23, 59, 59);
+            }
+            return { desde: desde.toISOString(), hasta: hasta.toISOString() };
+        }
+
+        async function cargarResumen(periodo = 'hoy', vendedorId = '', ordenVend = 'monto') {
+            const empId = currentUser.empresa_id;
+            let { desde, hasta } = obtenerRangoFechas(periodo);
+            const dInput = document.getElementById('fecha-desde-resumen')?.value;
+            const hInput = document.getElementById('fecha-hasta-resumen')?.value;
+            if (dInput && hInput) { desde = dInput + 'T00:00:00';
+                hasta = hInput + 'T23:59:59'; }
+            const equipoComercial = await obtenerEquipoComercial();
+            const idsComerciales = equipoComercial.map(e => e.id);
+            if (vendedorId && !idsComerciales.includes(vendedorId)) vendedorId = '';
+            let qVentas =
+                `ventas?empresa_id=eq.${empId}&fecha=gte.${desde}&fecha=lte.${hasta}&select=total_linea,producto_id,vendedor_id,cantidad,almacen_id`;
+            if (vendedorId) qVentas += `&vendedor_id=eq.${vendedorId}`;
+            const ventas = await apiFetch(qVentas);
+            const ventasComerciales = vendedorId ? ventas : ventas.filter(v => idsComerciales.includes(v.vendedor_id));
+            const total = ventasComerciales.reduce((s, v) => s + parseFloat(v.total_linea), 0).toFixed(2);
+            const numDocs = [...new Set(ventasComerciales.map(v => v.documento_venta))].length;
+            const rendVendedores = {};
+            ventasComerciales.forEach(v => {
+                if (v.vendedor_id && idsComerciales.includes(v.vendedor_id)) {
+                    if (!rendVendedores[v.vendedor_id]) rendVendedores[v.vendedor_id] = { monto: 0, unidades: 0,
+                        productos: new Set() };
+                    rendVendedores[v.vendedor_id].monto += parseFloat(v.total_linea);
+                    rendVendedores[v.vendedor_id].unidades += v.cantidad;
+                    rendVendedores[v.vendedor_id].productos.add(v.producto_id);
+                }
+            });
+            const arrVend = Object.entries(rendVendedores).map(([id, dat]) => ({
+                id,
+                monto: dat.monto,
+                unidades: dat.unidades,
+                variedad: dat.productos.size
+            }));
+            arrVend.sort((a, b) => ordenVend === 'monto' ? b.monto - a.monto : b.variedad - a.variedad);
+            const topVend = arrVend.slice(0, 10);
+            const labelsVend = [];
+            const dataVend = [];
+            topVend.forEach(v => {
+                const emp = equipoComercial.find(e => e.id === v.id);
+                labelsVend.push(emp ? `${emp.nombres} ${emp.apellido_paterno}` : v.id);
+                dataVend.push(ordenVend === 'monto' ? v.monto : v.variedad);
+            });
+            const rendAlmacenes = {};
+            ventasComerciales.forEach(v => {
+                if (v.almacen_id) rendAlmacenes[v.almacen_id] = (rendAlmacenes[v.almacen_id] || 0) + parseFloat(v
+                    .total_linea);
+            });
+            const arrAlm = Object.entries(rendAlmacenes).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const almacenes = await apiFetch(`almacenes?empresa_id=eq.${empId}&select=id,nombre`);
+            const labelsAlm = [];
+            const dataAlm = [];
+            arrAlm.forEach(([aid, monto]) => {
+                const alm = almacenes.find(a => a.id === aid);
+                labelsAlm.push(alm ? alm.nombre : (aid || 'Sin almacén'));
+                dataAlm.push(monto);
+            });
+            let tablaVend = '';
+            topVend.forEach(v => {
+                const emp = equipoComercial.find(e => e.id === v.id);
+                tablaVend +=
+                    `<tr><td>${emp?.nombres || v.id} ${emp?.apellido_paterno || ''}</td><td>$${v.monto.toFixed(2)}</td><td>${v.unidades} uds.</td><td>${v.variedad} productos</td></tr>`;
+            });
+            const html = `
+                <div class="card">
+                    <div class="card-header"><h2>Análisis de Ventas</h2></div>
+                    <div class="filtros">
+                        <select id="filtro-periodo-resumen" onchange="cambiarPeriodoResumen()">
+                            <option value="hoy" ${periodo==='hoy'?'selected':''}>Hoy</option>
+                            <option value="semana" ${periodo==='semana'?'selected':''}>Esta semana</option>
+                            <option value="mes" ${periodo==='mes'?'selected':''}>Este mes</option>
+                            <option value="año" ${periodo==='año'?'selected':''}>Este año</option>
+                        </select>
+                        <input type="date" id="fecha-desde-resumen" value="${dInput||''}"> →
+                        <input type="date" id="fecha-hasta-resumen" value="${hInput||''}">
+                        <button onclick="cargarResumen('rango')">Filtrar</button>
+                        <select id="filtro-vendedor-resumen" onchange="cargarResumen('${periodo}', this.value, '${ordenVend}')">
+                            <option value="">Todos los vendedores</option>
+                        </select>
+                        <select id="orden-vendedor" onchange="cambiarOrdenVend()">
+                            <option value="monto" ${ordenVend==='monto'?'selected':''}>Por Monto ($)</option>
+                            <option value="variedad" ${ordenVend==='variedad'?'selected':''}>Por Variedad (Productos)</option>
+                        </select>
+                    </div>
+                    <p style="font-size:2rem;font-weight:700;">$ ${total}</p>
+                    <p style="color:#64748b;">Total facturado · ${numDocs} documentos · ${ventasComerciales.length} líneas</p>
+                    <div class="graficos-grid">
+                        <div class="grafico-box">
+                            <h3><i class="fas fa-user-tie"></i> Ventas por Vendedor (${ordenVend==='monto'?'$':'Variedad'})</h3>
+                            <canvas id="chart-ventas-vendedores"></canvas>
+                        </div>
+                        <div class="grafico-box">
+                            <h3><i class="fas fa-warehouse"></i> Entregas por Almacén ($)</h3>
+                            <canvas id="chart-entregas-almacen"></canvas>
+                        </div>
+                    </div>
+                    <div style="margin-top:32px;">
+                        <h3>Rendimiento de Ejecutivos Comerciales</h3>
+                        <div class="table-wrapper"><table>
+                            <thead><tr><th>Vendedor</th><th>Monto</th><th>Unidades</th><th>Variedad</th></tr></thead>
+                            <tbody>${tablaVend || '<tr><td colspan="4">Sin datos</td></tr>'}</tbody>
+                        </table></div>
+                    </div>
+                </div>`;
+            document.getElementById('tab-resumen').innerHTML = html;
+            const selVend = document.getElementById('filtro-vendedor-resumen');
+            selVend.innerHTML = '<option value="">Todos los vendedores</option>';
+            equipoComercial.forEach(v => {
+                const o = document.createElement('option');
+                o.value = v.id;
+                o.text = v.nombres + ' ' + v.apellido_paterno;
+                if (v.id === vendedorId) o.selected = true;
+                selVend.appendChild(o);
+            });
+            document.getElementById('filtro-periodo-resumen').value = periodo;
+            document.getElementById('orden-vendedor').value = ordenVend;
+            if (chartVentasVendedores) chartVentasVendedores.destroy();
+            const ctx1 = document.getElementById('chart-ventas-vendedores')?.getContext('2d');
+            if (ctx1) {
+                chartVentasVendedores = new Chart(ctx1, {
+                    type: 'bar',
+                    data: { labels: labelsVend, datasets: [{ label: ordenVend === 'monto' ? 'Monto ($)' :
+                            'Productos Distintos', data: dataVend,
+                            backgroundColor: 'rgba(0,102,255,0.25)', borderColor: '#0066ff', borderWidth: 1.5,
+                            borderRadius: 8
+                        }] },
+                    options: { responsive: true, plugins: { legend: { display: true, position: 'top' } },
+                        scales: { y: { beginAtZero: true, ticks: { callback: ordenVend === 'monto' ? v => '$' +
+                                    v : v => v + ' prod.' } } } }
+                });
+            }
+            if (chartEntregasAlmacen) chartEntregasAlmacen.destroy();
+            const ctx2 = document.getElementById('chart-entregas-almacen')?.getContext('2d');
+            if (ctx2) {
+                chartEntregasAlmacen = new Chart(ctx2, {
+                    type: 'bar',
+                    data: { labels: labelsAlm, datasets: [{ label: 'Monto entregado ($)', data: dataAlm,
+                            backgroundColor: 'rgba(16,185,129,0.25)', borderColor: '#10b981', borderWidth: 1.5,
+                            borderRadius: 8
+                        }] },
+                    options: { responsive: true, plugins: { legend: { display: true, position: 'top' } },
+                        scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v } } } }
+                });
+            }
+            const empId2 = currentUser.empresa_id;
+            const usuarios = await apiFetch(`usuarios?empresa_id=eq.${empId2}&select=id&activo=eq.true`);
+            const empleados = await apiFetch(`empleados?empresa_id=eq.${empId2}&select=id&activo=eq.true`);
+            const clientes = await apiFetch(`clientes?empresa_id=eq.${empId2}&select=id&activo=eq.true`);
+            const productos = await apiFetch(`productos?empresa_id=eq.${empId2}&select=id&activo=eq.true`);
+            const btns = document.querySelectorAll('#tabs-nav .tab-btn');
+            if (btns.length >= 4) {
+                btns[0].innerHTML = `<i class="fas fa-chart-pie"></i> Resumen General <span style="font-size:0.7rem;margin-left:4px;opacity:0.7;">${usuarios.length + empleados.length}</span>`;
+                btns[1].innerHTML = `<i class="fas fa-building"></i> Clientes <span style="font-size:0.7rem;margin-left:4px;opacity:0.7;">${clientes.length}</span>`;
+                btns[2].innerHTML = `<i class="fas fa-box"></i> Productos <span style="font-size:0.7rem;margin-left:4px;opacity:0.7;">${productos.length}</span>`;
+                btns[3].innerHTML = `<i class="fas fa-users"></i> Equipo <span style="font-size:0.7rem;margin-left:4px;opacity:0.7;">${usuarios.length}</span>`;
+            }
+        }
+
+        function cambiarPeriodoResumen() {
+            const p = document.getElementById('filtro-periodo-resumen')?.value || 'hoy';
+            const vend = document.getElementById('filtro-vendedor-resumen')?.value || '';
+            const ord = document.getElementById('orden-vendedor')?.value || 'monto';
+            cargarResumen(p, vend, ord);
+        }
+        function cambiarOrdenVend() {
+            const p = document.getElementById('filtro-periodo-resumen')?.value || 'hoy';
+            const vend = document.getElementById('filtro-vendedor-resumen')?.value || '';
+            const ord = document.getElementById('orden-vendedor')?.value || 'monto';
+            cargarResumen(p, vend, ord);
+        }
+
+        async function cargarClientes(periodo = 'mes', vendedorId = '') {
+            const empId = currentUser.empresa_id;
+            let { desde, hasta } = obtenerRangoFechas(periodo);
+            const dInput = document.getElementById('fecha-desde-clientes')?.value;
+            const hInput = document.getElementById('fecha-hasta-clientes')?.value;
+            if (dInput && hInput) { desde = dInput + 'T00:00:00';
+                hasta = hInput + 'T23:59:59'; }
+            const clientes = await apiFetch(`clientes?empresa_id=eq.${empId}&select=*`);
+            const equipoComercial = await obtenerEquipoComercial();
+            const idsComerciales = equipoComercial.map(e => e.id);
+            if (vendedorId && !idsComerciales.includes(vendedorId)) vendedorId = '';
+            let qVentas =
+                `ventas?empresa_id=eq.${empId}&fecha=gte.${desde}&fecha=lte.${hasta}&select=cliente_id,total_linea,vendedor_id`;
+            if (vendedorId) qVentas += `&vendedor_id=eq.${vendedorId}`;
+            const ventas = await apiFetch(qVentas);
+            const ventasFiltradas = vendedorId ? ventas : ventas.filter(v => idsComerciales.includes(v.vendedor_id));
+            const comprasPorCliente = {};
+            ventasFiltradas.forEach(v => { comprasPorCliente[v.cliente_id] = (comprasPorCliente[v.cliente_id] || 0) +
+                    parseFloat(v.total_linea); });
+            let filas = '';
+            const tiposCount = {};
+            clientes.forEach(c => {
+                const total = comprasPorCliente[c.id] || 0;
+                const tipo = c.tipo_cliente || 'Sin tipo';
+                tiposCount[tipo] = (tiposCount[tipo] || 0) + total;
+                filas +=
+                    `<tr><td>${c.razon_social || c.nombres + ' ' + c.apellido_paterno}</td><td>${c.email || '-'}</td><td>${c.pais || '-'}</td><td>${c.ciudad || '-'}</td><td>${tipo}</td><td>$${total.toFixed(2)}</td></tr>`;
+            });
+            let statsTipos = '';
+            Object.entries(tiposCount).sort((a, b) => b[1] - a[1]).forEach(([t, m]) => statsTipos +=
+                `<tr><td>${t}</td><td>$${m.toFixed(2)}</td></tr>`);
+            const html = `
+                <div class="card">
+                    <div class="card-header"><h2>Clientes</h2></div>
+                    <div class="filtros">
+                        <select id="filtro-periodo-clientes" onchange="cambiarPeriodoClientes()">
+                            <option value="hoy">Hoy</option><option value="semana">Esta semana</option><option value="mes" selected>Este mes</option><option value="año">Este año</option>
+                        </select>
+                        <input type="date" id="fecha-desde-clientes"> → <input type="date" id="fecha-hasta-clientes">
+                        <button onclick="cargarClientes('rango')">Filtrar</button>
+                        <select id="filtro-vendedor-clientes" onchange="cargarClientes('${periodo}', this.value)"><option value="">Todos los vendedores</option></select>
+                    </div>
+                    <div style="display:flex; gap:40px; flex-wrap:wrap;">
+                        <div style="flex:2;"><div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Email</th><th>País</th><th>Ciudad</th><th>Tipo</th><th>Compras</th></tr></thead><tbody>${filas}</tbody></table></div></div>
+                        <div style="flex:1; min-width:220px;"><h3>Compras por Tipo de Cliente</h3><table><thead><tr><th>Tipo</th><th>Total</th></tr></thead><tbody>${statsTipos}</tbody></table></div>
+                    </div>
+                </div>`;
+            document.getElementById('tab-clientes').innerHTML = html;
+            const selVend = document.getElementById('filtro-vendedor-clientes');
+            selVend.innerHTML = '<option value="">Todos los vendedores</option>';
+            equipoComercial.forEach(v => { const o = document.createElement('option');
+                o.value = v.id;
+                o.text = v.nombres + ' ' + v.apellido_paterno; if (v.id === vendedorId) o.selected = true;
+                selVend.appendChild(o); });
+        }
+        function cambiarPeriodoClientes() {
+            const p = document.getElementById('filtro-periodo-clientes')?.value || 'mes';
+            cargarClientes(p, document.getElementById('filtro-vendedor-clientes')?.value || '');
+        }
+
+        async function cargarDatalistsProductos() {
+            const empId = currentUser.empresa_id;
+            const prods = await apiFetch(`productos?empresa_id=eq.${empId}&select=categoria,marca,modelo`);
+            const cats = [...new Set(prods.map(p => p.categoria).filter(Boolean))];
+            const marcas = [...new Set(prods.map(p => p.marca).filter(Boolean))];
+            const modelos = [...new Set(prods.map(p => p.modelo).filter(Boolean))];
+            ['cat-list', 'marca-list', 'modelo-list'].forEach(id => {
+                const dl = document.getElementById(id);
+                if (!dl) return;
+                dl.innerHTML = '';
+            });
+            cats.forEach(c => { const o = document.createElement('option');
+                o.value = c;
+                document.getElementById('cat-list').appendChild(o); });
+            marcas.forEach(m => { const o = document.createElement('option');
+                o.value = m;
+                document.getElementById('marca-list').appendChild(o); });
+            modelos.forEach(m => { const o = document.createElement('option');
+                o.value = m;
+                document.getElementById('modelo-list').appendChild(o); });
+            const unidades = ['Unidad', 'Pieza', 'Caja', 'Kilogramo', 'Gramo', 'Litro', 'Metro', 'Centímetro', 'Pulgada',
+                'Par'
+            ];
+            const dlUnidad = document.getElementById('unidad-list');
+            if (dlUnidad) { dlUnidad.innerHTML = '';
+                unidades.forEach(u => { const o = document.createElement('option');
+                    o.value = u;
+                    dlUnidad.appendChild(o); }); }
+            const pesos = ['kg', 'g', 'lb', 'oz', 'ton'];
+            const dlPeso = document.getElementById('peso-unidad-list');
+            if (dlPeso) { dlPeso.innerHTML = '';
+                pesos.forEach(u => { const o = document.createElement('option');
+                    o.value = u;
+                    dlPeso.appendChild(o); }); }
+            const vols = ['m³', 'cm³', 'litro', 'ml', 'galón'];
+            const dlVol = document.getElementById('vol-unidad-list');
+            if (dlVol) { dlVol.innerHTML = '';
+                vols.forEach(u => { const o = document.createElement('option');
+                    o.value = u;
+                    dlVol.appendChild(o); }); }
+            const impuestos = ['IVA', 'ISC', 'IEPS', 'GST', 'VAT'];
+            const dlImp = document.getElementById('tipo-impuesto-list');
+            if (dlImp) { dlImp.innerHTML = '';
+                impuestos.forEach(u => { const o = document.createElement('option');
+                    o.value = u;
+                    dlImp.appendChild(o); }); }
+        }
+
+        async function cargarProductos(categoria = '') {
+            const empId = currentUser.empresa_id;
+            let query = `productos?empresa_id=eq.${empId}&select=*`;
+            if (categoria) query += `&categoria=eq.${encodeURIComponent(categoria)}`;
+            const productos = await apiFetch(query);
+            const ventas = await apiFetch(`ventas?empresa_id=eq.${empId}&select=producto_id,total_linea,cantidad`);
+            const ventasPorProd = {};
+            ventas.forEach(v => { if (!ventasPorProd[v.producto_id]) ventasPorProd[v.producto_id] = { cantidad: 0,
+                    total: 0 };
+                ventasPorProd[v.producto_id].cantidad += v.cantidad;
+                ventasPorProd[v.producto_id].total += parseFloat(v.total_linea); });
+            let filas = '';
+            const prodLabels = [],
+                prodData = [];
+            productos.forEach(p => {
+                const v = ventasPorProd[p.id] || { cantidad: 0, total: 0 };
+                prodLabels.push(p.nombre);
+                prodData.push(v.cantidad);
+                filas += `<tr>
+                    <td>${p.sku}</td><td>${p.nombre}</td><td>${p.categoria||'-'}</td><td>$${p.precio_venta_base||0}</td><td>${v.cantidad}</td><td>$${v.total.toFixed(2)}</td>
+                    <td class="action-buttons">
+                        <button class="btn-sm btn-edit" onclick="editarProducto('${p.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn-sm btn-delete" onclick="eliminarProducto('${p.id}')"><i class="fas fa-trash"></i></button>
+                    </td></tr>`;
+            });
+            const categorias = [...new Set(productos.map(p => p.categoria).filter(Boolean))];
+            const html = `
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Productos</h2>
+                        <button class="btn-solid" onclick="abrirModalProducto()"><i class="fas fa-plus"></i> Nuevo Producto</button>
+                    </div>
+                    <div class="filtros">
+                        <select id="filtro-categoria-productos" onchange="cargarProductos(this.value)"><option value="">Todas las categorías</option></select>
+                    </div>
+                    <div style="display:flex; gap:40px; flex-wrap:wrap;">
+                        <div style="flex:2;" class="table-wrapper"><table><thead><tr><th>SKU</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Vendidos</th><th>Total</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div>
+                        <div style="flex:1; min-width:300px;"><canvas id="chart-productos"></canvas></div>
+                    </div>
+                </div>`;
+            document.getElementById('tab-productos').innerHTML = html;
+            const selCat = document.getElementById('filtro-categoria-productos');
+            selCat.innerHTML = '<option value="">Todas las categorías</option>';
+            categorias.forEach(c => { const o = document.createElement('option');
+                o.value = c;
+                o.text = c; if (c === categoria) o.selected = true;
+                selCat.appendChild(o); });
+            if (chartProductos) chartProductos.destroy();
+            const ctx = document.getElementById('chart-productos')?.getContext('2d');
+            if (ctx) {
+                chartProductos = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: prodLabels, datasets: [{ label: 'Unidades vendidas', data: prodData,
+                            backgroundColor: 'rgba(0,102,255,0.2)' }] },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+            }
+        }
+
+        function abrirModalProducto(id = null) {
+            document.getElementById('modal-producto').classList.add('active');
+            document.getElementById('form-producto').reset();
+            document.getElementById('producto-id').value = '';
+            document.getElementById('titulo-modal-producto').textContent = 'Nuevo Producto';
+            document.getElementById('prod-moneda-precio').value = `${empresaMonedaCodigo} - ${(todasLasMonedas.find(m=>m.codigo===empresaMonedaCodigo)||{nombre:empresaMonedaCodigo}).nombre}`;
+            cargarDatalistsProductos();
+            if (id) editarProducto(id);
+        }
+
+        function cerrarModalProducto() { document.getElementById('modal-producto').classList.remove('active'); }
+        async function editarProducto(id) {
+            const p = await apiFetch(`productos?id=eq.${id}&select=*`);
+            if (!p.length) return;
+            const prod = p[0];
+            document.getElementById('producto-id').value = prod.id;
+            document.getElementById('prod-sku').value = prod.sku;
+            document.getElementById('prod-codigo-barras').value = prod.codigo_barras || '';
+            document.getElementById('prod-nombre').value = prod.nombre;
+            document.getElementById('prod-descripcion').value = prod.descripcion || '';
+            document.getElementById('prod-categoria').value = prod.categoria || '';
+            document.getElementById('prod-marca').value = prod.marca || '';
+            document.getElementById('prod-modelo').value = prod.modelo || '';
+            document.getElementById('prod-unidad').value = '';
+            document.getElementById('prod-peso').value = prod.peso || '';
+            document.getElementById('prod-peso-unidad').value = prod.peso_unidad || '';
+            document.getElementById('prod-volumen').value = prod.volumen || '';
+            document.getElementById('prod-volumen-unidad').value = prod.volumen_unidad || '';
+            document.getElementById('prod-impuesto').value = prod.impuesto_porcentaje || '';
+            document.getElementById('prod-tipo-impuesto').value = prod.tipo_impuesto || '';
+            document.getElementById('prod-precio').value = prod.precio_venta_base || '';
+            document.getElementById('prod-costo').value = prod.costo_unitario || '';
+            document.getElementById('prod-stock-min').value = prod.stock_minimo || '';
+            document.getElementById('prod-stock-max').value = prod.stock_maximo || '';
+            document.getElementById('prod-dias-vida').value = prod.dias_vida_util || '';
+            document.getElementById('prod-lote').value = prod.maneja_lote ? 'true' : 'false';
+            document.getElementById('prod-vencimiento').value = prod.maneja_vencimiento ? 'true' : 'false';
+            if (prod.moneda_precio_id) {
+                const mon = await apiFetch(`monedas?id=eq.${prod.moneda_precio_id}&select=codigo,nombre`);
+                if (mon.length) document.getElementById('prod-moneda-precio').value =
+                    `${mon[0].codigo} - ${mon[0].nombre}`;
+            }
+            if (prod.moneda_costo_id) {
+                const mon = await apiFetch(`monedas?id=eq.${prod.moneda_costo_id}&select=codigo,nombre`);
+                if (mon.length) document.getElementById('prod-moneda-costo').value =
+                    `${mon[0].codigo} - ${mon[0].nombre}`;
+            }
+            if (prod.unidad_medida_id) {
+                const um = await apiFetch(`unidades_medida?id=eq.${prod.unidad_medida_id}&select=nombre`);
+                if (um.length) document.getElementById('prod-unidad').value = um[0].nombre;
+            }
+            document.getElementById('titulo-modal-producto').textContent = 'Editar Producto';
+            document.getElementById('modal-producto').classList.add('active');
+        }
+        async function eliminarProducto(id) {
+            if (!confirm('¿Desactivar producto?')) return;
+            await apiFetch(`productos?id=eq.${id}`, 'PATCH', { activo: false });
+            cargarProductos(document.getElementById('filtro-categoria-productos')?.value || '');
+            showNotification('Producto desactivado');
+        }
+        document.getElementById('form-producto').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('producto-id').value;
+            const monPrecioInput = document.getElementById('prod-moneda-precio').value.trim();
+            const monCostoInput = document.getElementById('prod-moneda-costo').value.trim();
+            let monPrecioId = null,
+                monCostoId = null;
+            try {
+                if (monPrecioInput) monPrecioId = await ensureCurrency(monPrecioInput);
+                if (monCostoInput) monCostoId = await ensureCurrency(monCostoInput);
+            } catch { showNotification('Moneda inválida', 'error'); return; }
+            const unidadNombre = document.getElementById('prod-unidad').value.trim();
+            let unidadId = null;
+            if (unidadNombre) {
+                const exist = await apiFetch(
+                    `unidades_medida?nombre=eq.${encodeURIComponent(unidadNombre)}&select=id`);
+                if (exist.length) unidadId = exist[0].id;
+                else {
+                    const nueva = await apiFetch('unidades_medida', 'POST', { nombre: unidadNombre,
+                        codigo: unidadNombre.substring(0, 20) });
+                    unidadId = Array.isArray(nueva) ? nueva[0].id : nueva.id;
+                }
+            }
+            const payload = {
+                sku: document.getElementById('prod-sku').value.trim(),
+                codigo_barras: document.getElementById('prod-codigo-barras').value.trim() || null,
+                nombre: document.getElementById('prod-nombre').value.trim(),
+                descripcion: document.getElementById('prod-descripcion').value.trim() || null,
+                categoria: document.getElementById('prod-categoria').value.trim() || null,
+                marca: document.getElementById('prod-marca').value.trim() || null,
+                modelo: document.getElementById('prod-modelo').value.trim() || null,
+                unidad_medida_id: unidadId,
+                peso: parseFloat(document.getElementById('prod-peso').value) || null,
+                peso_unidad: document.getElementById('prod-peso-unidad').value.trim() || null,
+                volumen: parseFloat(document.getElementById('prod-volumen').value) || null,
+                volumen_unidad: document.getElementById('prod-volumen-unidad').value.trim() || null,
+                impuesto_porcentaje: parseFloat(document.getElementById('prod-impuesto').value) || null,
+                tipo_impuesto: document.getElementById('prod-tipo-impuesto').value.trim() || null,
+                precio_venta_base: parseFloat(document.getElementById('prod-precio').value) || 0,
+                moneda_precio_id: monPrecioId,
+                costo_unitario: parseFloat(document.getElementById('prod-costo').value) || null,
+                moneda_costo_id: monCostoId || null,
+                stock_minimo: parseInt(document.getElementById('prod-stock-min').value) || null,
+                stock_maximo: parseInt(document.getElementById('prod-stock-max').value) || null,
+                dias_vida_util: parseInt(document.getElementById('prod-dias-vida').value) || null,
+                maneja_lote: document.getElementById('prod-lote').value === 'true',
+                maneja_vencimiento: document.getElementById('prod-vencimiento').value === 'true',
+                empresa_id: currentUser.empresa_id
+            };
+            try {
+                const file = document.getElementById('file-prod-imagen').files[0];
+                if (file) payload.imagen = await uploadFile(file, 'productos');
+            } catch {}
+            try {
+                if (id) {
+                    delete payload.empresa_id;
+                    await apiFetch(`productos?id=eq.${id}`, 'PATCH', payload);
+                } else await apiFetch('productos', 'POST', payload);
+                cerrarModalProducto();
+                cargarProductos(document.getElementById('filtro-categoria-productos')?.value || '');
+                showNotification(id ? 'Producto actualizado' : 'Producto creado');
+            } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+        });
+
+        function llenarRolesSelect() {
+            ['usr-rol', 'filtro-rol-usuarios'].forEach(id => {
+                const sel = document.getElementById(id);
+                if (!sel) return;
+                sel.innerHTML = id === 'filtro-rol-usuarios' ? '<option value="">Todos los roles</option>' : '';
+                rolesDisponibles.forEach(r => { const o = document.createElement('option');
+                    o.value = r;
+                    o.text = r;
+                    sel.appendChild(o); });
+            });
+        }
+        async function cargarEquipo(rol = '') {
+            const empId = currentUser.empresa_id;
+            let q = `usuarios?empresa_id=eq.${empId}&select=*&order=apellido_paterno`;
+            if (rol) q += `&rol=eq.${encodeURIComponent(rol)}`;
+            const usuarios = await apiFetch(q);
+            let filas = '';
+            usuarios.forEach(u => {
+                filas += `<tr>
+                    <td>${u.nombres} ${u.apellido_paterno} ${u.apellido_materno||''}</td>
+                    <td>${u.email}</td><td>${u.rol}</td><td>${(u.telefono||'').substring(0,20)}</td>
+                    <td><span class="badge ${u.activo?'badge-success':'badge-danger'}">${u.activo?'Activo':'Inactivo'}</span></td>
+                    <td class="action-buttons">
+                        <button class="btn-sm btn-edit" onclick="editarUsuario('${u.id}')"><i class="fas fa-edit"></i></button>
+                        ${u.activo ? `<button class="btn-sm btn-delete" onclick="toggleUsuario('${u.id}',false)"><i class="fas fa-ban"></i></button>` : `<button class="btn-sm btn-activate" onclick="toggleUsuario('${u.id}',true)"><i class="fas fa-check"></i></button>`}
+                    </td></tr>`;
+            });
+            const html = `
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Equipo</h2>
+                        <button class="btn-solid" onclick="abrirModalUsuario()"><i class="fas fa-plus"></i> Nuevo Miembro</button>
+                    </div>
+                    <div class="filtros">
+                        <select id="filtro-rol-usuarios" onchange="cargarEquipo(this.value)"><option value="">Todos los roles</option></select>
+                    </div>
+                    <div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Teléfono</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div>
+                </div>`;
+            document.getElementById('tab-equipo').innerHTML = html;
+            llenarRolesSelect();
+            if (rol) document.getElementById('filtro-rol-usuarios').value = rol;
+        }
+        function abrirModalUsuario(id = null) {
+            document.getElementById('modal-usuario').classList.add('active');
+            document.getElementById('form-usuario').reset();
+            document.getElementById('usuario-id').value = '';
+            document.getElementById('empleado-id').value = '';
+            document.getElementById('password-fields').style.display = 'flex';
+            document.getElementById('titulo-modal-usuario').textContent = 'Nuevo Miembro';
+            actualizarTiposDocumento('');
+            actualizarTiposContrato('');
+            if (id) editarUsuario(id);
+        }
+        function cerrarModalUsuario() { document.getElementById('modal-usuario').classList.remove('active'); }
+        async function editarUsuario(id) {
+            const usuarios = await apiFetch(`usuarios?id=eq.${id}&select=*`);
+            if (!usuarios.length) return;
+            const u = usuarios[0];
+            document.getElementById('usuario-id').value = u.id;
+            document.getElementById('usr-nombres').value = u.nombres;
+            document.getElementById('usr-ap').value = u.apellido_paterno;
+            document.getElementById('usr-am').value = u.apellido_materno || '';
+            document.getElementById('usr-email').value = u.email;
+            document.getElementById('usr-rol').value = u.rol;
+            document.getElementById('usr-telefono').value = (u.telefono || '').substring(0, 20);
+            document.getElementById('usr-extension').value = u.extension || '';
+            document.getElementById('usr-fecha-nac').value = u.fecha_nacimiento || '';
+            document.getElementById('password-fields').style.display = 'none';
+            document.getElementById('titulo-modal-usuario').textContent = 'Editar Miembro';
+            const empleados = await apiFetch(
+                `empleados?empresa_id=eq.${currentUser.empresa_id}&email=eq.${u.email}&select=*`);
+            if (empleados.length) {
+                const e = empleados[0];
+                document.getElementById('empleado-id').value = e.id;
+                document.getElementById('usr-tipo-doc').value = (e.tipo_documento || '').substring(0, 20);
+                document.getElementById('usr-num-doc').value = e.numero_documento || '';
+                document.getElementById('usr-direccion').value = e.direccion || '';
+                document.getElementById('usr-pais').value = e.pais || '';
+                document.getElementById('usr-estado').value = e.estado_provincia || '';
+                document.getElementById('usr-ciudad').value = e.ciudad || '';
+                document.getElementById('usr-puesto').value = e.puesto || '';
+                document.getElementById('usr-departamento').value = e.departamento || '';
+                document.getElementById('usr-salario').value = e.salario_base || '';
+                document.getElementById('usr-fecha-contrato').value = e.fecha_contratacion || '';
+                document.getElementById('usr-fecha-fin').value = e.fecha_fin_contrato || '';
+                document.getElementById('usr-tipo-contrato').value = e.tipo_contrato || '';
+                if (e.moneda_salario_id) {
+                    const mon = await apiFetch(`monedas?id=eq.${e.moneda_salario_id}&select=codigo,nombre`);
+                    if (mon.length) document.getElementById('usr-moneda-salario').value =
+                        `${mon[0].codigo} - ${mon[0].nombre}`;
+                }
+                if (e.pais) { actualizarExtensionUsuario(e.pais);
+                    actualizarTiposDocumento(e.pais);
+                    actualizarTiposContrato(e.pais); }
+            } else {
+                document.getElementById('empleado-id').value = '';
+                document.getElementById('usr-puesto').value = puestoPorRol[u.rol] || '';
+                document.getElementById('usr-departamento').value = deptosPorRol[u.rol] || '';
+            }
+            document.getElementById('modal-usuario').classList.add('active');
+        }
+        async function toggleUsuario(id, activo) {
+            await apiFetch(`usuarios?id=eq.${id}`, 'PATCH', { activo });
+            cargarEquipo(document.getElementById('filtro-rol-usuarios')?.value || '');
+            showNotification(activo ? 'Usuario activado' : 'Usuario desactivado');
+        }
+        function togglePassword(fid, btn) {
+            const i = document.getElementById(fid);
+            i.type = i.type === 'password' ? 'text' : 'password';
+            btn.querySelector('i').classList.toggle('fa-eye');
+            btn.querySelector('i').classList.toggle('fa-eye-slash');
+        }
+        document.getElementById('form-usuario').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const userId = document.getElementById('usuario-id').value;
+            const empleadoId = document.getElementById('empleado-id').value;
+            const payloadUsuario = {
+                nombres: document.getElementById('usr-nombres').value.trim(),
+                apellido_paterno: document.getElementById('usr-ap').value.trim(),
+                apellido_materno: document.getElementById('usr-am').value.trim() || null,
+                email: document.getElementById('usr-email').value.trim(),
+                rol: document.getElementById('usr-rol').value,
+                telefono: document.getElementById('usr-telefono').value.trim().substring(0, 20) || null,
+                extension: document.getElementById('usr-extension').value.trim() || null,
+                fecha_nacimiento: document.getElementById('usr-fecha-nac').value || null,
+            };
+            const payloadEmpleado = {
+                tipo_documento: document.getElementById('usr-tipo-doc').value.trim().substring(0, 20) || null,
+                numero_documento: document.getElementById('usr-num-doc').value.trim() || null,
+                nombres: payloadUsuario.nombres,
+                apellido_paterno: payloadUsuario.apellido_paterno,
+                apellido_materno: payloadUsuario.apellido_materno,
+                email: payloadUsuario.email,
+                telefono: payloadUsuario.telefono,
+                direccion: document.getElementById('usr-direccion').value.trim() || null,
+                pais: document.getElementById('usr-pais').value.trim() || null,
+                estado_provincia: document.getElementById('usr-estado').value.trim() || null,
+                ciudad: document.getElementById('usr-ciudad').value.trim() || null,
+                fecha_nacimiento: payloadUsuario.fecha_nacimiento,
+                puesto: document.getElementById('usr-puesto').value.trim() || null,
+                departamento: document.getElementById('usr-departamento').value.trim() || null,
+                salario_base: parseFloat(document.getElementById('usr-salario').value) || null,
+                tipo_contrato: document.getElementById('usr-tipo-contrato').value.trim() || null,
+                fecha_contratacion: document.getElementById('usr-fecha-contrato').value || null,
+                fecha_fin_contrato: document.getElementById('usr-fecha-fin').value || null,
+            };
+            const monSal = document.getElementById('usr-moneda-salario').value.trim();
+            if (monSal) { try { payloadEmpleado.moneda_salario_id = await ensureCurrency(monSal); } catch {
+                    showNotification('Moneda inválida', 'error'); return; } }
+            try {
+                if (!userId) {
+                    const pass = document.getElementById('usr-password').value,
+                        pass2 = document.getElementById('usr-password2').value;
+                    if (!pass || pass.length < 6) { showNotification('Contraseña mínima 6 caracteres', 'error'); return; }
+                    if (pass !== pass2) { showNotification('No coinciden', 'error'); return; }
+                    const hash = await apiFetch('rpc/crypt_password', 'POST', { pass });
+                    payloadUsuario.password_hash = hash;
+                    payloadUsuario.empresa_id = currentUser.empresa_id;
+                    await apiFetch('usuarios', 'POST', payloadUsuario);
+                    payloadEmpleado.empresa_id = currentUser.empresa_id;
+                    await apiFetch('empleados', 'POST', payloadEmpleado);
+                } else {
+                    await apiFetch(`usuarios?id=eq.${userId}`, 'PATCH', payloadUsuario);
+                    if (empleadoId) await apiFetch(`empleados?id=eq.${empleadoId}`, 'PATCH', payloadEmpleado);
+                    else { payloadEmpleado.empresa_id = currentUser.empresa_id;
+                        await apiFetch('empleados', 'POST', payloadEmpleado); }
+                }
+                cerrarModalUsuario();
+                cargarEquipo(document.getElementById('filtro-rol-usuarios')?.value || '');
+                showNotification(userId ? 'Usuario actualizado' : 'Usuario creado');
+            } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+        });
+
+        function actualizarExtensionUsuario(pais) {
+            const p = paisesData.find(x => x.name.common.toLowerCase() === pais.toLowerCase());
+            if (p && p.idd) document.getElementById('usr-extension').value = (p.idd.root || '') + (p.idd.suffixes?.[0] ||
+                '');
+        }
+
+        async function cargarFormularioEmpresa() {
+            if (!empresaActual) { const emp = await apiFetch(`empresas?id=eq.${currentUser.empresa_id}&select=*`);
+                empresaActual = emp[0]; }
+            empresaOriginal = { ...empresaActual };
+            document.getElementById('emp-razon').value = empresaActual.razon_social || '';
+            document.getElementById('emp-nombre').value = empresaActual.nombre_comercial || '';
+            document.getElementById('emp-nit').value = empresaActual.nit || '';
+            if (empresaActual.moneda_principal_id) {
+                const mon = await apiFetch(`monedas?id=eq.${empresaActual.moneda_principal_id}&select=codigo,nombre`);
+                if (mon.length) document.getElementById('emp-moneda-input').value = `${mon[0].codigo} - ${mon[0].nombre}`;
+            }
+            document.getElementById('emp-pais').value = empresaActual.pais || '';
+            document.getElementById('emp-estado').value = empresaActual.estado_provincia || '';
+            document.getElementById('emp-ciudad').value = empresaActual.ciudad || '';
+            document.getElementById('emp-direccion').value = empresaActual.direccion || '';
+            document.getElementById('emp-telefono').value = empresaActual.telefono || '';
+            document.getElementById('emp-email').value = empresaActual.email || '';
+            deshabilitarEdicionEmpresa();
+        }
+        function habilitarEdicionEmpresa() {
+            document.querySelectorAll('#form-empresa input:not([type=file])').forEach(c => c.disabled = false);
+            document.getElementById('file-logotipo').disabled = false;
+            document.getElementById('file-imagen').disabled = false;
+            document.getElementById('btn-editar-empresa').style.display = 'none';
+            document.getElementById('botones-edicion-empresa').style.display = 'flex';
+        }
+        function deshabilitarEdicionEmpresa() {
+            document.querySelectorAll('#form-empresa input:not([type=file])').forEach(c => c.disabled = true);
+            document.getElementById('file-logotipo').disabled = true;
+            document.getElementById('file-imagen').disabled = true;
+            document.getElementById('btn-editar-empresa').style.display = 'inline-flex';
+            document.getElementById('botones-edicion-empresa').style.display = 'none';
+        }
+        function cancelarEdicionEmpresa() {
+            document.getElementById('emp-razon').value = empresaOriginal.razon_social || '';
+            document.getElementById('emp-nombre').value = empresaOriginal.nombre_comercial || '';
+            document.getElementById('emp-nit').value = empresaOriginal.nit || '';
+            if (empresaOriginal.moneda_principal_id) apiFetch(
+                `monedas?id=eq.${empresaOriginal.moneda_principal_id}&select=codigo,nombre`).then(m => { if (m
+                    .length) document.getElementById('emp-moneda-input').value =
+                    `${m[0].codigo} - ${m[0].nombre}`; });
+            document.getElementById('emp-pais').value = empresaOriginal.pais || '';
+            document.getElementById('emp-estado').value = empresaOriginal.estado_provincia || '';
+            document.getElementById('emp-ciudad').value = empresaOriginal.ciudad || '';
+            document.getElementById('emp-direccion').value = empresaOriginal.direccion || '';
+            document.getElementById('emp-telefono').value = empresaOriginal.telefono || '';
+            document.getElementById('emp-email').value = empresaOriginal.email || '';
+            deshabilitarEdicionEmpresa();
+        }
+        document.getElementById('form-empresa').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const monInput = document.getElementById('emp-moneda-input').value.trim();
+            let monId;
+            try { monId = await ensureCurrency(monInput); } catch { showNotification('Moneda inválida',
+                'error'); return; }
+            const payload = {
+                razon_social: document.getElementById('emp-razon').value.trim(),
+                nombre_comercial: document.getElementById('emp-nombre').value.trim(),
+                nit: document.getElementById('emp-nit').value.trim(),
+                moneda_principal_id: monId,
+                pais: document.getElementById('emp-pais').value.trim() || null,
+                estado_provincia: document.getElementById('emp-estado').value.trim() || null,
+                ciudad: document.getElementById('emp-ciudad').value.trim() || null,
+                direccion: document.getElementById('emp-direccion').value.trim() || null,
+                telefono: document.getElementById('emp-telefono').value.trim() || null,
+                email: document.getElementById('emp-email').value.trim() || null
+            };
+            try {
+                const fLogo = document.getElementById('file-logotipo').files[0];
+                if (fLogo) payload.logotipo = await uploadFile(fLogo, 'logos');
+                const fImg = document.getElementById('file-imagen').files[0];
+                if (fImg) payload.imagen = await uploadFile(fImg, 'imagenes');
+                await apiFetch(`empresas?id=eq.${currentUser.empresa_id}`, 'PATCH', payload);
+                empresaActual = { ...empresaActual, ...payload };
+                empresaOriginal = { ...empresaActual };
+                showNotification('Empresa actualizada');
+                deshabilitarEdicionEmpresa();
+            } catch (err) { showNotification('Error: ' + err.message, 'error'); }
+        });
+
+        window.onload = async function() {
+            verificarSesion();
+            if (currentUser) {
+                await cargarDatosIniciales();
+                llenarRolesSelect();
+                cargarDashboard();
+            }
+        };
+    </script>
+</body>
+</html>
