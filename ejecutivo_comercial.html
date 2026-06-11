@@ -53,11 +53,11 @@
         .btn-add { background:#1a56db; color:white; border:none; padding:10px 18px; border-radius:30px; font-weight:600; font-size:0.9rem; display:inline-flex; align-items:center; gap:6px; margin-bottom:12px; cursor:pointer; }
         .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,18,0.8); backdrop-filter:blur(8px); z-index:2000; display:none; align-items:flex-end; justify-content:center; }
         .modal-overlay.active { display:flex; }
-        .modal { background:white; border-radius:28px 28px 0 0; padding:24px 20px; width:100%; max-height:92vh; overflow-y:auto; box-shadow:0 -8px 32px rgba(0,0,0,0.15); animation:slideUp 0.25s ease; }
-        .modal-fullscreen { border-radius:28px 28px 0 0; max-height:95vh; min-height:80vh; }
+        .modal { background:white; border-radius:28px 28px 0 0; padding:24px 20px; width:100%; max-height:85vh; overflow-y:auto; box-shadow:0 -8px 32px rgba(0,0,0,0.15); animation:slideUp 0.25s ease; }
+        .modal-venta-full { border-radius:0; height:100%; max-height:100vh; display:flex; flex-direction:column; }
         @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
         .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-        .modal-header h2 { font-size:1.4rem; font-weight:700; color:#0f172a; }
+        .modal-header h2 { font-size:1.4rem; font-weight:700; }
         .close-modal { background:none; border:none; font-size:1.8rem; color:#64748b; cursor:pointer; }
         .form-group { margin-bottom:14px; }
         .form-group label { font-size:0.73rem; font-weight:700; text-transform:uppercase; color:#334155; display:block; margin-bottom:4px; }
@@ -71,8 +71,7 @@
         .acciones-panel { position:fixed; bottom:0; left:0; width:100%; background:white; border-radius:28px 28px 0 0; padding:20px; box-shadow:0 -8px 32px rgba(0,0,0,0.2); z-index:1500; display:none; flex-direction:column; gap:12px; }
         .acciones-panel.active { display:flex; }
         .acciones-panel button { width:100%; padding:14px; border-radius:16px; border:none; font-weight:600; display:flex; align-items:center; gap:12px; cursor:pointer; font-size:0.95rem; background:#f8fafc; color:#1e293b; }
-        .acciones-panel .danger-btn { color:#991b1b; }
-        .acciones-panel .cancel-btn { background:#e2e8f0; color:#1e293b; font-weight:700; }
+        .acciones-panel .danger-btn { color:#991b1b; } .acciones-panel .cancel-btn { color:#1e293b; background:transparent; border:2px solid #cbd5e1; font-weight:700; }
         .order-line { display:flex; align-items:center; gap:8px; margin-bottom:8px; background:#f8fafc; padding:8px; border-radius:12px; }
         .order-line span { flex:1; font-size:0.85rem; }
         .order-line input.qty { width:50px; text-align:center; }
@@ -81,8 +80,12 @@
         .confirm-box { background:white; border-radius:28px; padding:36px 32px; max-width:440px; width:90%; text-align:center; box-shadow:0 30px 60px rgba(0,0,0,0.4); animation:modalIn 0.3s ease; }
         @keyframes modalIn { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
         .confirm-buttons { display:flex; gap:12px; justify-content:center; margin-top:24px; }
-        .confirm-box .btn-outline { background:transparent; border:1.5px solid #cbd5e1; color:#1e293b; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
-        .confirm-box .btn-solid { background:#c2412c; border:none; color:white; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
+        .btn-outline { background:transparent; border:1.5px solid #cbd5e1; color:#1e293b; padding:12px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.25s; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
+        .btn-outline:hover { background:#f1f5f9; border-color:#94a3b8; }
+        .btn-solid { background:#1a56db; border:none; color:white; padding:12px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.25s; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
+        .btn-solid:hover { background:#1340a0; box-shadow:0 0 18px rgba(26,86,219,0.5); }
+        .btn-solid.danger { background:#c2412c; }
+        .btn-solid.danger:hover { background:#9b1b1b; }
         .mi-ubicacion-marker {
             width: 20px; height: 20px; background: #4285F4; border-radius: 50%;
             border: 2px solid white; box-shadow: 0 0 0 2px #4285F4;
@@ -93,9 +96,10 @@
             70% { box-shadow: 0 0 0 15px rgba(66,133,244, 0); }
             100% { box-shadow: 0 0 0 0 rgba(66,133,244, 0); }
         }
-        .search-icon-btn { background:#f1f5f9; border:none; border-radius:12px; padding:10px 16px; cursor:pointer; font-size:1.2rem; color:#475569; }
-        .product-search-panel { display:none; margin-top:8px; background:#f8fafc; border-radius:16px; padding:12px; }
-        .product-search-panel.open { display:block; }
+        .producto-busqueda-item { padding:10px 12px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+        .producto-busqueda-item:active { background:#e0f2fe; }
+        .venta-header-compact { display:flex; align-items:center; gap:8px; }
+        .venta-lista-scroll { flex:1; overflow-y:auto; margin:8px 0; }
     </style>
 </head>
 <body>
@@ -104,8 +108,8 @@
             <h2 id="confirm-titulo" style="font-size:1.4rem; font-weight:700; color:#0f172a;">Confirmar acción</h2>
             <p id="confirm-mensaje" style="color:#475569; font-size:0.95rem; margin:12px 0;"></p>
             <div class="confirm-buttons">
-                <button class="btn-outline" onclick="cerrarConfirm(false)">Cancelar</button>
-                <button class="btn-solid" id="confirm-btn-ok" onclick="cerrarConfirm(true)">Confirmar</button>
+                <button class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarConfirm(false)">Cancelar</button>
+                <button class="btn-solid danger" id="confirm-btn-ok" onclick="cerrarConfirm(true)">Confirmar</button>
             </div>
         </div>
     </div>
@@ -192,40 +196,38 @@
                 </div>
                 <div class="form-group"><label>Tipo de Negocio</label><input id="cli-tipo-negocio" list="tipos-negocio"><datalist id="tipos-negocio"><option>Tienda</option><option>Mecánica</option><option>Abarrotes</option><option>Carnicería</option><option>Farmacia</option><option>Ferretería</option><option>Panadería</option><option>Restaurante</option></datalist></div>
                 <div class="form-group"><label>Fotografía</label><input type="file" id="file-cli-imagen" accept="image/*"></div>
-                <div style="display:flex; gap:12px; margin-top:8px;">
-                    <button type="submit" class="btn-add" style="flex:1; justify-content:center;">Guardar</button>
-                    <button type="button" class="btn-add" id="btn-eliminar-cliente" style="background:#c2412c; display:none;" onclick="eliminarClienteDesdeEdicion()"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+                    <button type="submit" class="btn-solid" style="width:100%; justify-content:center;">Guardar</button>
+                    <button type="button" class="btn-solid danger" id="btn-eliminar-cliente-modal" style="width:100%; justify-content:center; display:none;" onclick="eliminarClienteDesdeModal()"><i class="fas fa-trash-alt"></i> Eliminar cliente</button>
                 </div>
             </form>
         </div>
     </div>
 
     <div class="modal-overlay" id="modal-venta">
-        <div class="modal modal-fullscreen">
+        <div class="modal modal-venta-full">
             <div class="modal-header">
                 <h2 id="titulo-modal-venta">Nuevo Pedido</h2>
                 <button class="close-modal" onclick="cerrarModalVenta()">&times;</button>
             </div>
-            <div class="form-group" style="display:none;" id="grupo-cliente-venta">
+            <div class="form-group" style="margin-bottom:4px;">
                 <label>Cliente</label>
                 <select id="venta-cliente" required></select>
             </div>
-            <div class="form-group" style="position:relative;">
-                <label>Productos</label>
-                <div style="display:flex; gap:8px; align-items:center;">
-                    <button type="button" class="search-icon-btn" onclick="toggleBuscadorProductos()" title="Buscar producto">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <span style="font-size:0.85rem; color:#64748b;">Buscar y agregar productos</span>
-                </div>
-                <div class="product-search-panel" id="panel-busqueda-producto">
-                    <input type="text" id="busqueda-producto" placeholder="Escriba nombre del producto..." autocomplete="off" oninput="filtrarProductosBusqueda()" style="width:100%; margin-bottom:8px; padding:10px; border:1.5px solid #e2e8f0; border-radius:12px;">
-                    <div id="resultados-busqueda" style="max-height:250px; overflow-y:auto;"></div>
-                </div>
+            <div class="venta-header-compact" style="margin-bottom:8px;">
+                <label style="font-size:0.73rem; font-weight:700; text-transform:uppercase; color:#334155;">Productos</label>
+                <button type="button" id="btn-buscar-producto" style="background:#f1f5f9; border:none; border-radius:12px; padding:8px 12px; cursor:pointer; margin-left:auto;" onclick="toggleBuscadorProductos()">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
-            <div id="lineas-pedido" style="min-height:150px;"></div>
-            <div style="text-align:right; margin:12px 0; font-weight:700; font-size:1.1rem;">Total: $<span id="total-pedido">0.00</span></div>
-            <button class="btn-add" id="btn-enviar-pedido" onclick="enviarPedido()" style="width:100%; justify-content:center;">Registrar pedido</button>
+            <div id="panel-busqueda-producto" style="display:none; margin-bottom:8px; background:#f8fafc; border-radius:16px; padding:12px;">
+                <input type="text" id="busqueda-producto" placeholder="Buscar producto..." autocomplete="off" oninput="filtrarProductosBusqueda()" style="width:100%; margin-bottom:8px; padding:10px; border:1px solid #e2e8f0; border-radius:12px;">
+                <div id="resultados-busqueda" style="max-height:200px; overflow-y:auto;"></div>
+            </div>
+            <div class="venta-lista-scroll" id="lineas-pedido"></div>
+            <div style="text-align:right; margin:8px 0; font-weight:700; font-size:1.1rem;">Total: $<span id="total-pedido">0.00</span></div>
+            <button class="btn-solid" id="btn-enviar-pedido" onclick="enviarPedido()" style="width:100%; justify-content:center;">Registrar pedido</button>
+            <button class="btn-solid danger" id="btn-eliminar-pedido-modal" style="width:100%; justify-content:center; margin-top:8px; display:none;" onclick="eliminarPedidoDesdeModal()"><i class="fas fa-trash-alt"></i> Eliminar pedido</button>
         </div>
     </div>
 
@@ -244,14 +246,14 @@
         let clienteSeleccionadoParaAccion = null;
         let ultimoPedidoClienteMap = {};
         let documentoEditando = null;
-        let nuevoClientePendiente = false;
-        let ventaParaNuevoCliente = null;
+        let pedidosDelClienteActual = [];
 
         let draggingMarker = null;
         let dragStartCoords = null;
         let dragClienteId = null;
         let pendingReopenModal = false;
         let tempLocationMarker = null;
+        let flujoNuevoClientePendiente = false;
 
         const DAY_COLORS = {
             'Lunes': '#e74c3c', 'Martes': '#e67e22', 'Miércoles': '#f1c40f',
@@ -293,8 +295,7 @@
             document.getElementById('confirm-overlay').classList.remove('active');
             if (draggingMarker) cancelarArrastreUbicacion();
             if (tempLocationMarker) cancelarSeleccionUbicacionTemporal();
-            nuevoClientePendiente = false;
-            ventaParaNuevoCliente = null;
+            flujoNuevoClientePendiente = false;
         }
 
         function irASeccion(seccion) {
@@ -336,16 +337,11 @@
         }
 
         window.addEventListener('popstate', function(e) {
-            if (manejarBotonAtras()) {
-                return;
-            }
+            if (manejarBotonAtras()) return;
             if (e.state && e.state.page) {
                 const page = e.state.page;
-                if (page === 'main') {
-                    showMain();
-                } else if (page === 'clientes' || page === 'avance') {
-                    showSeccion(page);
-                }
+                if (page === 'main') showMain();
+                else if (page === 'clientes' || page === 'avance') showSeccion(page);
             } else {
                 showMain();
                 history.replaceState({page: 'main'}, '', '#main');
@@ -354,9 +350,7 @@
 
         history.replaceState({page: 'main'}, '', '#main');
 
-        function pushModalState() {
-            history.pushState({modal: true}, '');
-        }
+        function pushModalState() { history.pushState({modal: true}, ''); }
 
         let confirmCallback = null;
         function mostrarConfirmacion(mensaje, titulo, callback) {
@@ -418,14 +412,9 @@
         async function obtenerEmpleadoId() {
             try {
                 const emps = await apiFetch(`empleados?email=eq.${encodeURIComponent(currentUser.email)}&empresa_id=eq.${empresaId}&select=id&limit=1`);
-                if(emps && emps.length) {
-                    currentEmployeeId = emps[0].id;
-                } else {
-                    showNotification('No se encontró tu perfil de empleado', 'error');
-                }
-            } catch(e) {
-                showNotification('Error al cargar perfil de empleado', 'error');
-            }
+                if(emps && emps.length) currentEmployeeId = emps[0].id;
+                else showNotification('No se encontró tu perfil de empleado', 'error');
+            } catch(e) { showNotification('Error al cargar perfil de empleado', 'error'); }
         }
 
         function cerrarSesion() { sessionStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
@@ -625,14 +614,11 @@
             if(!clienteId) return;
             clienteSeleccionadoParaAccion = clienteId;
             const panel = document.getElementById('acciones-panel');
-            const tienePedido = !!ultimoPedidoClienteMap[clienteId];
             let html = `<div style="font-weight:600; padding:8px 0; font-size:1.1rem;">${nombreCliente || 'Cliente'}</div>`;
             html += `<button onclick="accionPanel('vender')"><i class="fas fa-shopping-cart"></i> Registrar Venta</button>`;
-            if(tienePedido) {
-                html += `<button onclick="accionPanel('editar_pedido')"><i class="fas fa-pencil-alt"></i> Editar Pedido</button>`;
-            }
+            html += `<button onclick="accionPanel('editar_pedido')"><i class="fas fa-pencil-alt"></i> Editar Pedido</button>`;
             html += `<button onclick="accionPanel('editar_cliente')"><i class="fas fa-edit"></i> Editar Datos del Cliente</button>`;
-            html += `<button onclick="cerrarAccionesPanel()" class="cancel-btn"><i class="fas fa-times"></i> Cancelar</button>`;
+            html += `<button onclick="cerrarAccionesPanel()" class="cancel-btn">Cancelar</button>`;
             panel.innerHTML = html;
             panel.classList.add('active');
             pushModalState();
@@ -643,204 +629,218 @@
             clienteSeleccionadoParaAccion = null;
         }
 
-        function accionPanel(accion) {
+        async function accionPanel(accion) {
             if(!clienteSeleccionadoParaAccion) { cerrarAccionesPanel(); return; }
             const id = clienteSeleccionadoParaAccion;
             cerrarAccionesPanel();
-            if(accion === 'vender') abrirModalVentaConCliente(id);
+            if(accion === 'vender') registrarVentaDesdeCliente(id);
             else if(accion === 'editar_cliente') editarCliente(id);
             else if(accion === 'editar_pedido') {
-                const doc = ultimoPedidoClienteMap[id];
-                if(doc) editarPedidoExistente(doc);
-                else showNotification('No hay pedido para editar','error');
-            }
-        }
-
-        async function iniciarFlujoNuevoCliente() {
-            if(!currentEmployeeId) return;
-            try {
-                const payload = {
-                    empresa_id: empresaId,
-                    vendedor_asignado_id: currentEmployeeId,
-                    nombres: 'Nuevo',
-                    apellido_paterno: 'Cliente',
-                    activo: true
-                };
-                const creado = await apiFetch('clientes', 'POST', payload);
-                const nuevoCliente = Array.isArray(creado) ? creado[0] : creado;
-                ventaParaNuevoCliente = nuevoCliente.id;
-                nuevoClientePendiente = true;
-                await abrirModalVentaConCliente(nuevoCliente.id);
-                showNotification('Registre la venta y luego complete los datos del cliente');
-            } catch(e) {
-                showNotification('Error al preparar nuevo cliente: '+e.message, 'error');
-            }
-        }
-
-        function moverUbicacionDesdeModal() {
-            const id = document.getElementById('cliente-id').value;
-            if(!id) {
-                seleccionarUbicacionParaNuevoCliente();
-                return;
-            }
-            cerrarModalCliente();
-            activarArrastreUbicacion(id, true);
-        }
-
-        async function seleccionarUbicacionParaNuevoCliente() {
-            if(!map) { showNotification('Mapa no disponible', 'error'); return; }
-            document.getElementById('modal-cliente').classList.remove('active');
-            let coordsActuales = null;
-            const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
-            if(gpsInputs.length) {
-                const val = gpsInputs[0].value.trim();
-                const parts = val.split(',').map(Number);
-                if(parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-                    coordsActuales = { lat: parts[0], lng: parts[1] };
+                await cargarPedidosDelCliente(id);
+                if(pedidosDelClienteActual.length === 0) {
+                    showNotification('Este cliente no tiene pedidos aún', 'error');
+                    return;
+                }
+                if(pedidosDelClienteActual.length === 1) {
+                    editarPedidoExistente(pedidosDelClienteActual[0].documento_venta);
+                } else {
+                    mostrarSelectorPedidos();
                 }
             }
-            if(!coordsActuales && miUbicacionMarker) {
-                coordsActuales = { lat: miUbicacionMarker.position.lat, lng: miUbicacionMarker.position.lng };
-            }
-            if(!coordsActuales) {
-                coordsActuales = { lat: map.getCenter().lat(), lng: map.getCenter().lng() };
-            }
+        }
 
-            const pinElement = new google.maps.marker.PinElement({
-                background: '#e67e22',
-                borderColor: '#0f172a',
-                glyphColor: '#fff',
-                scale: 1.3
+        async function cargarPedidosDelCliente(clienteId) {
+            pedidosDelClienteActual = await apiFetch(`ventas?cliente_id=eq.${clienteId}&order=fecha.desc&select=documento_venta,fecha,total_linea`);
+        }
+
+        function mostrarSelectorPedidos() {
+            const panel = document.getElementById('acciones-panel');
+            let html = '<div style="font-weight:600; padding:8px 0;">Selecciona un pedido</div>';
+            pedidosDelClienteActual.forEach(p => {
+                const fecha = new Date(p.fecha).toLocaleDateString();
+                html += `<button onclick="editarPedidoExistente('${p.documento_venta}'); cerrarAccionesPanel();">📄 ${fecha} - $${parseFloat(p.total_linea||0).toFixed(2)}</button>`;
             });
-            tempLocationMarker = new google.maps.marker.AdvancedMarkerElement({
-                position: coordsActuales,
-                map: map,
-                title: 'Arrastra para ajustar ubicación',
-                content: pinElement,
-                gmpDraggable: true
-            });
-            map.setCenter(coordsActuales);
-            map.setZoom(16);
-            showNotification('Arrastra el marcador naranja y presiona "Listo"', 'success');
-
-            const confirmBtn = document.createElement('button');
-            confirmBtn.id = 'btn-confirmar-temp-location';
-            confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
-            confirmBtn.style.cssText = 'position:absolute; bottom:220px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
-            confirmBtn.onclick = confirmarSeleccionUbicacionTemporal;
-            document.getElementById('mapa-tab').appendChild(confirmBtn);
-
-            const cancelBtn = document.createElement('button');
-            cancelBtn.id = 'btn-cancelar-temp-location';
-            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar';
-            cancelBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
-            cancelBtn.onclick = cancelarSeleccionUbicacionTemporal;
-            document.getElementById('mapa-tab').appendChild(cancelBtn);
+            html += '<button onclick="cerrarAccionesPanel()" class="cancel-btn">Cancelar</button>';
+            panel.innerHTML = html;
+            panel.classList.add('active');
             pushModalState();
         }
 
-        function confirmarSeleccionUbicacionTemporal() {
-            if(!tempLocationMarker) return;
-            const pos = tempLocationMarker.position;
-            const coordStr = `${pos.lat}, ${pos.lng}`;
-            const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
-            if(gpsInputs.length) {
-                gpsInputs[0].value = coordStr;
+        function iniciarFlujoNuevoCliente() {
+            flujoNuevoClientePendiente = true;
+            abrirModalVenta(null, false);
+        }
+
+        async function registrarVentaDesdeCliente(clienteId) { abrirModalVenta(clienteId, false); }
+
+        async function abrirModalVenta(clienteId=null, modoEdicion=false) {
+            document.getElementById('modal-venta').classList.add('active');
+            pushModalState();
+            const titulo = document.getElementById('titulo-modal-venta');
+            const btnEnviar = document.getElementById('btn-enviar-pedido');
+            const btnEliminar = document.getElementById('btn-eliminar-pedido-modal');
+            btnEliminar.style.display = modoEdicion ? 'flex' : 'none';
+            if (modoEdicion) {
+                titulo.textContent = 'Editar Pedido';
+                btnEnviar.textContent = 'Actualizar pedido';
             } else {
-                agregarPuntoGPS();
-                const nuevosInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
-                if(nuevosInputs.length) nuevosInputs[0].value = coordStr;
+                titulo.textContent = 'Nuevo Pedido';
+                btnEnviar.textContent = 'Registrar pedido';
+                pedidoLineas = [];
             }
-            limpiarSeleccionTemporal();
-            document.getElementById('modal-cliente').classList.add('active');
-            pushModalState();
-            showNotification('Ubicación actualizada en el formulario');
-        }
-
-        function cancelarSeleccionUbicacionTemporal() {
-            limpiarSeleccionTemporal();
-            document.getElementById('modal-cliente').classList.add('active');
-            pushModalState();
-        }
-
-        function limpiarSeleccionTemporal() {
-            if(tempLocationMarker) {
-                tempLocationMarker.setMap(null);
-                tempLocationMarker = null;
+            const sel = document.getElementById('venta-cliente');
+            if(clienteId) {
+                const clientes = await apiFetch(`clientes?vendedor_asignado_id=eq.${currentEmployeeId}&activo=eq.true&select=id,razon_social,nombres,apellido_paterno&limit=1000`);
+                sel.innerHTML = clientes.map(c => `<option value="${c.id}" ${c.id===clienteId?'selected':''}>${c.razon_social || [c.nombres,c.apellido_paterno].join(' ')}</option>`).join('');
+            } else {
+                sel.innerHTML = '<option value="">-- Nuevo cliente --</option>';
             }
-            const confirmBtn = document.getElementById('btn-confirmar-temp-location');
-            const cancelBtn = document.getElementById('btn-cancelar-temp-location');
-            if(confirmBtn) confirmBtn.remove();
-            if(cancelBtn) cancelBtn.remove();
+            if (!modoEdicion) {
+                allProducts = await apiFetch(`productos?empresa_id=eq.${empresaId}&activo=eq.true&select=id,nombre,precio_venta_base,impuesto_porcentaje&limit=1000`);
+                pedidoLineas = [];
+            }
+            document.getElementById('busqueda-producto').value = '';
+            document.getElementById('panel-busqueda-producto').style.display = 'none';
+            document.getElementById('resultados-busqueda').innerHTML = '';
+            document.getElementById('lineas-pedido').innerHTML = '';
+            renderizarLineasPedido();
+            actualizarTotalPedido();
         }
 
-        function activarArrastreUbicacion(clienteId, reopenModal = false) {
-            if(!map || !clienteId) return;
-            const marker = clientMarkers.find(m => m.clienteId === clienteId);
-            if(!marker) {
-                showNotification('No se encontró el marcador del cliente en el mapa', 'error');
+        function cerrarModalVenta() { 
+            document.getElementById('modal-venta').classList.remove('active'); 
+            documentoEditando = null;
+        }
+
+        function toggleBuscadorProductos() {
+            const panel = document.getElementById('panel-busqueda-producto');
+            const mostrar = panel.style.display === 'none';
+            panel.style.display = mostrar ? 'block' : 'none';
+            if(mostrar) {
+                document.getElementById('busqueda-producto').focus();
+                filtrarProductosBusqueda();
+            }
+        }
+
+        function filtrarProductosBusqueda() {
+            const termino = document.getElementById('busqueda-producto').value.toLowerCase().trim();
+            const resultadosDiv = document.getElementById('resultados-busqueda');
+            const filtrados = termino ? allProducts.filter(p => p.nombre.toLowerCase().includes(termino)) : allProducts;
+            resultadosDiv.innerHTML = filtrados.map(p => `
+                <div class="producto-busqueda-item" onclick="seleccionarProducto('${p.id}')">
+                    <span>${p.nombre}</span>
+                    <span style="color:#475569;">$${parseFloat(p.precio_venta_base).toFixed(2)}</span>
+                </div>`).join('');
+        }
+
+        function seleccionarProducto(productId) {
+            const producto = allProducts.find(p => p.id === productId);
+            if(!producto) return;
+            const yaExiste = pedidoLineas.find(l => l.producto_id === productId);
+            if(yaExiste) { yaExiste.cantidad++; } 
+            else {
+                pedidoLineas.push({
+                    producto_id: productId,
+                    nombre: producto.nombre,
+                    precio: producto.precio_venta_base,
+                    impuesto: producto.impuesto_porcentaje||0,
+                    cantidad: 1
+                });
+            }
+            document.getElementById('busqueda-producto').value = '';
+            document.getElementById('panel-busqueda-producto').style.display = 'none';
+            renderizarLineasPedido();
+        }
+
+        function renderizarLineasPedido() {
+            const container = document.getElementById('lineas-pedido');
+            container.innerHTML = pedidoLineas.map((l, i) => `
+                <div class="order-line">
+                    <span>${l.nombre}</span>
+                    <span>$${l.precio.toFixed(2)}</span>
+                    <input class="qty" type="number" value="${l.cantidad}" min="1" onchange="actualizarCantidad(${i}, this.value)">
+                    <span>$${(l.precio * l.cantidad).toFixed(2)}</span>
+                    <button class="btn-sm danger" onclick="pedidoLineas.splice(${i},1); renderizarLineasPedido();"><i class="fas fa-trash"></i></button>
+                </div>`).join('');
+            actualizarTotalPedido();
+        }
+
+        function actualizarCantidad(index, val) {
+            pedidoLineas[index].cantidad = parseInt(val) || 1;
+            renderizarLineasPedido();
+        }
+
+        function actualizarTotalPedido() {
+            const total = pedidoLineas.reduce((sum, l) => sum + (l.precio * l.cantidad), 0);
+            document.getElementById('total-pedido').textContent = total.toFixed(2);
+        }
+
+        async function enviarPedido() {
+            const clienteId = document.getElementById('venta-cliente').value;
+            if(pedidoLineas.length===0) return showNotification('Agregue al menos un producto', 'error');
+            if(!clienteId && flujoNuevoClientePendiente) {
+                // Crear cliente temporal con coordenadas actuales
+                try {
+                    let coords = '';
+                    if(miUbicacionMarker) {
+                        coords = `${miUbicacionMarker.position.lat}, ${miUbicacionMarker.position.lng}`;
+                    } else if(navigator.geolocation) {
+                        const pos = await new Promise((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(resolve, reject);
+                        });
+                        coords = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+                    }
+                    const nuevoCliente = await apiFetch('clientes', 'POST', {
+                        empresa_id: empresaId,
+                        vendedor_asignado_id: currentEmployeeId,
+                        nombres: 'Nuevo',
+                        apellido_paterno: 'Cliente',
+                        direcciones_entrega: [{etiqueta:'Principal', coordenadas: coords}],
+                        activo: true
+                    });
+                    const nuevoId = Array.isArray(nuevoCliente) ? nuevoCliente[0].id : nuevoCliente.id;
+                    await procesarEnvioPedido(nuevoId);
+                    cerrarModalVenta();
+                    showNotification('Pedido registrado. Ahora complete los datos del cliente.');
+                    flujoNuevoClientePendiente = false;
+                    editarCliente(nuevoId);
+                } catch(e) { showNotification('Error al crear cliente: '+e.message, 'error'); }
                 return;
             }
-            draggingMarker = marker;
-            dragClienteId = clienteId;
-            dragStartCoords = marker.position;
-            marker.gmpDraggable = true;
-            pendingReopenModal = reopenModal;
-            showNotification('Arrastra el marcador a la nueva ubicación. Luego presiona "Listo".', 'success');
-
-            const confirmBtn = document.createElement('button');
-            confirmBtn.id = 'btn-confirmar-arrastre';
-            confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
-            confirmBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
-            confirmBtn.onclick = confirmarArrastreUbicacion;
-            document.getElementById('mapa-tab').appendChild(confirmBtn);
-
-            const cancelBtn = document.createElement('button');
-            cancelBtn.id = 'btn-cancelar-arrastre';
-            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar';
-            cancelBtn.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
-            cancelBtn.onclick = cancelarArrastreUbicacion;
-            document.getElementById('mapa-tab').appendChild(cancelBtn);
-            pushModalState();
+            if(!clienteId) return showNotification('Seleccione un cliente', 'error');
+            await procesarEnvioPedido(clienteId);
+            cerrarModalVenta();
+            showNotification(documentoEditando ? 'Pedido actualizado' : 'Pedido registrado');
+            aplicarFiltroActual();
         }
 
-        async function confirmarArrastreUbicacion() {
-            if(!draggingMarker || !dragClienteId) return;
-            const newPos = draggingMarker.position;
-            const lat = newPos.lat, lng = newPos.lng;
-            try {
-                const cliente = (await apiFetch(`clientes?id=eq.${dragClienteId}&select=direcciones_entrega`))[0];
-                if(cliente && cliente.direcciones_entrega?.length) {
-                    cliente.direcciones_entrega[0].coordenadas = `${lat}, ${lng}`;
-                    await apiFetch(`clientes?id=eq.${dragClienteId}`, 'PATCH', { direcciones_entrega: cliente.direcciones_entrega });
-                    showNotification('Ubicación actualizada');
-                    await aplicarFiltroActual();
-                }
-            } catch(e) { showNotification('Error: '+e.message, 'error'); }
-            const shouldReopen = pendingReopenModal;
-            limpiarArrastre();
-            if(shouldReopen) {
-                editarCliente(dragClienteId);
+        async function procesarEnvioPedido(clienteId) {
+            const moneda = (await apiFetch(`empresas?id=eq.${empresaId}&select=moneda_principal_id`))[0].moneda_principal_id;
+            if (documentoEditando) {
+                await apiFetch(`ventas?documento_venta=eq.${documentoEditando}`, 'DELETE');
+                var documento = documentoEditando;
+                documentoEditando = null;
+            } else {
+                var documento = `PED-${Date.now()}`;
             }
-        }
-
-        function cancelarArrastreUbicacion() {
-            if(draggingMarker && dragStartCoords) {
-                draggingMarker.position = dragStartCoords;
+            for(let i=0; i<pedidoLineas.length; i++) {
+                const l = pedidoLineas[i];
+                await apiFetch('ventas', 'POST', {
+                    documento_venta: documento,
+                    linea: i+1,
+                    empresa_id: empresaId,
+                    fecha: new Date().toISOString(),
+                    cliente_id: clienteId,
+                    vendedor_id: currentEmployeeId,
+                    moneda_id: moneda,
+                    estado: 'pendiente',
+                    producto_id: l.producto_id,
+                    cantidad: l.cantidad,
+                    precio_unitario: l.precio,
+                    descuento_porcentaje: 0,
+                    impuesto_porcentaje: l.impuesto
+                });
             }
-            limpiarArrastre();
-        }
-
-        function limpiarArrastre() {
-            if(draggingMarker) draggingMarker.gmpDraggable = false;
-            draggingMarker = null;
-            dragClienteId = null;
-            dragStartCoords = null;
-            pendingReopenModal = false;
-            const confirmBtn = document.getElementById('btn-confirmar-arrastre');
-            const cancelBtn = document.getElementById('btn-cancelar-arrastre');
-            if(confirmBtn) confirmBtn.remove();
-            if(cancelBtn) cancelBtn.remove();
         }
 
         async function editarPedidoExistente(documento) {
@@ -857,8 +857,20 @@
                 }));
                 documentoEditando = documento;
                 const clienteId = lineas[0].cliente_id;
-                await abrirModalVentaConCliente(clienteId, true);
+                await abrirModalVenta(clienteId, true);
             } catch(e) { showNotification('Error al cargar pedido: '+e.message, 'error'); }
+        }
+
+        function eliminarPedidoDesdeModal() {
+            if(!documentoEditando) return;
+            mostrarConfirmacion('¿Eliminar este pedido?', 'Eliminar pedido', async () => {
+                try {
+                    await apiFetch(`ventas?documento_venta=eq.${documentoEditando}`, 'DELETE');
+                    cerrarModalVenta();
+                    showNotification('Pedido eliminado');
+                    aplicarFiltroActual(); cargarClientesLista();
+                } catch(e) { showNotification('Error: '+e.message, 'error'); }
+            });
         }
 
         async function cargarClientesLista() {
@@ -875,12 +887,12 @@
         function abrirModalCliente(id=null) {
             document.getElementById('modal-cliente').classList.add('active');
             document.getElementById('form-cliente').reset();
-            document.getElementById('cliente-id').value = id || '';
+            document.getElementById('cliente-id').value = '';
             document.getElementById('cli-telefonos-container').innerHTML = '';
             document.getElementById('gps-entrega-container').innerHTML = '';
             document.getElementById('btn-mover-mapa').style.display = id ? 'inline-flex' : 'inline-flex';
-            document.getElementById('btn-eliminar-cliente').style.display = id ? 'inline-flex' : 'none';
             document.getElementById('titulo-modal-cliente').textContent = id ? 'Editar Cliente' : 'Nuevo Cliente';
+            document.getElementById('btn-eliminar-cliente-modal').style.display = id ? 'flex' : 'none';
             agregarTelefonoCliente(); agregarPuntoGPS();
             llenarTiposDocumento();
             if(!id) {
@@ -892,10 +904,6 @@
         }
         function cerrarModalCliente() { 
             document.getElementById('modal-cliente').classList.remove('active'); 
-            if (nuevoClientePendiente && ventaParaNuevoCliente) {
-                showNotification('Debe completar el registro del cliente', 'error');
-                document.getElementById('modal-cliente').classList.add('active');
-            }
         }
 
         function toggleClientePersona() {
@@ -972,20 +980,20 @@
                     document.getElementById('gps-entrega-container').appendChild(row);
                 });
                 document.getElementById('btn-mover-mapa').style.display = 'inline-flex';
-                document.getElementById('btn-eliminar-cliente').style.display = 'inline-flex';
+                document.getElementById('btn-eliminar-cliente-modal').style.display = 'flex';
                 document.getElementById('titulo-modal-cliente').textContent = 'Editar Cliente';
                 document.getElementById('modal-cliente').classList.add('active');
                 pushModalState();
             } catch(e) { showNotification('Error al cargar cliente', 'error'); }
         }
 
-        function eliminarClienteDesdeEdicion() {
+        function eliminarClienteDesdeModal() {
             const id = document.getElementById('cliente-id').value;
             if(!id) return;
-            mostrarConfirmacion('¿Eliminar este cliente permanentemente?', 'Eliminar cliente', async () => {
+            mostrarConfirmacion('¿Eliminar cliente permanentemente?', 'Eliminar cliente', async () => {
                 try {
                     await apiFetch(`clientes?id=eq.${id}`, 'DELETE');
-                    document.getElementById('modal-cliente').classList.remove('active');
+                    cerrarModalCliente();
                     cargarClientesLista(); aplicarFiltroActual();
                     showNotification('Cliente eliminado');
                 } catch(e) {
@@ -993,6 +1001,138 @@
                     else showNotification('Error: '+e.message, 'error');
                 }
             });
+        }
+
+        function moverUbicacionDesdeModal() {
+            const id = document.getElementById('cliente-id').value;
+            if(!id) {
+                seleccionarUbicacionParaNuevoCliente();
+                return;
+            }
+            cerrarModalCliente();
+            activarArrastreUbicacion(id, true);
+        }
+
+        async function seleccionarUbicacionParaNuevoCliente() {
+            if(!map) { showNotification('Mapa no disponible', 'error'); return; }
+            document.getElementById('modal-cliente').classList.remove('active');
+            let coordsActuales = null;
+            const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
+            if(gpsInputs.length) {
+                const val = gpsInputs[0].value.trim();
+                const parts = val.split(',').map(Number);
+                if(parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                    coordsActuales = { lat: parts[0], lng: parts[1] };
+                }
+            }
+            if(!coordsActuales && miUbicacionMarker) {
+                coordsActuales = { lat: miUbicacionMarker.position.lat, lng: miUbicacionMarker.position.lng };
+            }
+            if(!coordsActuales) {
+                coordsActuales = { lat: map.getCenter().lat(), lng: map.getCenter().lng() };
+            }
+            const pinElement = new google.maps.marker.PinElement({
+                background: '#e67e22', borderColor: '#0f172a', glyphColor: '#fff', scale: 1.3
+            });
+            tempLocationMarker = new google.maps.marker.AdvancedMarkerElement({
+                position: coordsActuales, map, title: 'Arrastra para ajustar ubicación', content: pinElement, gmpDraggable: true
+            });
+            map.setCenter(coordsActuales); map.setZoom(16);
+            showNotification('Arrastra el marcador naranja y presiona "Listo"', 'success');
+            const confirmBtn = document.createElement('button');
+            confirmBtn.id = 'btn-confirmar-temp-location';
+            confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
+            confirmBtn.style.cssText = 'position:absolute; bottom:220px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
+            confirmBtn.onclick = confirmarSeleccionUbicacionTemporal;
+            document.getElementById('mapa-tab').appendChild(confirmBtn);
+            const cancelBtn = document.createElement('button');
+            cancelBtn.id = 'btn-cancelar-temp-location';
+            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar';
+            cancelBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
+            cancelBtn.onclick = cancelarSeleccionUbicacionTemporal;
+            document.getElementById('mapa-tab').appendChild(cancelBtn);
+            pushModalState();
+        }
+
+        function confirmarSeleccionUbicacionTemporal() {
+            if(!tempLocationMarker) return;
+            const pos = tempLocationMarker.position;
+            const coordStr = `${pos.lat}, ${pos.lng}`;
+            const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
+            if(gpsInputs.length) gpsInputs[0].value = coordStr;
+            else { agregarPuntoGPS(); const nuevos = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)'); if(nuevos.length) nuevos[0].value = coordStr; }
+            limpiarSeleccionTemporal();
+            document.getElementById('modal-cliente').classList.add('active');
+            pushModalState();
+            showNotification('Ubicación actualizada en el formulario');
+        }
+
+        function cancelarSeleccionUbicacionTemporal() {
+            limpiarSeleccionTemporal();
+            document.getElementById('modal-cliente').classList.add('active');
+            pushModalState();
+        }
+
+        function limpiarSeleccionTemporal() {
+            if(tempLocationMarker) { tempLocationMarker.setMap(null); tempLocationMarker = null; }
+            const confirmBtn = document.getElementById('btn-confirmar-temp-location');
+            const cancelBtn = document.getElementById('btn-cancelar-temp-location');
+            if(confirmBtn) confirmBtn.remove();
+            if(cancelBtn) cancelBtn.remove();
+        }
+
+        function activarArrastreUbicacion(clienteId, reopenModal = false) {
+            if(!map || !clienteId) return;
+            const marker = clientMarkers.find(m => m.clienteId === clienteId);
+            if(!marker) { showNotification('No se encontró el marcador del cliente en el mapa', 'error'); return; }
+            draggingMarker = marker; dragClienteId = clienteId; dragStartCoords = marker.position;
+            marker.gmpDraggable = true; pendingReopenModal = reopenModal;
+            showNotification('Arrastra el marcador a la nueva ubicación. Luego presiona "Listo".', 'success');
+            const confirmBtn = document.createElement('button');
+            confirmBtn.id = 'btn-confirmar-arrastre';
+            confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
+            confirmBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
+            confirmBtn.onclick = confirmarArrastreUbicacion;
+            document.getElementById('mapa-tab').appendChild(confirmBtn);
+            const cancelBtn = document.createElement('button');
+            cancelBtn.id = 'btn-cancelar-arrastre';
+            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar';
+            cancelBtn.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
+            cancelBtn.onclick = cancelarArrastreUbicacion;
+            document.getElementById('mapa-tab').appendChild(cancelBtn);
+            pushModalState();
+        }
+
+        async function confirmarArrastreUbicacion() {
+            if(!draggingMarker || !dragClienteId) return;
+            const newPos = draggingMarker.position;
+            const lat = newPos.lat, lng = newPos.lng;
+            try {
+                const cliente = (await apiFetch(`clientes?id=eq.${dragClienteId}&select=direcciones_entrega`))[0];
+                if(cliente && cliente.direcciones_entrega?.length) {
+                    cliente.direcciones_entrega[0].coordenadas = `${lat}, ${lng}`;
+                    await apiFetch(`clientes?id=eq.${dragClienteId}`, 'PATCH', { direcciones_entrega: cliente.direcciones_entrega });
+                    showNotification('Ubicación actualizada');
+                    await aplicarFiltroActual();
+                }
+            } catch(e) { showNotification('Error: '+e.message, 'error'); }
+            const shouldReopen = pendingReopenModal;
+            limpiarArrastre();
+            if(shouldReopen) editarCliente(dragClienteId);
+        }
+
+        function cancelarArrastreUbicacion() {
+            if(draggingMarker && dragStartCoords) draggingMarker.position = dragStartCoords;
+            limpiarArrastre();
+        }
+
+        function limpiarArrastre() {
+            if(draggingMarker) draggingMarker.gmpDraggable = false;
+            draggingMarker = null; dragClienteId = null; dragStartCoords = null; pendingReopenModal = false;
+            const confirmBtn = document.getElementById('btn-confirmar-arrastre');
+            const cancelBtn = document.getElementById('btn-cancelar-arrastre');
+            if(confirmBtn) confirmBtn.remove();
+            if(cancelBtn) cancelBtn.remove();
         }
 
         document.getElementById('form-cliente').addEventListener('submit', async function(e) {
@@ -1026,13 +1166,7 @@
                 }
                 if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); }
                 else await apiFetch('clientes', 'POST', payload);
-                cerrarModalCliente();
-                if (nuevoClientePendiente) {
-                    nuevoClientePendiente = false;
-                    ventaParaNuevoCliente = null;
-                    showNotification('Cliente registrado correctamente');
-                }
-                cargarClientesLista(); aplicarFiltroActual();
+                cerrarModalCliente(); cargarClientesLista(); aplicarFiltroActual();
                 showNotification('Cliente guardado');
             } catch(err) { showNotification('Error: '+err.message,'error'); }
         });
@@ -1043,141 +1177,6 @@
             const res = await fetch(`${SUPABASE_URL}/storage/v1/object/empresas/${name}`, { method:'POST', headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}, body:fd });
             if(!res.ok) throw new Error('Error al subir imagen');
             return `${SUPABASE_URL}/storage/v1/object/public/empresas/${name}`;
-        }
-
-        async function abrirModalVentaConCliente(clienteId, modoEdicion=false) {
-            document.getElementById('modal-venta').classList.add('active');
-            pushModalState();
-            const titulo = document.getElementById('titulo-modal-venta');
-            const btnEnviar = document.getElementById('btn-enviar-pedido');
-            if (modoEdicion) {
-                titulo.textContent = 'Editar Pedido';
-                btnEnviar.textContent = 'Actualizar pedido';
-            } else {
-                titulo.textContent = 'Nuevo Pedido';
-                btnEnviar.textContent = 'Registrar pedido';
-                pedidoLineas = [];
-            }
-            document.getElementById('grupo-cliente-venta').style.display = 'none';
-            document.getElementById('venta-cliente').value = clienteId || '';
-            if (!modoEdicion) {
-                allProducts = await apiFetch(`productos?empresa_id=eq.${empresaId}&activo=eq.true&select=id,nombre,precio_venta_base,impuesto_porcentaje&limit=1000`);
-                pedidoLineas = [];
-            }
-            document.getElementById('busqueda-producto').value = '';
-            document.getElementById('panel-busqueda-producto').classList.remove('open');
-            document.getElementById('resultados-busqueda').innerHTML = '';
-            document.getElementById('lineas-pedido').innerHTML = '';
-            renderizarLineasPedido();
-            actualizarTotalPedido();
-        }
-        function cerrarModalVenta() { 
-            document.getElementById('modal-venta').classList.remove('active'); 
-            documentoEditando = null;
-        }
-
-        function toggleBuscadorProductos() {
-            const panel = document.getElementById('panel-busqueda-producto');
-            panel.classList.toggle('open');
-            if(panel.classList.contains('open')) {
-                document.getElementById('busqueda-producto').focus();
-                filtrarProductosBusqueda();
-            }
-        }
-
-        function filtrarProductosBusqueda() {
-            const termino = document.getElementById('busqueda-producto').value.toLowerCase().trim();
-            const resultadosDiv = document.getElementById('resultados-busqueda');
-            const filtrados = termino ? allProducts.filter(p => p.nombre.toLowerCase().includes(termino)) : allProducts;
-            resultadosDiv.innerHTML = filtrados.map(p => `<div style="padding:8px 12px; border-bottom:1px solid #f0f0f0; cursor:pointer;" onclick="seleccionarProducto('${p.id}')">${p.nombre} - $${parseFloat(p.precio_venta_base).toFixed(2)}</div>`).join('');
-        }
-
-        function seleccionarProducto(productId) {
-            const producto = allProducts.find(p => p.id === productId);
-            if(!producto) return;
-            const yaExiste = pedidoLineas.find(l => l.producto_id === productId);
-            if(yaExiste) { yaExiste.cantidad++; } 
-            else {
-                pedidoLineas.push({
-                    producto_id: productId,
-                    nombre: producto.nombre,
-                    precio: producto.precio_venta_base,
-                    impuesto: producto.impuesto_porcentaje||0,
-                    cantidad: 1
-                });
-            }
-            document.getElementById('busqueda-producto').value = '';
-            document.getElementById('panel-busqueda-producto').classList.remove('open');
-            renderizarLineasPedido();
-        }
-
-        function renderizarLineasPedido() {
-            const container = document.getElementById('lineas-pedido');
-            container.innerHTML = pedidoLineas.map((l, i) => `
-                <div class="order-line">
-                    <span style="flex:2;">${l.nombre}</span>
-                    <span style="flex:1;">$${l.precio.toFixed(2)}</span>
-                    <input class="qty" type="number" value="${l.cantidad}" min="1" onchange="actualizarCantidad(${i}, this.value)">
-                    <span style="flex:1;">$${(l.precio * l.cantidad).toFixed(2)}</span>
-                    <button class="btn-sm danger" onclick="pedidoLineas.splice(${i},1); renderizarLineasPedido();"><i class="fas fa-trash"></i></button>
-                </div>`).join('');
-            actualizarTotalPedido();
-        }
-
-        function actualizarCantidad(index, val) {
-            pedidoLineas[index].cantidad = parseInt(val) || 1;
-            renderizarLineasPedido();
-        }
-
-        function actualizarTotalPedido() {
-            const total = pedidoLineas.reduce((sum, l) => sum + (l.precio * l.cantidad), 0);
-            document.getElementById('total-pedido').textContent = total.toFixed(2);
-        }
-
-        async function enviarPedido() {
-            const clienteId = document.getElementById('venta-cliente').value || ventaParaNuevoCliente;
-            if(!clienteId || pedidoLineas.length===0) return showNotification('Seleccione cliente y al menos un producto', 'error');
-            const moneda = (await apiFetch(`empresas?id=eq.${empresaId}&select=moneda_principal_id`))[0].moneda_principal_id;
-            
-            if (documentoEditando) {
-                try {
-                    await apiFetch(`ventas?documento_venta=eq.${documentoEditando}`, 'DELETE');
-                } catch(e) { showNotification('Error al actualizar: '+e.message, 'error'); return; }
-                var documento = documentoEditando;
-                documentoEditando = null;
-            } else {
-                var documento = `PED-${Date.now()}`;
-            }
-
-            for(let i=0; i<pedidoLineas.length; i++) {
-                const l = pedidoLineas[i];
-                const body = {
-                    documento_venta: documento,
-                    linea: i+1,
-                    empresa_id: empresaId,
-                    fecha: new Date().toISOString(),
-                    cliente_id: clienteId,
-                    vendedor_id: currentEmployeeId,
-                    moneda_id: moneda,
-                    estado: 'pendiente',
-                    producto_id: l.producto_id,
-                    cantidad: l.cantidad,
-                    precio_unitario: l.precio,
-                    descuento_porcentaje: 0,
-                    impuesto_porcentaje: l.impuesto
-                };
-                await apiFetch('ventas', 'POST', body);
-            }
-            cerrarModalVenta();
-            if (nuevoClientePendiente && ventaParaNuevoCliente) {
-                showNotification('Venta registrada. Ahora complete los datos del cliente.', 'success');
-                setTimeout(() => {
-                    abrirModalCliente(ventaParaNuevoCliente);
-                }, 500);
-            } else {
-                showNotification('Pedido registrado');
-            }
-            aplicarFiltroActual();
         }
 
         async function cargarAvance() {
@@ -1201,9 +1200,7 @@
 
         window.onload = async function() {
             await verificarSesion();
-            if (!document.querySelector('.section.active')) {
-                showMain();
-            }
+            if (!document.querySelector('.section.active')) showMain();
         };
     </script>
 </body>
