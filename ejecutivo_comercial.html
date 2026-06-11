@@ -51,9 +51,7 @@
         .btn-sm { padding:6px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; border:none; background:#e0f2fe; color:#0369a1; display:inline-flex; align-items:center; gap:4px; cursor:pointer; }
         .btn-sm.danger { background:#fee2e2; color:#991b1b; }
         .btn-add { background:#1a56db; color:white; border:none; padding:10px 18px; border-radius:30px; font-weight:600; font-size:0.9rem; display:inline-flex; align-items:center; gap:6px; margin-bottom:12px; cursor:pointer; }
-        .btn-outline { background:transparent; border:1.5px solid #cbd5e1; color:#1e293b; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.25s; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
-        .btn-solid { background:#1a56db; border:none; color:white; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.25s; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
-        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,18,0.8); backdrop-filter:blur(8px); z-index:2000; display:none; align-items:flex-end; justify-content:center; }
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:2000; display:none; align-items:flex-end; justify-content:center; }
         .modal-overlay.active { display:flex; }
         .modal { background:white; border-radius:28px 28px 0 0; padding:24px 20px; width:100%; max-height:85vh; overflow-y:auto; box-shadow:0 -8px 32px rgba(0,0,0,0.15); animation:slideUp 0.25s ease; }
         @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
@@ -72,8 +70,8 @@
         .acciones-panel { position:fixed; bottom:0; left:0; width:100%; background:white; border-radius:28px 28px 0 0; padding:20px; box-shadow:0 -8px 32px rgba(0,0,0,0.2); z-index:1500; display:none; flex-direction:column; gap:12px; }
         .acciones-panel.active { display:flex; }
         .acciones-panel button { width:100%; padding:14px; border-radius:16px; border:none; font-weight:600; display:flex; align-items:center; gap:12px; cursor:pointer; font-size:0.95rem; background:#f8fafc; color:#1e293b; }
-        .acciones-panel .danger-btn { color:#991b1b; }
-        .acciones-panel .cancel-btn { color:#1e293b; background:#e2e8f0; font-weight:600; }
+        .acciones-panel .danger-btn { color:#991b1b; } 
+        .acciones-panel .cancel-btn { background:#e2e8f0; color:#1e293b; font-weight:600; }
         .order-line { display:flex; align-items:center; gap:8px; margin-bottom:8px; background:#f8fafc; padding:8px; border-radius:12px; }
         .order-line span { flex:1; font-size:0.85rem; }
         .order-line input.qty { width:50px; text-align:center; }
@@ -92,17 +90,9 @@
             70% { box-shadow: 0 0 0 15px rgba(66,133,244, 0); }
             100% { box-shadow: 0 0 0 0 rgba(66,133,244, 0); }
         }
-        /* Modal de venta a pantalla completa con overlay */
-        .fullscreen-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,18,0.8); backdrop-filter:blur(8px); z-index:2500; display:none; align-items:center; justify-content:center; }
-        .fullscreen-overlay.active { display:flex; }
-        .fullscreen-modal { background:white; border-radius:0; width:100%; height:100%; display:flex; flex-direction:column; overflow:hidden; }
-        .fullscreen-header { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid #e2e8f0; background:white; }
-        .fullscreen-header h2 { font-size:1.2rem; font-weight:700; }
-        .fullscreen-body { flex:1; overflow-y:auto; padding:16px 20px; display:flex; flex-direction:column; gap:16px; }
-        .fullscreen-footer { padding:16px 20px; border-top:1px solid #e2e8f0; background:white; }
-        .search-fab { position:absolute; bottom:24px; right:24px; background:#1a56db; color:white; border:none; border-radius:50%; width:56px; height:56px; font-size:1.5rem; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.25); cursor:pointer; z-index:2600; }
-        .product-search-panel { position:fixed; bottom:0; left:0; width:100%; background:white; border-radius:24px 24px 0 0; padding:20px; box-shadow:0 -8px 32px rgba(0,0,0,0.2); z-index:2700; display:none; flex-direction:column; max-height:70vh; }
-        .product-search-panel.active { display:flex; }
+        #modal-venta .modal { height:100%; max-height:100%; border-radius:0; }
+        .client-fields-inline { background:#f8fafc; border-radius:20px; padding:16px; margin-top:12px; }
+        .search-icon-btn { background:#f1f5f9; border:none; border-radius:12px; padding:10px; cursor:pointer; font-size:1.2rem; color:#1a56db; }
     </style>
 </head>
 <body>
@@ -111,8 +101,8 @@
             <h2 id="confirm-titulo">Confirmar acción</h2>
             <p id="confirm-mensaje" style="color:#475569; font-size:0.95rem; margin:12px 0;"></p>
             <div class="confirm-buttons">
-                <button class="btn-outline" onclick="cerrarConfirm(false)">Cancelar</button>
-                <button class="btn-solid" style="background:#c2412c;" id="confirm-btn-ok" onclick="cerrarConfirm(true)">Confirmar</button>
+                <button class="btn-outline" style="color:#1e293b; border-color:#cbd5e1; padding:10px 24px; border-radius:40px; font-weight:600; background:white;" onclick="cerrarConfirm(false)">Cancelar</button>
+                <button class="btn-solid" style="background:#c2412c; padding:10px 24px; border-radius:40px; font-weight:600;" id="confirm-btn-ok" onclick="cerrarConfirm(true)">Confirmar</button>
             </div>
         </div>
     </div>
@@ -147,7 +137,7 @@
         </div>
         <div id="mapa-tab" class="tab-content active" style="position:relative;">
             <div id="map-container"></div>
-            <button class="map-add-client-btn" onclick="iniciarVentaNuevoCliente()" title="Agregar cliente">
+            <button class="map-add-client-btn" onclick="abrirModalVentaDesdeBotonMas()" title="Nueva venta">
                 <i class="fas fa-plus"></i>
             </button>
             <button class="map-location-btn" onclick="centrarEnMiUbicacion()" title="Mi ubicación">
@@ -155,7 +145,7 @@
             </button>
         </div>
         <div id="lista-tab" class="tab-content">
-            <button class="btn-add" onclick="iniciarVentaNuevoCliente()"><i class="fas fa-plus"></i> Nuevo cliente</button>
+            <button class="btn-add" onclick="abrirModalVentaDesdeBotonMas()"><i class="fas fa-plus"></i> Nueva venta</button>
             <div id="clientes-lista"></div>
         </div>
         <div class="acciones-panel" id="acciones-panel"></div>
@@ -167,7 +157,6 @@
         </div>
     </div>
 
-    <!-- Modal Cliente (edición/creación) -->
     <div class="modal-overlay" id="modal-cliente">
         <div class="modal">
             <div class="modal-header">
@@ -201,50 +190,45 @@
                 <div class="form-group"><label>Tipo de Negocio</label><input id="cli-tipo-negocio" list="tipos-negocio"><datalist id="tipos-negocio"><option>Tienda</option><option>Mecánica</option><option>Abarrotes</option><option>Carnicería</option><option>Farmacia</option><option>Ferretería</option><option>Panadería</option><option>Restaurante</option></datalist></div>
                 <div class="form-group"><label>Fotografía</label><input type="file" id="file-cli-imagen" accept="image/*"></div>
                 <button type="submit" class="btn-add" style="width:100%; justify-content:center;">Guardar</button>
-                <button type="button" id="btn-eliminar-cliente" class="btn-add" style="background:#c2412c; width:100%; justify-content:center; margin-top:8px; display:none;" onclick="eliminarClienteDesdeModal()"><i class="fas fa-trash-alt"></i> Eliminar cliente</button>
+                <button type="button" class="btn-add" id="btn-eliminar-cliente" style="background:#c2412c; margin-top:8px; width:100%; justify-content:center; display:none;" onclick="eliminarClienteDesdeEdicion()"><i class="fas fa-trash-alt"></i> Eliminar cliente</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal Venta (pantalla completa con overlay) -->
-    <div class="fullscreen-overlay" id="fullscreen-venta-overlay">
-        <div class="fullscreen-modal">
-            <div class="fullscreen-header">
-                <h2 id="venta-titulo">Nuevo Pedido</h2>
-                <button class="close-modal" onclick="cerrarModalVentaFull()">&times;</button>
+    <div class="modal-overlay" id="modal-venta">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="titulo-modal-venta">Nuevo Pedido</h2>
+                <button class="close-modal" onclick="cerrarModalVenta()">&times;</button>
             </div>
-            <div class="fullscreen-body" id="venta-body">
-                <div class="form-group">
-                    <label>Cliente</label>
-                    <div style="display:flex; gap:8px;">
-                        <select id="venta-cliente" style="flex:1;" required></select>
-                        <button type="button" class="btn-add" style="margin:0; white-space:nowrap;" id="btn-nuevo-cliente-venta" onclick="abrirModalClienteDesdeVenta()">Nuevo cliente</button>
-                    </div>
+            <div class="form-group">
+                <label>Cliente</label>
+                <select id="venta-cliente" required onchange="clienteVentaChange()"></select>
+            </div>
+            <div id="nuevo-cliente-fields" class="client-fields-inline" style="display:none;">
+                <div class="form-group"><label>Tipo</label><select id="nv-cli-tipo" onchange="toggleNuevoClienteTipo()"><option value="natural">Persona Natural</option><option value="juridica">Jurídica</option></select></div>
+                <div id="nv-natural">
+                    <input id="nv-nombres" placeholder="Nombres" oninput="capitalizarInput(this)" style="margin-bottom:8px;">
+                    <input id="nv-ap" placeholder="Apellido Paterno" oninput="capitalizarInput(this)" style="margin-bottom:8px;">
+                    <input id="nv-am" placeholder="Apellido Materno" oninput="capitalizarInput(this)">
                 </div>
-                <div id="lineas-pedido-container" style="flex:1; overflow-y:auto;">
-                    <table style="width:100%;">
-                        <thead><tr><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Monto</th><th></th></tr></thead>
-                        <tbody id="lineas-pedido-tbody"></tbody>
-                    </table>
+                <div id="nv-juridica" style="display:none;">
+                    <input id="nv-razon" placeholder="Razón Social" oninput="capitalizarInput(this)">
                 </div>
-                <div style="text-align:right; font-weight:700; font-size:1.1rem;">Total: $<span id="total-pedido">0.00</span></div>
             </div>
-            <div class="fullscreen-footer">
-                <button class="btn-add" id="btn-enviar-pedido" onclick="enviarPedidoFull()" style="width:100%; justify-content:center;">Registrar pedido</button>
-                <button id="btn-eliminar-pedido-modal" class="btn-add" style="background:#c2412c; width:100%; justify-content:center; margin-top:8px; display:none;" onclick="eliminarPedidoDesdeModal()"><i class="fas fa-trash-alt"></i> Eliminar pedido</button>
+            <div class="form-group" style="position:relative;">
+                <label>Productos</label>
+                <button type="button" class="search-icon-btn" onclick="toggleBuscadorProductos()" title="Buscar producto"><i class="fas fa-search"></i></button>
+                <div id="panel-busqueda-producto" style="display:none; margin-top:8px; background:#f8fafc; border-radius:16px; padding:12px;">
+                    <input type="text" id="busqueda-producto" placeholder="Escriba nombre..." autocomplete="off" oninput="filtrarProductosBusqueda()" style="width:100%; margin-bottom:8px;">
+                    <div id="resultados-busqueda" style="max-height:200px; overflow-y:auto;"></div>
+                </div>
             </div>
-            <button class="search-fab" onclick="toggleBuscadorProductos()"><i class="fas fa-search"></i></button>
+            <div id="lineas-pedido"></div>
+            <div style="text-align:right; margin:12px 0; font-weight:700;">Total: $<span id="total-pedido">0.00</span></div>
+            <button class="btn-add" id="btn-enviar-pedido" onclick="enviarPedido()" style="width:100%; justify-content:center;">Registrar pedido</button>
+            <button class="btn-add" id="btn-eliminar-pedido" style="background:#c2412c; margin-top:8px; width:100%; justify-content:center; display:none;" onclick="eliminarPedidoDesdeEdicion()"><i class="fas fa-trash-alt"></i> Eliminar pedido</button>
         </div>
-    </div>
-
-    <!-- Panel de búsqueda de productos (inferior) -->
-    <div class="product-search-panel" id="product-search-panel">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3 style="font-size:1rem;">Buscar producto</h3>
-            <button style="background:none; border:none; font-size:1.2rem;" onclick="toggleBuscadorProductos()">&times;</button>
-        </div>
-        <input type="text" id="busqueda-producto" placeholder="Escriba nombre..." autocomplete="off" oninput="filtrarProductosBusqueda()" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:12px; margin-bottom:8px;">
-        <div id="resultados-busqueda" style="flex:1; overflow-y:auto; max-height:50vh;"></div>
     </div>
 
     <div id="notification" class="notification"></div>
@@ -262,9 +246,12 @@
         let clienteSeleccionadoParaAccion = null;
         let ultimoPedidoClienteMap = {};
         let documentoEditando = null;
-        let ventaModoNuevoCliente = false;
-        let idClienteRecienCreado = null;
-        let draggingMarker = null, dragStartCoords = null, dragClienteId = null, pendingReopenModal = false;
+        let clienteIdEnEdicion = null;
+
+        let draggingMarker = null;
+        let dragStartCoords = null;
+        let dragClienteId = null;
+        let pendingReopenModal = false;
         let tempLocationMarker = null;
 
         const DAY_COLORS = {
@@ -302,14 +289,13 @@
 
         function cerrarModalesYPaneles() {
             document.getElementById('modal-cliente').classList.remove('active');
-            document.getElementById('fullscreen-venta-overlay').classList.remove('active');
+            document.getElementById('modal-venta').classList.remove('active');
             document.getElementById('acciones-panel').classList.remove('active');
             document.getElementById('confirm-overlay').classList.remove('active');
-            document.getElementById('product-search-panel').classList.remove('active');
             if (draggingMarker) cancelarArrastreUbicacion();
             if (tempLocationMarker) cancelarSeleccionUbicacionTemporal();
-            ventaModoNuevoCliente = false;
-            idClienteRecienCreado = null;
+            documentoEditando = null;
+            clienteIdEnEdicion = null;
         }
 
         function irASeccion(seccion) {
@@ -322,8 +308,7 @@
             if (draggingMarker) { cancelarArrastreUbicacion(); return true; }
             if (tempLocationMarker) { cancelarSeleccionUbicacionTemporal(); return true; }
             if (document.getElementById('acciones-panel').classList.contains('active')) { cerrarAccionesPanel(); return true; }
-            if (document.getElementById('product-search-panel').classList.contains('active')) { toggleBuscadorProductos(); return true; }
-            if (document.getElementById('fullscreen-venta-overlay').classList.contains('active')) { cerrarModalVentaFull(); return true; }
+            if (document.getElementById('modal-venta').classList.contains('active')) { cerrarModalVenta(); return true; }
             if (document.getElementById('modal-cliente').classList.contains('active')) { cerrarModalCliente(); return true; }
             return false;
         }
@@ -363,7 +348,11 @@
         }
 
         async function apiFetch(endpoint, method='GET', body=null) {
-            const headers = { 'Content-Type':'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
+            const headers = {
+                'Content-Type':'application/json',
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`
+            };
             if(method === 'POST' || method === 'PATCH') headers['Prefer'] = 'return=representation';
             const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, { method, headers, body: body ? JSON.stringify(body) : null });
             if(!res.ok) { const e = await res.text(); throw new Error(e); }
@@ -468,20 +457,27 @@
                 const miPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                 if(!map) return;
                 if(!miUbicacionMarker) {
-                    const el = document.createElement('div'); el.className = 'mi-ubicacion-marker';
-                    miUbicacionMarker = new google.maps.marker.AdvancedMarkerElement({ position: miPos, map, title: 'Mi ubicación', content: el });
-                } else miUbicacionMarker.position = miPos;
+                    const el = document.createElement('div');
+                    el.className = 'mi-ubicacion-marker';
+                    miUbicacionMarker = new google.maps.marker.AdvancedMarkerElement({
+                        position: miPos, map, title: 'Mi ubicación', content: el
+                    });
+                } else {
+                    miUbicacionMarker.position = miPos;
+                }
             }, null, { enableHighAccuracy: true });
         }
 
         function centrarEnMiUbicacion() {
             if(!miUbicacionMarker) { showNotification('Ubicación no disponible aún', 'error'); return; }
-            map.setCenter(miUbicacionMarker.position); map.setZoom(16);
+            map.setCenter(miUbicacionMarker.position);
+            map.setZoom(16);
         }
 
         async function cargarDatosMapa() {
             if(!map || !currentEmployeeId) return;
-            zoneOverlays.forEach(o => o.setMap(null)); zoneOverlays = [];
+            zoneOverlays.forEach(o => o.setMap(null));
+            zoneOverlays = [];
             const diaActual = getCurrentDayName();
             try {
                 const zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&dia_semana=eq.${diaActual}&select=*`);
@@ -489,7 +485,10 @@
                 zonas.forEach(z => {
                     if(z.geometria?.coordinates) {
                         const paths = z.geometria.coordinates[0].map(c => new google.maps.LatLng(c[1], c[0]));
-                        zoneOverlays.push(new google.maps.Polygon({ paths, fillColor:color, fillOpacity:0.2, strokeColor:color, strokeWeight:2, map }));
+                        const polygon = new google.maps.Polygon({
+                            paths: paths, fillColor: color, fillOpacity: 0.2, strokeColor: color, strokeWeight: 2, map: map
+                        });
+                        zoneOverlays.push(polygon);
                     }
                 });
             } catch(e) {}
@@ -501,11 +500,13 @@
             if (ventasAlgunaVezSet.has(clienteId)) return 'no_atendido';
             return 'sin_compras';
         }
+
         function getPinColorPorEstado(estado) {
             if (estado === 'atendido') return '#16a34a';
             if (estado === 'no_atendido') return '#6b7280';
             return '#dc2626';
         }
+
         function getPinColorParaFiltro() {
             if(currentFilter === 'atendidos') return '#16a34a';
             if(currentFilter === 'no_atendidos') return '#6b7280';
@@ -516,7 +517,8 @@
         async function aplicarFiltroActual() {
             if(!map || !currentEmployeeId) return;
             const clientes = await obtenerClientesFiltrados();
-            clientMarkers.forEach(m => m.setMap(null)); clientMarkers = [];
+            clientMarkers.forEach(m => m.setMap(null));
+            clientMarkers = [];
             if(clientes.length === 0) return;
             const ids = clientes.map(c => c.id).join(',');
             ultimoPedidoClienteMap = {};
@@ -547,7 +549,8 @@
                                 const pinElement = new google.maps.marker.PinElement({ background: color, borderColor: '#0f172a', glyphColor: '#fff', scale: 1.1 });
                                 const marker = new google.maps.marker.AdvancedMarkerElement({ position: { lat, lng }, map, title: nombre, content: pinElement });
                                 marker.addListener('gmp-click', () => abrirAccionesPanel(c.id, nombre));
-                                marker.clienteId = c.id; marker.pointIndex = idx;
+                                marker.clienteId = c.id;
+                                marker.pointIndex = idx;
                                 clientMarkers.push(marker);
                             }
                         }
@@ -565,7 +568,7 @@
             html += `<button onclick="accionPanel('vender')"><i class="fas fa-shopping-cart"></i> Registrar Venta</button>`;
             if(tienePedido) html += `<button onclick="accionPanel('editar_pedido')"><i class="fas fa-pencil-alt"></i> Editar Pedido</button>`;
             html += `<button onclick="accionPanel('editar_cliente')"><i class="fas fa-edit"></i> Editar Datos del Cliente</button>`;
-            html += `<button onclick="cerrarAccionesPanel()" class="cancel-btn">Cancelar</button>`;
+            html += `<button onclick="cerrarAccionesPanel()" class="cancel-btn"><i class="fas fa-times"></i> Cancelar</button>`;
             panel.innerHTML = html;
             panel.classList.add('active');
             pushModalState();
@@ -580,7 +583,7 @@
             if(!clienteSeleccionadoParaAccion) { cerrarAccionesPanel(); return; }
             const id = clienteSeleccionadoParaAccion;
             cerrarAccionesPanel();
-            if(accion === 'vender') abrirModalVentaFull(id, false);
+            if(accion === 'vender') abrirModalVenta(id, false);
             else if(accion === 'editar_cliente') editarCliente(id);
             else if(accion === 'editar_pedido') {
                 const doc = ultimoPedidoClienteMap[id];
@@ -589,18 +592,15 @@
             }
         }
 
-        function iniciarVentaNuevoCliente() {
-            ventaModoNuevoCliente = true;
-            idClienteRecienCreado = null;
-            abrirModalVentaFull(null, false);
-        }
+        function abrirModalVentaDesdeBotonMas() { abrirModalVenta(null, false); }
 
-        function abrirModalVentaFull(clienteId, modoEdicion) {
-            document.getElementById('fullscreen-venta-overlay').classList.add('active');
-            document.getElementById('product-search-panel').classList.remove('active');
-            const titulo = document.getElementById('venta-titulo');
+        async function abrirModalVenta(clienteId=null, modoEdicion=false) {
+            document.getElementById('modal-venta').classList.add('active');
+            pushModalState();
+            const titulo = document.getElementById('titulo-modal-venta');
             const btnEnviar = document.getElementById('btn-enviar-pedido');
-            const btnEliminar = document.getElementById('btn-eliminar-pedido-modal');
+            const btnEliminar = document.getElementById('btn-eliminar-pedido');
+            btnEliminar.style.display = 'none';
             if (modoEdicion) {
                 titulo.textContent = 'Editar Pedido';
                 btnEnviar.textContent = 'Actualizar pedido';
@@ -608,60 +608,51 @@
             } else {
                 titulo.textContent = 'Nuevo Pedido';
                 btnEnviar.textContent = 'Registrar pedido';
-                btnEliminar.style.display = 'none';
                 pedidoLineas = [];
             }
-            cargarClientesEnSelect(clienteId).then(() => {
-                if (ventaModoNuevoCliente && !clienteId) {
-                    document.getElementById('venta-cliente').value = '';
-                    document.getElementById('btn-nuevo-cliente-venta').style.display = 'inline-flex';
-                }
-            });
-            if (!modoEdicion) {
-                allProducts = [];
-                apiFetch(`productos?empresa_id=eq.${empresaId}&activo=eq.true&select=id,nombre,precio_venta_base,impuesto_porcentaje&limit=1000`).then(prods => allProducts = prods);
-                pedidoLineas = [];
-            }
-            renderizarLineasPedido();
-            actualizarTotalPedido();
-            pushModalState();
-        }
-
-        function cerrarModalVentaFull() {
-            document.getElementById('fullscreen-venta-overlay').classList.remove('active');
-            documentoEditando = null;
-            ventaModoNuevoCliente = false;
-        }
-
-        async function cargarClientesEnSelect(selectedId) {
             const sel = document.getElementById('venta-cliente');
             const clientes = await apiFetch(`clientes?vendedor_asignado_id=eq.${currentEmployeeId}&activo=eq.true&select=id,razon_social,nombres,apellido_paterno&limit=1000`);
-            sel.innerHTML = clientes.map(c => `<option value="${c.id}" ${c.id===selectedId?'selected':''}>${c.razon_social || [c.nombres,c.apellido_paterno].join(' ')}</option>`).join('');
-            if (!selectedId && !ventaModoNuevoCliente) sel.value = '';
+            sel.innerHTML = clientes.map(c => `<option value="${c.id}" ${c.id===clienteId?'selected':''}>${c.razon_social || [c.nombres,c.apellido_paterno].join(' ')}</option>`).join('');
+            sel.innerHTML += `<option value="__nuevo__">➕ Nuevo cliente</option>`;
+            if (!modoEdicion) {
+                allProducts = await apiFetch(`productos?empresa_id=eq.${empresaId}&activo=eq.true&select=id,nombre,precio_venta_base,impuesto_porcentaje&limit=1000`);
+                pedidoLineas = [];
+            }
+            document.getElementById('busqueda-producto').value = '';
+            document.getElementById('panel-busqueda-producto').style.display = 'none';
+            document.getElementById('resultados-busqueda').innerHTML = '';
+            document.getElementById('lineas-pedido').innerHTML = '';
+            document.getElementById('nuevo-cliente-fields').style.display = 'none';
+            renderizarLineasPedido();
+            actualizarTotalPedido();
+            if (clienteId) sel.value = clienteId;
+            clienteVentaChange();
         }
 
-        function abrirModalClienteDesdeVenta() {
-            document.getElementById('modal-cliente').classList.add('active');
-            document.getElementById('form-cliente').reset();
-            document.getElementById('cliente-id').value = '';
-            document.getElementById('cli-telefonos-container').innerHTML = '';
-            document.getElementById('gps-entrega-container').innerHTML = '';
-            document.getElementById('btn-mover-mapa').style.display = 'none';
-            document.getElementById('btn-eliminar-cliente').style.display = 'none';
-            document.getElementById('titulo-modal-cliente').textContent = 'Nuevo Cliente';
-            agregarTelefonoCliente(); agregarPuntoGPS();
-            llenarTiposDocumento();
-            actualizarUbicacionDesdeGPS();
-            pushModalState();
+        function cerrarModalVenta() { 
+            document.getElementById('modal-venta').classList.remove('active'); 
+            documentoEditando = null;
+            clienteIdEnEdicion = null;
+        }
+
+        function clienteVentaChange() {
+            const val = document.getElementById('venta-cliente').value;
+            document.getElementById('nuevo-cliente-fields').style.display = (val === '__nuevo__') ? 'block' : 'none';
+        }
+
+        function toggleNuevoClienteTipo() {
+            const tipo = document.getElementById('nv-cli-tipo').value;
+            document.getElementById('nv-natural').style.display = tipo === 'natural' ? 'block' : 'none';
+            document.getElementById('nv-juridica').style.display = tipo === 'juridica' ? 'block' : 'none';
         }
 
         function toggleBuscadorProductos() {
-            const panel = document.getElementById('product-search-panel');
-            panel.classList.toggle('active');
-            if (panel.classList.contains('active')) {
-                document.getElementById('busqueda-producto').value = '';
+            const panel = document.getElementById('panel-busqueda-producto');
+            const mostrar = panel.style.display === 'none';
+            panel.style.display = mostrar ? 'block' : 'none';
+            if(mostrar) {
+                document.getElementById('busqueda-producto').focus();
                 filtrarProductosBusqueda();
-                pushModalState();
             }
         }
 
@@ -676,39 +667,76 @@
             const producto = allProducts.find(p => p.id === productId);
             if(!producto) return;
             const yaExiste = pedidoLineas.find(l => l.producto_id === productId);
-            if(yaExiste) yaExiste.cantidad++;
-            else pedidoLineas.push({ producto_id: productId, nombre: producto.nombre, precio: producto.precio_venta_base, impuesto: producto.impuesto_porcentaje||0, cantidad: 1 });
+            if(yaExiste) { yaExiste.cantidad++; } 
+            else {
+                pedidoLineas.push({
+                    producto_id: productId,
+                    nombre: producto.nombre,
+                    precio: producto.precio_venta_base,
+                    impuesto: producto.impuesto_porcentaje||0,
+                    cantidad: 1
+                });
+            }
+            document.getElementById('busqueda-producto').value = '';
+            document.getElementById('panel-busqueda-producto').style.display = 'none';
             renderizarLineasPedido();
-            toggleBuscadorProductos();
         }
 
         function renderizarLineasPedido() {
-            const tbody = document.getElementById('lineas-pedido-tbody');
-            tbody.innerHTML = pedidoLineas.map((l, i) => `
-                <tr>
-                    <td>${l.nombre}</td>
-                    <td>$${l.precio.toFixed(2)}</td>
-                    <td><input class="qty" type="number" value="${l.cantidad}" min="1" onchange="actualizarCantidad(${i}, this.value)"></td>
-                    <td>$${(l.precio * l.cantidad).toFixed(2)}</td>
-                    <td><button class="btn-sm danger" onclick="pedidoLineas.splice(${i},1); renderizarLineasPedido();"><i class="fas fa-trash"></i></button></td>
-                </tr>`).join('');
+            const container = document.getElementById('lineas-pedido');
+            container.innerHTML = pedidoLineas.map((l, i) => `
+                <div class="order-line">
+                    <span>${l.nombre}</span>
+                    <span>$${l.precio.toFixed(2)}</span>
+                    <input class="qty" type="number" value="${l.cantidad}" min="1" onchange="actualizarCantidad(${i}, this.value)">
+                    <span>$${(l.precio * l.cantidad).toFixed(2)}</span>
+                    <button class="btn-sm danger" onclick="pedidoLineas.splice(${i},1); renderizarLineasPedido();"><i class="fas fa-trash"></i></button>
+                </div>`).join('');
             actualizarTotalPedido();
         }
 
-        function actualizarCantidad(index, val) { pedidoLineas[index].cantidad = parseInt(val) || 1; renderizarLineasPedido(); }
-        function actualizarTotalPedido() { document.getElementById('total-pedido').textContent = pedidoLineas.reduce((s, l) => s + l.precio * l.cantidad, 0).toFixed(2); }
+        function actualizarCantidad(index, val) {
+            pedidoLineas[index].cantidad = parseInt(val) || 1;
+            renderizarLineasPedido();
+        }
 
-        async function enviarPedidoFull() {
-            let clienteId = document.getElementById('venta-cliente').value;
-            if(!clienteId || clienteId === '') {
-                showNotification('Debe registrar un cliente antes de guardar el pedido', 'error');
-                abrirModalClienteDesdeVenta();
-                return;
+        function actualizarTotalPedido() {
+            const total = pedidoLineas.reduce((sum, l) => sum + (l.precio * l.cantidad), 0);
+            document.getElementById('total-pedido').textContent = total.toFixed(2);
+        }
+
+        async function enviarPedido() {
+            const clienteSelect = document.getElementById('venta-cliente').value;
+            if(!clienteSelect || pedidoLineas.length===0) return showNotification('Seleccione cliente y al menos un producto', 'error');
+            let clienteId = clienteSelect;
+            if(clienteSelect === '__nuevo__') {
+                const tipo = document.getElementById('nv-cli-tipo').value;
+                const nombres = document.getElementById('nv-nombres').value.trim();
+                const ap = document.getElementById('nv-ap').value.trim();
+                const am = document.getElementById('nv-am').value.trim();
+                const razon = document.getElementById('nv-razon').value.trim();
+                if(tipo==='natural' && (!nombres || !ap)) return showNotification('Complete nombres y apellido paterno', 'error');
+                if(tipo==='juridica' && !razon) return showNotification('Complete razón social', 'error');
+                const nuevoCliente = {
+                    empresa_id: empresaId,
+                    vendedor_asignado_id: currentEmployeeId,
+                    nombres: tipo==='natural'? nombres : null,
+                    apellido_paterno: tipo==='natural'? ap : null,
+                    apellido_materno: tipo==='natural'? am : null,
+                    razon_social: tipo==='juridica'? razon : null,
+                    activo: true,
+                    direcciones_entrega: [{ etiqueta:'Principal', coordenadas: miUbicacionMarker ? `${miUbicacionMarker.position.lat}, ${miUbicacionMarker.position.lng}` : '' }]
+                };
+                try {
+                    const res = await apiFetch('clientes', 'POST', nuevoCliente);
+                    clienteId = Array.isArray(res) ? res[0].id : res.id;
+                    showNotification('Cliente creado, continuando venta');
+                } catch(e) { showNotification('Error al crear cliente: '+e.message, 'error'); return; }
             }
-            if(pedidoLineas.length === 0) return showNotification('Agregue al menos un producto', 'error');
             const moneda = (await apiFetch(`empresas?id=eq.${empresaId}&select=moneda_principal_id`))[0].moneda_principal_id;
             if (documentoEditando) {
-                try { await apiFetch(`ventas?documento_venta=eq.${documentoEditando}`, 'DELETE'); } catch(e) { showNotification('Error al actualizar', 'error'); return; }
+                try { await apiFetch(`ventas?documento_venta=eq.${documentoEditando}`, 'DELETE'); } 
+                catch(e) { showNotification('Error al actualizar: '+e.message, 'error'); return; }
                 var documento = documentoEditando;
                 documentoEditando = null;
             } else {
@@ -717,12 +745,14 @@
             for(let i=0; i<pedidoLineas.length; i++) {
                 const l = pedidoLineas[i];
                 await apiFetch('ventas', 'POST', {
-                    documento_venta: documento, linea: i+1, empresa_id: empresaId, fecha: new Date().toISOString(),
-                    cliente_id: clienteId, vendedor_id: currentEmployeeId, moneda_id: moneda, estado: 'pendiente',
-                    producto_id: l.producto_id, cantidad: l.cantidad, precio_unitario: l.precio, descuento_porcentaje: 0, impuesto_porcentaje: l.impuesto
+                    documento_venta: documento, linea: i+1, empresa_id: empresaId,
+                    fecha: new Date().toISOString(), cliente_id: clienteId,
+                    vendedor_id: currentEmployeeId, moneda_id: moneda, estado: 'pendiente',
+                    producto_id: l.producto_id, cantidad: l.cantidad,
+                    precio_unitario: l.precio, descuento_porcentaje: 0, impuesto_porcentaje: l.impuesto
                 });
             }
-            cerrarModalVentaFull();
+            cerrarModalVenta(); 
             showNotification('Pedido registrado');
             aplicarFiltroActual();
         }
@@ -733,25 +763,39 @@
                 if (!lineas.length) { showNotification('Pedido no encontrado', 'error'); return; }
                 allProducts = await apiFetch(`productos?empresa_id=eq.${empresaId}&activo=eq.true&select=id,nombre,precio_venta_base,impuesto_porcentaje&limit=1000`);
                 pedidoLineas = lineas.map(l => ({
-                    producto_id: l.producto_id, nombre: allProducts.find(p => p.id === l.producto_id)?.nombre || 'Producto desconocido',
-                    precio: l.precio_unitario, impuesto: l.impuesto_porcentaje||0, cantidad: l.cantidad
+                    producto_id: l.producto_id,
+                    nombre: allProducts.find(p => p.id === l.producto_id)?.nombre || 'Producto desconocido',
+                    precio: l.precio_unitario,
+                    impuesto: l.impuesto_porcentaje || 0,
+                    cantidad: l.cantidad
                 }));
                 documentoEditando = documento;
                 const clienteId = lineas[0].cliente_id;
-                abrirModalVentaFull(clienteId, true);
-            } catch(e) { showNotification('Error al cargar pedido', 'error'); }
+                await abrirModalVenta(clienteId, true);
+            } catch(e) { showNotification('Error al cargar pedido: '+e.message, 'error'); }
         }
 
-        function eliminarPedidoDesdeModal() {
-            if (!documentoEditando) return;
+        function eliminarPedidoDesdeEdicion() {
+            if(!documentoEditando) return;
             mostrarConfirmacion('¿Eliminar este pedido?', 'Eliminar pedido', async () => {
                 try {
                     await apiFetch(`ventas?documento_venta=eq.${documentoEditando}`, 'DELETE');
-                    cerrarModalVentaFull();
+                    cerrarModalVenta();
                     showNotification('Pedido eliminado');
-                    aplicarFiltroActual();
+                    aplicarFiltroActual(); cargarClientesLista();
                 } catch(e) { showNotification('Error: '+e.message, 'error'); }
             });
+        }
+
+        async function cargarClientesLista() {
+            if(!currentEmployeeId) return;
+            const clientes = await obtenerClientesFiltrados();
+            let html = clientes.length ? clientes.map(c => {
+                const nombres = [c.nombres, c.apellido_paterno, c.apellido_materno].filter(Boolean).join(' ');
+                const nombreMostrar = c.razon_social || nombres || 'Sin nombre';
+                return `<tr class="clickable-row" onclick="abrirAccionesPanel('${c.id}', '${nombreMostrar.replace(/'/g, "\\'")}')"><td>${nombreMostrar}</td></tr>`;
+            }).join('') : '<tr><td>Sin clientes asignados</td></tr>';
+            document.getElementById('clientes-lista').innerHTML = `<div class="table-wrapper"><table><thead><tr><th>Nombre completo</th></tr></thead><tbody>${html}</tbody></table></div>`;
         }
 
         function abrirModalCliente(id=null) {
@@ -761,8 +805,8 @@
             document.getElementById('cli-telefonos-container').innerHTML = '';
             document.getElementById('gps-entrega-container').innerHTML = '';
             document.getElementById('btn-mover-mapa').style.display = id ? 'inline-flex' : 'inline-flex';
-            document.getElementById('btn-eliminar-cliente').style.display = id ? 'flex' : 'none';
             document.getElementById('titulo-modal-cliente').textContent = id ? 'Editar Cliente' : 'Nuevo Cliente';
+            document.getElementById('btn-eliminar-cliente').style.display = id ? 'flex' : 'none';
             agregarTelefonoCliente(); agregarPuntoGPS();
             llenarTiposDocumento();
             if(!id) actualizarUbicacionDesdeGPS();
@@ -850,7 +894,7 @@
             } catch(e) { showNotification('Error al cargar cliente', 'error'); }
         }
 
-        function eliminarClienteDesdeModal() {
+        function eliminarClienteDesdeEdicion() {
             const id = document.getElementById('cliente-id').value;
             if(!id) return;
             mostrarConfirmacion('¿Eliminar cliente permanentemente?', 'Eliminar cliente', async () => {
@@ -859,7 +903,10 @@
                     cerrarModalCliente();
                     cargarClientesLista(); aplicarFiltroActual();
                     showNotification('Cliente eliminado');
-                } catch(e) { showNotification('Error: '+e.message, 'error'); }
+                } catch(e) {
+                    if(e.message.includes('23503')) showNotification('No se puede eliminar: tiene pedidos', 'error');
+                    else showNotification('Error: '+e.message, 'error');
+                }
             });
         }
 
@@ -868,7 +915,8 @@
             const id = document.getElementById('cliente-id').value;
             const tipo = document.getElementById('cli-tipo-persona').value;
             const payload = {
-                empresa_id: empresaId, vendedor_asignado_id: currentEmployeeId,
+                empresa_id: empresaId,
+                vendedor_asignado_id: currentEmployeeId,
                 tipo_documento: document.getElementById('cli-tipo-doc').value||null,
                 numero_documento: document.getElementById('cli-num-doc').value||null,
                 nombres: tipo==='natural'? document.getElementById('cli-nombres').value.trim():null,
@@ -887,18 +935,13 @@
             };
             try {
                 const file = document.getElementById('file-cli-imagen').files[0];
-                if(file) payload.imagen = await uploadFile(file, 'clientes');
-                let saved;
-                if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); saved = { id }; }
-                else { const res = await apiFetch('clientes', 'POST', payload); saved = Array.isArray(res) ? res[0] : res; }
-                cerrarModalCliente();
-                if (!id && ventaModoNuevoCliente) {
-                    idClienteRecienCreado = saved.id;
-                    await cargarClientesEnSelect(saved.id);
-                    document.getElementById('venta-cliente').value = saved.id;
-                    ventaModoNuevoCliente = false;
+                if(file) {
+                    const url = await uploadFile(file, 'clientes');
+                    payload.imagen = url;
                 }
-                cargarClientesLista(); aplicarFiltroActual();
+                if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); }
+                else await apiFetch('clientes', 'POST', payload);
+                cerrarModalCliente(); cargarClientesLista(); aplicarFiltroActual();
                 showNotification('Cliente guardado');
             } catch(err) { showNotification('Error: '+err.message,'error'); }
         });
@@ -913,10 +956,7 @@
 
         function moverUbicacionDesdeModal() {
             const id = document.getElementById('cliente-id').value;
-            if(!id) {
-                seleccionarUbicacionParaNuevoCliente();
-                return;
-            }
+            if(!id) { seleccionarUbicacionParaNuevoCliente(); return; }
             cerrarModalCliente();
             activarArrastreUbicacion(id, true);
         }
@@ -924,15 +964,7 @@
         async function seleccionarUbicacionParaNuevoCliente() {
             if(!map) { showNotification('Mapa no disponible', 'error'); return; }
             document.getElementById('modal-cliente').classList.remove('active');
-            let coordsActuales = null;
-            const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
-            if(gpsInputs.length) {
-                const val = gpsInputs[0].value.trim();
-                const parts = val.split(',').map(Number);
-                if(parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) coordsActuales = { lat: parts[0], lng: parts[1] };
-            }
-            if(!coordsActuales && miUbicacionMarker) coordsActuales = { lat: miUbicacionMarker.position.lat, lng: miUbicacionMarker.position.lng };
-            if(!coordsActuales) coordsActuales = { lat: map.getCenter().lat(), lng: map.getCenter().lng() };
+            let coordsActuales = miUbicacionMarker ? { lat: miUbicacionMarker.position.lat, lng: miUbicacionMarker.position.lng } : { lat: map.getCenter().lat(), lng: map.getCenter().lng() };
             const pinElement = new google.maps.marker.PinElement({ background: '#e67e22', borderColor: '#0f172a', glyphColor: '#fff', scale: 1.3 });
             tempLocationMarker = new google.maps.marker.AdvancedMarkerElement({ position: coordsActuales, map, title: 'Arrastra para ajustar ubicación', content: pinElement, gmpDraggable: true });
             map.setCenter(coordsActuales); map.setZoom(16);
@@ -979,12 +1011,15 @@
             if(cancelBtn) cancelBtn.remove();
         }
 
-        function activarArrastreUbicacion(clienteId, reopenModal) {
+        function activarArrastreUbicacion(clienteId, reopenModal = false) {
             if(!map || !clienteId) return;
             const marker = clientMarkers.find(m => m.clienteId === clienteId);
             if(!marker) { showNotification('No se encontró el marcador del cliente en el mapa', 'error'); return; }
-            draggingMarker = marker; dragClienteId = clienteId; dragStartCoords = marker.position;
-            marker.gmpDraggable = true; pendingReopenModal = reopenModal;
+            draggingMarker = marker;
+            dragClienteId = clienteId;
+            dragStartCoords = marker.position;
+            marker.gmpDraggable = true;
+            pendingReopenModal = reopenModal;
             showNotification('Arrastra el marcador a la nueva ubicación. Luego presiona "Listo".', 'success');
             const confirmBtn = document.createElement('button');
             confirmBtn.id = 'btn-confirmar-arrastre';
@@ -1031,18 +1066,6 @@
             const cancelBtn = document.getElementById('btn-cancelar-arrastre');
             if(confirmBtn) confirmBtn.remove();
             if(cancelBtn) cancelBtn.remove();
-        }
-
-        function cargarClientesLista() {
-            if(!currentEmployeeId) return;
-            obtenerClientesFiltrados().then(clientes => {
-                let html = clientes.length ? clientes.map(c => {
-                    const nombres = [c.nombres, c.apellido_paterno, c.apellido_materno].filter(Boolean).join(' ');
-                    const nombreMostrar = c.razon_social || nombres || 'Sin nombre';
-                    return `<tr class="clickable-row" onclick="abrirAccionesPanel('${c.id}', '${nombreMostrar.replace(/'/g, "\\'")}')"><td>${nombreMostrar}</td></tr>`;
-                }).join('') : '<tr><td>Sin clientes asignados</td></tr>';
-                document.getElementById('clientes-lista').innerHTML = `<div class="table-wrapper"><table><thead><tr><th>Nombre completo</th></tr></thead><tbody>${html}</tbody></table></div>`;
-            });
         }
 
         async function cargarAvance() {
