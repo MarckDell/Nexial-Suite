@@ -858,20 +858,27 @@
                         const pos = await new Promise((resolve, reject) => { navigator.geolocation.getCurrentPosition(resolve, reject); });
                         coords = `${pos.coords.latitude}, ${pos.coords.longitude}`;
                     }
+                    if (!coords) {
+                        coords = `${map.getCenter().lat()}, ${map.getCenter().lng()}`;
+                    }
+                    const [lat, lng] = coords.split(',').map(Number);
+                    const geo = await geocodificarInversa(lat, lng);
                     const nuevoCliente = await apiFetch('clientes', 'POST', {
                         empresa_id: empresaId, vendedor_asignado_id: currentEmployeeId,
                         nombres: null, apellido_paterno: null, apellido_materno: null, razon_social: null,
-                        direcciones_entrega: [{etiqueta:'Principal', coordenadas: coords}], activo: true
+                        direcciones_entrega: [{etiqueta:'Principal', coordenadas: coords}],
+                        pais: geo.pais || null,
+                        estado_provincia: geo.estado || null,
+                        ciudad: geo.ciudad || null,
+                        activo: true
                     });
                     const nuevoId = Array.isArray(nuevoCliente) ? nuevoCliente[0].id : nuevoCliente.id;
                     clienteTemporalId = nuevoId;
                     const doc = await procesarEnvioPedido(nuevoId);
                     pedidoTemporalDoc = doc;
 
-                    // Crear marcador temporal automáticamente en el mapa
                     if (tempLocationMarker) tempLocationMarker.setMap(null);
-                    const latLng = coords.split(',').map(Number);
-                    const posicion = { lat: latLng[0], lng: latLng[1] };
+                    const posicion = { lat, lng };
                     const pinElement = new google.maps.marker.PinElement({
                         background: '#e67e22', borderColor: '#0f172a', glyphColor: '#fff', scale: 1.3
                     });
@@ -1088,15 +1095,13 @@
 
         async function seleccionarUbicacionParaNuevoCliente() {
             if(!map) { showNotification('Mapa no disponible', 'error'); return; }
-            // Si ya existe un marcador temporal, simplemente mostramos botones y permitimos arrastrar
             if (tempLocationMarker) {
                 document.getElementById('modal-cliente').classList.remove('active');
-                showNotification('Arrastra el marcador naranja y presiona "Listo"', 'success');
+                showNotification('Arrastra el marcador naranja y presiona "Listo" para guardar', 'success');
                 agregarBotonesTempLocation();
                 pushModalState();
                 return;
             }
-            // Si no hay marcador, lo creamos con coordenadas del primer input GPS
             document.getElementById('modal-cliente').classList.remove('active');
             let coordsActuales = null;
             const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
@@ -1115,7 +1120,7 @@
                 position: coordsActuales, map, title: 'Arrastra para ajustar ubicación', content: pinElement, gmpDraggable: true
             });
             map.setCenter(coordsActuales); map.setZoom(16);
-            showNotification('Arrastra el marcador naranja y presiona "Listo"', 'success');
+            showNotification('Arrastra el marcador naranja y presiona "Listo" para guardar', 'success');
             agregarBotonesTempLocation();
             pushModalState();
         }
@@ -1124,7 +1129,7 @@
             eliminarBotonesTempLocation();
             const confirmBtn = document.createElement('button');
             confirmBtn.id = 'btn-confirmar-temp-location';
-            confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
+            confirmBtn.innerHTML = '<i class="fas fa-save"></i> Guardar ubicación';
             confirmBtn.style.cssText = 'position:absolute; bottom:220px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
             confirmBtn.onclick = confirmarSeleccionUbicacionTemporal;
             document.getElementById('mapa-tab').appendChild(confirmBtn);
@@ -1155,7 +1160,6 @@
             if(geo.estado) document.getElementById('cli-estado-hidden').value = geo.estado;
             if(geo.ciudad) document.getElementById('cli-ciudad-hidden').value = geo.ciudad;
 
-            // Si estamos en flujo de nuevo cliente, actualizar el cliente temporal en Supabase
             if (flujoNuevoClientePendiente && clienteTemporalId) {
                 try {
                     await apiFetch(`clientes?id=eq.${clienteTemporalId}`, 'PATCH', {
@@ -1164,13 +1168,15 @@
                         estado_provincia: geo.estado || null,
                         ciudad: geo.ciudad || null
                     });
-                } catch(e) { console.warn('Error al actualizar cliente temporal:', e); }
+                    showNotification('Ubicación guardada correctamente');
+                } catch(e) { showNotification('Error al guardar ubicación', 'error'); }
+            } else {
+                showNotification('Ubicación actualizada en el formulario');
             }
 
             limpiarSeleccionTemporal();
             document.getElementById('modal-cliente').classList.add('active');
             pushModalState();
-            showNotification('Ubicación actualizada en el formulario');
         }
 
         function cancelarSeleccionUbicacionTemporal() {
@@ -1180,7 +1186,6 @@
         }
 
         function limpiarSeleccionTemporal() {
-            // Solo limpiamos botones, el marcador temporal se conserva para seguir usándose
             eliminarBotonesTempLocation();
         }
 
@@ -1199,7 +1204,7 @@
             eliminarBotonesArrastre();
             const confirmBtn = document.createElement('button');
             confirmBtn.id = 'btn-confirmar-arrastre';
-            confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
+            confirmBtn.innerHTML = '<i class="fas fa-save"></i> Guardar ubicación';
             confirmBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
             confirmBtn.onclick = confirmarArrastreUbicacion;
             document.getElementById('mapa-tab').appendChild(confirmBtn);
@@ -1226,7 +1231,7 @@
                 if(cliente && cliente.direcciones_entrega?.length) {
                     cliente.direcciones_entrega[0].coordenadas = `${lat}, ${lng}`;
                     await apiFetch(`clientes?id=eq.${dragClienteId}`, 'PATCH', { direcciones_entrega: cliente.direcciones_entrega });
-                    showNotification('Ubicación actualizada');
+                    showNotification('Ubicación guardada correctamente');
                     await aplicarFiltroActual();
                 }
             } catch(e) { showNotification('Error: '+e.message, 'error'); }
