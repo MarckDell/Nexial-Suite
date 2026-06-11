@@ -253,7 +253,7 @@
         <button class="cancel-btn" id="btn-cancel-location"><i class="fas fa-times"></i> Cancelar</button>
     </div>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTFh4VNHNHFT2uN1LShwJ5f6IeMCFMjHc&loading=async&callback=initMap&libraries=marker,places,geocoding"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTFh4VNHNHFT2uN1LShwJ5f6IeMCFMjHc&loading=async&callback=initMap&libraries=marker,places"></script>
     <script>
         const SUPABASE_URL = 'https://zgzwhyywkervutpvazqp.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
@@ -425,27 +425,49 @@
         }
 
         async function geocodificarInversa(lat, lng) {
-            return new Promise((resolve) => {
-                if (!window.google || !google.maps.Geocoder) {
-                    resolve({ estado: '', ciudad: '', pais: '' });
-                    return;
+            // Intenta con Google Geocoder
+            if (window.google && google.maps.Geocoder) {
+                try {
+                    const result = await new Promise((resolve, reject) => {
+                        const geocoder = new google.maps.Geocoder();
+                        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                            if (status === 'OK' && results.length > 0) {
+                                let estado = '', ciudad = '', pais = '';
+                                for (const comp of results[0].address_components) {
+                                    if (comp.types.includes('administrative_area_level_1')) estado = comp.long_name;
+                                    if (comp.types.includes('locality') || comp.types.includes('postal_town')) ciudad = comp.long_name;
+                                    if (comp.types.includes('country')) pais = comp.long_name;
+                                    if (!ciudad && comp.types.includes('administrative_area_level_2')) ciudad = comp.long_name;
+                                }
+                                resolve({ estado, ciudad, pais });
+                            } else {
+                                reject(new Error('Geocoding failed'));
+                            }
+                        });
+                    });
+                    if (result) return result;
+                } catch (e) {
+                    console.warn('Google Geocoding falló, usando Nominatim', e);
                 }
-                const geocoder = new google.maps.Geocoder();
-                geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-                    if (status === 'OK' && results.length > 0) {
-                        let estado = '', ciudad = '', pais = '';
-                        for (const comp of results[0].address_components) {
-                            if (comp.types.includes('administrative_area_level_1')) estado = comp.long_name;
-                            if (comp.types.includes('locality') || comp.types.includes('postal_town')) ciudad = comp.long_name;
-                            if (comp.types.includes('country')) pais = comp.long_name;
-                            if (!ciudad && comp.types.includes('administrative_area_level_2')) ciudad = comp.long_name;
-                        }
-                        resolve({ estado, ciudad, pais });
-                    } else {
-                        resolve({ estado: '', ciudad: '', pais: '' });
-                    }
-                });
-            });
+            }
+
+            // Fallback a Nominatim (OpenStreetMap) gratuito
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=es`;
+                const resp = await fetch(url, { headers: { 'User-Agent': 'NexialSuiteApp/1.0' } });
+                const data = await resp.json();
+                if (data && data.address) {
+                    const addr = data.address;
+                    const pais = addr.country || '';
+                    const estado = addr.state || addr.region || '';
+                    const ciudad = addr.city || addr.town || addr.village || addr.municipality || '';
+                    return { estado, ciudad, pais };
+                }
+            } catch (e) {
+                console.warn('Nominatim falló', e);
+            }
+            // Si todo falla, devolver vacío
+            return { estado: '', ciudad: '', pais: '' };
         }
 
         async function verificarSesion() {
