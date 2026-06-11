@@ -70,8 +70,7 @@
         .acciones-panel { position:fixed; bottom:0; left:0; width:100%; background:white; border-radius:28px 28px 0 0; padding:20px; box-shadow:0 -8px 32px rgba(0,0,0,0.2); z-index:1500; display:none; flex-direction:column; gap:12px; }
         .acciones-panel.active { display:flex; }
         .acciones-panel button { width:100%; padding:14px; border-radius:16px; border:none; font-weight:600; display:flex; align-items:center; gap:12px; cursor:pointer; font-size:0.95rem; background:#f8fafc; color:#1e293b; }
-        .acciones-panel .danger-btn { color:#991b1b; } 
-        .acciones-panel .cancel-btn { background:#e2e8f0; color:#1e293b; font-weight:600; }
+        .acciones-panel .danger-btn { color:#991b1b; } .acciones-panel .cancel-btn { color:#64748b; background:transparent; }
         .order-line { display:flex; align-items:center; gap:8px; margin-bottom:8px; background:#f8fafc; padding:8px; border-radius:12px; }
         .order-line span { flex:1; font-size:0.85rem; }
         .order-line input.qty { width:50px; text-align:center; }
@@ -90,9 +89,27 @@
             70% { box-shadow: 0 0 0 15px rgba(66,133,244, 0); }
             100% { box-shadow: 0 0 0 0 rgba(66,133,244, 0); }
         }
-        #modal-venta .modal { height:100%; max-height:100%; border-radius:0; }
-        .client-fields-inline { background:#f8fafc; border-radius:20px; padding:16px; margin-top:12px; }
-        .search-icon-btn { background:#f1f5f9; border:none; border-radius:12px; padding:10px; cursor:pointer; font-size:1.2rem; color:#1a56db; }
+        /* Estilos específicos para el modal de venta (pantalla completa) */
+        #modal-venta .modal {
+            height: 100%;
+            max-height: 100%;
+            border-radius: 0;
+        }
+        .search-icon-btn {
+            background: #f1f5f9;
+            border: none;
+            border-radius: 12px;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #1a56db;
+        }
+        .client-fields-inline {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 12px;
+        }
     </style>
 </head>
 <body>
@@ -157,6 +174,7 @@
         </div>
     </div>
 
+    <!-- Modal Cliente (edición) -->
     <div class="modal-overlay" id="modal-cliente">
         <div class="modal">
             <div class="modal-header">
@@ -195,6 +213,7 @@
         </div>
     </div>
 
+    <!-- Modal Venta (pantalla completa, con buscador compacto) -->
     <div class="modal-overlay" id="modal-venta">
         <div class="modal">
             <div class="modal-header">
@@ -248,6 +267,7 @@
         let documentoEditando = null;
         let clienteIdEnEdicion = null;
 
+        // Arrastre de ubicación
         let draggingMarker = null;
         let dragStartCoords = null;
         let dragClienteId = null;
@@ -264,6 +284,7 @@
             return days[new Date().getDay()];
         }
 
+        // ---------- MANEJO DE HISTORIAL Y NAVEGACIÓN ----------
         function showMain() {
             cerrarModalesYPaneles();
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -303,27 +324,67 @@
             history.pushState({page: seccion}, '', '#' + seccion);
         }
 
+        function volverAlMenu() {
+            showMain();
+            history.pushState({page: 'main'}, '', '#main');
+        }
+
+        // Manejo del botón atrás del sistema
         function manejarBotonAtras() {
-            if (document.getElementById('confirm-overlay').classList.contains('active')) { cerrarConfirm(false); return true; }
-            if (draggingMarker) { cancelarArrastreUbicacion(); return true; }
-            if (tempLocationMarker) { cancelarSeleccionUbicacionTemporal(); return true; }
-            if (document.getElementById('acciones-panel').classList.contains('active')) { cerrarAccionesPanel(); return true; }
-            if (document.getElementById('modal-venta').classList.contains('active')) { cerrarModalVenta(); return true; }
-            if (document.getElementById('modal-cliente').classList.contains('active')) { cerrarModalCliente(); return true; }
-            return false;
+            const modalCliente = document.getElementById('modal-cliente');
+            const modalVenta = document.getElementById('modal-venta');
+            const accionesPanel = document.getElementById('acciones-panel');
+            const confirmOverlay = document.getElementById('confirm-overlay');
+
+            if (confirmOverlay.classList.contains('active')) {
+                cerrarConfirm(false);
+                return true;
+            }
+            if (draggingMarker) {
+                cancelarArrastreUbicacion();
+                return true;
+            }
+            if (tempLocationMarker) {
+                cancelarSeleccionUbicacionTemporal();
+                return true;
+            }
+            if (accionesPanel.classList.contains('active')) {
+                cerrarAccionesPanel();
+                return true;
+            }
+            if (modalVenta.classList.contains('active')) {
+                cerrarModalVenta();
+                return true;
+            }
+            if (modalCliente.classList.contains('active')) {
+                cerrarModalCliente();
+                return true;
+            }
+            return false; // No había modales, se procede a navegación
         }
 
         window.addEventListener('popstate', function(e) {
-            if (manejarBotonAtras()) return;
+            if (manejarBotonAtras()) {
+                return;
+            }
             if (e.state && e.state.page) {
                 const page = e.state.page;
-                if (page === 'main') showMain();
-                else if (page === 'clientes' || page === 'avance') showSeccion(page);
-            } else { showMain(); history.replaceState({page: 'main'}, '', '#main'); }
+                if (page === 'main') {
+                    showMain();
+                } else if (page === 'clientes' || page === 'avance') {
+                    showSeccion(page);
+                }
+            } else {
+                showMain();
+                history.replaceState({page: 'main'}, '', '#main');
+            }
         });
+
         history.replaceState({page: 'main'}, '', '#main');
 
-        function pushModalState() { history.pushState({modal: true}, ''); }
+        function pushModalState() {
+            history.pushState({modal: true}, '');
+        }
 
         let confirmCallback = null;
         function mostrarConfirmacion(mensaje, titulo, callback) {
@@ -360,12 +421,14 @@
             return text ? JSON.parse(text) : null;
         }
 
+        // ---------- AUTENTICACIÓN Y EMPLEADO ----------
         async function verificarSesion() {
             const s = sessionStorage.getItem('currentUser');
             if(!s) { window.location.href = 'login.html'; return; }
             currentUser = JSON.parse(s);
             if(currentUser.rol !== 'Ejecutivo Comercial') { sessionStorage.removeItem('currentUser'); window.location.href = 'login.html'; return; }
             empresaId = currentUser.empresa_id;
+            // Obtener datos completos del usuario (incluye apellido_materno)
             try {
                 const usuarios = await apiFetch(`usuarios?id=eq.${currentUser.id}&select=nombres,apellido_paterno,apellido_materno`);
                 if (usuarios && usuarios.length) {
@@ -373,19 +436,26 @@
                     currentUser.apellido_paterno = usuarios[0].apellido_paterno;
                     currentUser.apellido_materno = usuarios[0].apellido_materno || '';
                 }
-            } catch(e) {}
+            } catch(e) { console.warn('No se pudo obtener nombre completo del usuario', e); }
             const nombreCompleto = `${currentUser.nombres} ${currentUser.apellido_paterno} ${currentUser.apellido_materno || ''}`.trim();
             document.getElementById('nombre-completo').textContent = nombreCompleto;
             await obtenerEmpleadoId();
-            if (document.getElementById('seccion-clientes').classList.contains('active') && map) cargarDatosMapa();
+            if (document.getElementById('seccion-clientes').classList.contains('active') && map) {
+                cargarDatosMapa();
+            }
         }
 
         async function obtenerEmpleadoId() {
             try {
                 const emps = await apiFetch(`empleados?email=eq.${encodeURIComponent(currentUser.email)}&empresa_id=eq.${empresaId}&select=id&limit=1`);
-                if(emps && emps.length) currentEmployeeId = emps[0].id;
-                else showNotification('No se encontró tu perfil de empleado', 'error');
-            } catch(e) { showNotification('Error al cargar perfil de empleado', 'error'); }
+                if(emps && emps.length) {
+                    currentEmployeeId = emps[0].id;
+                } else {
+                    showNotification('No se encontró tu perfil de empleado', 'error');
+                }
+            } catch(e) {
+                showNotification('Error al cargar perfil de empleado', 'error');
+            }
         }
 
         function cerrarSesion() { sessionStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
@@ -408,14 +478,15 @@
         function filtrarClientes(filtro) {
             currentFilter = filtro;
             document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-            const filtrosMap = { 'no_atendidos':0, 'atendidos':1, 'sin_compras':2, 'todos':3 };
-            const idx = filtrosMap[filtro] !== undefined ? filtrosMap[filtro] : 0;
+            const filtrosMap = { 'atendidos':0, 'no_atendidos':1, 'sin_compras':2, 'todos':3 };
+            const idx = filtrosMap[filtro] !== undefined ? filtrosMap[filtro] : 3;
             const botones = document.querySelectorAll('#sub-tabs-container .sub-tab-btn');
             if(botones[idx]) botones[idx].classList.add('active');
             if(currentTab === 'mapa') aplicarFiltroActual();
             else cargarClientesLista();
         }
 
+        // ---------- CLIENTES ----------
         async function obtenerClientesFiltrados() {
             if(!currentEmployeeId) return [];
             const clientes = await apiFetch(`clientes?vendedor_asignado_id=eq.${currentEmployeeId}&activo=eq.true&select=*&limit=1000`);
@@ -437,13 +508,14 @@
             return clientes;
         }
 
+        // ---------- MAPA ----------
         function initMap() {
             map = new google.maps.Map(document.getElementById('map-container'), {
                 center: { lat: -16.5, lng: -68.15 },
                 zoom: 13,
                 disableDefaultUI: true,
                 gestureHandling: 'greedy',
-                mapId: '9805b843ae0569ab51727033'
+                mapId: '9805b843ae0569ab51727033'  // ID vectorial para rotación
             });
             if(currentEmployeeId) cargarDatosMapa();
             iniciarWatcherUbicacion();
@@ -486,12 +558,17 @@
                     if(z.geometria?.coordinates) {
                         const paths = z.geometria.coordinates[0].map(c => new google.maps.LatLng(c[1], c[0]));
                         const polygon = new google.maps.Polygon({
-                            paths: paths, fillColor: color, fillOpacity: 0.2, strokeColor: color, strokeWeight: 2, map: map
+                            paths: paths,
+                            fillColor: color,
+                            fillOpacity: 0.2,
+                            strokeColor: color,
+                            strokeWeight: 2,
+                            map: map
                         });
                         zoneOverlays.push(polygon);
                     }
                 });
-            } catch(e) {}
+            } catch(e) { console.warn('Error al cargar zonas:', e); }
             await aplicarFiltroActual();
         }
 
@@ -511,7 +588,7 @@
             if(currentFilter === 'atendidos') return '#16a34a';
             if(currentFilter === 'no_atendidos') return '#6b7280';
             if(currentFilter === 'sin_compras') return '#dc2626';
-            return null;
+            return null; // 'todos' -> color por estado
         }
 
         async function aplicarFiltroActual() {
@@ -531,8 +608,12 @@
                         apiFetch(`ventas?cliente_id=in.(${ids})&select=cliente_id`)
                     ]);
                     const ultimasVentas = await apiFetch(`ventas?cliente_id=in.(${ids})&order=fecha.desc&limit=1000&select=cliente_id,documento_venta`);
-                    ultimasVentas.forEach(v => { if (!ultimoPedidoClienteMap[v.cliente_id]) ultimoPedidoClienteMap[v.cliente_id] = v.documento_venta; });
-                } catch(e) {}
+                    ultimasVentas.forEach(v => {
+                        if (!ultimoPedidoClienteMap[v.cliente_id]) {
+                            ultimoPedidoClienteMap[v.cliente_id] = v.documento_venta;
+                        }
+                    });
+                } catch(e) { console.warn('Error al cargar datos de ventas:', e); }
             }
             const ventasHoySet = new Set(ventasHoy.map(v => v.cliente_id));
             const ventasAlgunaVezSet = new Set(todasVentas.map(v => v.cliente_id));
@@ -546,9 +627,21 @@
                                 const nombre = c.razon_social || [c.nombres, c.apellido_paterno, c.apellido_materno].filter(Boolean).join(' ') || 'Sin nombre';
                                 const estado = obtenerEstadoCliente(c.id, ventasHoySet, ventasAlgunaVezSet);
                                 const color = colorFiltro || getPinColorPorEstado(estado);
-                                const pinElement = new google.maps.marker.PinElement({ background: color, borderColor: '#0f172a', glyphColor: '#fff', scale: 1.1 });
-                                const marker = new google.maps.marker.AdvancedMarkerElement({ position: { lat, lng }, map, title: nombre, content: pinElement });
-                                marker.addListener('gmp-click', () => abrirAccionesPanel(c.id, nombre));
+                                const pinElement = new google.maps.marker.PinElement({
+                                    background: color,
+                                    borderColor: '#0f172a',
+                                    glyphColor: '#fff',
+                                    scale: 1.1
+                                });
+                                const marker = new google.maps.marker.AdvancedMarkerElement({
+                                    position: { lat, lng },
+                                    map: map,
+                                    title: nombre,
+                                    content: pinElement,
+                                });
+                                marker.addListener('gmp-click', () => {
+                                    abrirAccionesPanel(c.id, nombre);
+                                });
                                 marker.clienteId = c.id;
                                 marker.pointIndex = idx;
                                 clientMarkers.push(marker);
@@ -559,6 +652,7 @@
             });
         }
 
+        // ---------- PANEL DE ACCIONES ----------
         function abrirAccionesPanel(clienteId, nombreCliente) {
             if(!clienteId) return;
             clienteSeleccionadoParaAccion = clienteId;
@@ -566,9 +660,11 @@
             const tienePedido = !!ultimoPedidoClienteMap[clienteId];
             let html = `<div style="font-weight:600; padding:8px 0; font-size:1.1rem;">${nombreCliente || 'Cliente'}</div>`;
             html += `<button onclick="accionPanel('vender')"><i class="fas fa-shopping-cart"></i> Registrar Venta</button>`;
-            if(tienePedido) html += `<button onclick="accionPanel('editar_pedido')"><i class="fas fa-pencil-alt"></i> Editar Pedido</button>`;
+            if(tienePedido) {
+                html += `<button onclick="accionPanel('editar_pedido')"><i class="fas fa-pencil-alt"></i> Editar Pedido</button>`;
+            }
             html += `<button onclick="accionPanel('editar_cliente')"><i class="fas fa-edit"></i> Editar Datos del Cliente</button>`;
-            html += `<button onclick="cerrarAccionesPanel()" class="cancel-btn"><i class="fas fa-times"></i> Cancelar</button>`;
+            html += `<button onclick="cerrarAccionesPanel()" class="cancel-btn">Cancelar</button>`;
             panel.innerHTML = html;
             panel.classList.add('active');
             pushModalState();
@@ -592,6 +688,379 @@
             }
         }
 
+        // ---------- MOVER UBICACIÓN DESDE MODAL ----------
+        function moverUbicacionDesdeModal() {
+            const id = document.getElementById('cliente-id').value;
+            if(!id) {
+                seleccionarUbicacionParaNuevoCliente();
+                return;
+            }
+            cerrarModalCliente();
+            activarArrastreUbicacion(id, true);
+        }
+
+        async function seleccionarUbicacionParaNuevoCliente() {
+            if(!map) { showNotification('Mapa no disponible', 'error'); return; }
+            document.getElementById('modal-cliente').classList.remove('active');
+            let coordsActuales = null;
+            const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
+            if(gpsInputs.length) {
+                const val = gpsInputs[0].value.trim();
+                const parts = val.split(',').map(Number);
+                if(parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                    coordsActuales = { lat: parts[0], lng: parts[1] };
+                }
+            }
+            if(!coordsActuales && miUbicacionMarker) {
+                coordsActuales = { lat: miUbicacionMarker.position.lat, lng: miUbicacionMarker.position.lng };
+            }
+            if(!coordsActuales) {
+                coordsActuales = { lat: map.getCenter().lat(), lng: map.getCenter().lng() };
+            }
+
+            const pinElement = new google.maps.marker.PinElement({
+                background: '#e67e22',
+                borderColor: '#0f172a',
+                glyphColor: '#fff',
+                scale: 1.3
+            });
+            tempLocationMarker = new google.maps.marker.AdvancedMarkerElement({
+                position: coordsActuales,
+                map: map,
+                title: 'Arrastra para ajustar ubicación',
+                content: pinElement,
+                gmpDraggable: true
+            });
+            map.setCenter(coordsActuales);
+            map.setZoom(16);
+            showNotification('Arrastra el marcador naranja y presiona "Listo"', 'success');
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.id = 'btn-confirmar-temp-location';
+            confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
+            confirmBtn.style.cssText = 'position:absolute; bottom:220px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
+            confirmBtn.onclick = confirmarSeleccionUbicacionTemporal;
+            document.getElementById('mapa-tab').appendChild(confirmBtn);
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.id = 'btn-cancelar-temp-location';
+            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar';
+            cancelBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
+            cancelBtn.onclick = cancelarSeleccionUbicacionTemporal;
+            document.getElementById('mapa-tab').appendChild(cancelBtn);
+            pushModalState();
+        }
+
+        function confirmarSeleccionUbicacionTemporal() {
+            if(!tempLocationMarker) return;
+            const pos = tempLocationMarker.position;
+            const coordStr = `${pos.lat}, ${pos.lng}`;
+            const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
+            if(gpsInputs.length) {
+                gpsInputs[0].value = coordStr;
+            } else {
+                agregarPuntoGPS();
+                const nuevosInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
+                if(nuevosInputs.length) nuevosInputs[0].value = coordStr;
+            }
+            limpiarSeleccionTemporal();
+            document.getElementById('modal-cliente').classList.add('active');
+            pushModalState();
+            showNotification('Ubicación actualizada en el formulario');
+        }
+
+        function cancelarSeleccionUbicacionTemporal() {
+            limpiarSeleccionTemporal();
+            document.getElementById('modal-cliente').classList.add('active');
+            pushModalState();
+        }
+
+        function limpiarSeleccionTemporal() {
+            if(tempLocationMarker) {
+                tempLocationMarker.setMap(null);
+                tempLocationMarker = null;
+            }
+            const confirmBtn = document.getElementById('btn-confirmar-temp-location');
+            const cancelBtn = document.getElementById('btn-cancelar-temp-location');
+            if(confirmBtn) confirmBtn.remove();
+            if(cancelBtn) cancelBtn.remove();
+        }
+
+        function activarArrastreUbicacion(clienteId, reopenModal = false) {
+            if(!map || !clienteId) return;
+            const marker = clientMarkers.find(m => m.clienteId === clienteId);
+            if(!marker) {
+                showNotification('No se encontró el marcador del cliente en el mapa', 'error');
+                return;
+            }
+            draggingMarker = marker;
+            dragClienteId = clienteId;
+            dragStartCoords = marker.position;
+            marker.gmpDraggable = true;
+            pendingReopenModal = reopenModal;
+            showNotification('Arrastra el marcador a la nueva ubicación. Luego presiona "Listo".', 'success');
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.id = 'btn-confirmar-arrastre';
+            confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
+            confirmBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
+            confirmBtn.onclick = confirmarArrastreUbicacion;
+            document.getElementById('mapa-tab').appendChild(confirmBtn);
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.id = 'btn-cancelar-arrastre';
+            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar';
+            cancelBtn.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
+            cancelBtn.onclick = cancelarArrastreUbicacion;
+            document.getElementById('mapa-tab').appendChild(cancelBtn);
+            pushModalState();
+        }
+
+        async function confirmarArrastreUbicacion() {
+            if(!draggingMarker || !dragClienteId) return;
+            const newPos = draggingMarker.position;
+            const lat = newPos.lat, lng = newPos.lng;
+            try {
+                const cliente = (await apiFetch(`clientes?id=eq.${dragClienteId}&select=direcciones_entrega`))[0];
+                if(cliente && cliente.direcciones_entrega?.length) {
+                    cliente.direcciones_entrega[0].coordenadas = `${lat}, ${lng}`;
+                    await apiFetch(`clientes?id=eq.${dragClienteId}`, 'PATCH', { direcciones_entrega: cliente.direcciones_entrega });
+                    showNotification('Ubicación actualizada');
+                    await aplicarFiltroActual();
+                }
+            } catch(e) { showNotification('Error: '+e.message, 'error'); }
+            const shouldReopen = pendingReopenModal;
+            limpiarArrastre();
+            if(shouldReopen) {
+                editarCliente(dragClienteId);
+            }
+        }
+
+        function cancelarArrastreUbicacion() {
+            if(draggingMarker && dragStartCoords) {
+                draggingMarker.position = dragStartCoords;
+            }
+            limpiarArrastre();
+        }
+
+        function limpiarArrastre() {
+            if(draggingMarker) draggingMarker.gmpDraggable = false;
+            draggingMarker = null;
+            dragClienteId = null;
+            dragStartCoords = null;
+            pendingReopenModal = false;
+            const confirmBtn = document.getElementById('btn-confirmar-arrastre');
+            const cancelBtn = document.getElementById('btn-cancelar-arrastre');
+            if(confirmBtn) confirmBtn.remove();
+            if(cancelBtn) cancelBtn.remove();
+        }
+
+        // ---------- PEDIDOS / EDICIÓN Y ELIMINACIÓN ----------
+        async function editarPedidoExistente(documento) {
+            try {
+                const lineas = await apiFetch(`ventas?documento_venta=eq.${documento}&select=*`);
+                if (!lineas.length) { showNotification('Pedido no encontrado', 'error'); return; }
+                allProducts = await apiFetch(`productos?empresa_id=eq.${empresaId}&activo=eq.true&select=id,nombre,precio_venta_base,impuesto_porcentaje&limit=1000`);
+                pedidoLineas = lineas.map(l => ({
+                    producto_id: l.producto_id,
+                    nombre: allProducts.find(p => p.id === l.producto_id)?.nombre || 'Producto desconocido',
+                    precio: l.precio_unitario,
+                    impuesto: l.impuesto_porcentaje || 0,
+                    cantidad: l.cantidad
+                }));
+                documentoEditando = documento;
+                const clienteId = lineas[0].cliente_id;
+                await abrirModalVenta(clienteId, true);
+            } catch(e) { showNotification('Error al cargar pedido: '+e.message, 'error'); }
+        }
+
+        function eliminarPedidoDesdeEdicion() {
+            if(!documentoEditando) return;
+            mostrarConfirmacion('¿Eliminar este pedido?', 'Eliminar pedido', async () => {
+                try {
+                    await apiFetch(`ventas?documento_venta=eq.${documentoEditando}`, 'DELETE');
+                    cerrarModalVenta();
+                    showNotification('Pedido eliminado');
+                    aplicarFiltroActual(); cargarClientesLista();
+                } catch(e) { showNotification('Error: '+e.message, 'error'); }
+            });
+        }
+
+        // ---------- LISTA DE CLIENTES ----------
+        async function cargarClientesLista() {
+            if(!currentEmployeeId) return;
+            const clientes = await obtenerClientesFiltrados();
+            let html = clientes.length ? clientes.map(c => {
+                const nombres = [c.nombres, c.apellido_paterno, c.apellido_materno].filter(Boolean).join(' ');
+                const nombreMostrar = c.razon_social || nombres || 'Sin nombre';
+                return `<tr class="clickable-row" onclick="abrirAccionesPanel('${c.id}', '${nombreMostrar.replace(/'/g, "\\'")}')"><td>${nombreMostrar}</td></tr>`;
+            }).join('') : '<tr><td>Sin clientes asignados</td></tr>';
+            document.getElementById('clientes-lista').innerHTML = `<div class="table-wrapper"><table><thead><tr><th>Nombre completo</th></tr></thead><tbody>${html}</tbody></table></div>`;
+        }
+
+        // ---------- MODAL CLIENTE ----------
+        function abrirModalCliente(id=null) {
+            document.getElementById('modal-cliente').classList.add('active');
+            document.getElementById('form-cliente').reset();
+            document.getElementById('cliente-id').value = '';
+            document.getElementById('cli-telefonos-container').innerHTML = '';
+            document.getElementById('gps-entrega-container').innerHTML = '';
+            document.getElementById('btn-mover-mapa').style.display = id ? 'inline-flex' : 'inline-flex';
+            document.getElementById('btn-eliminar-cliente').style.display = id ? 'flex' : 'none';
+            document.getElementById('titulo-modal-cliente').textContent = id ? 'Editar Cliente' : 'Nuevo Cliente';
+            agregarTelefonoCliente(); agregarPuntoGPS();
+            llenarTiposDocumento();
+            if(!id) {
+                actualizarUbicacionDesdeGPS();
+            } else {
+                editarCliente(id);
+            }
+            pushModalState();
+        }
+        function cerrarModalCliente() { document.getElementById('modal-cliente').classList.remove('active'); }
+
+        function toggleClientePersona() {
+            const tipo = document.getElementById('cli-tipo-persona').value;
+            document.getElementById('natural-fields').style.display = tipo==='natural'?'block':'none';
+            document.getElementById('juridica-fields').style.display = tipo==='juridica'?'block':'none';
+        }
+        function agregarTelefonoCliente() {
+            const row = document.createElement('div'); row.className='phone-input-row';
+            row.innerHTML = `<input class="tag-input" placeholder="Etiqueta"><input placeholder="Número">`;
+            document.getElementById('cli-telefonos-container').appendChild(row);
+        }
+        function agregarPuntoGPS() {
+            const row = document.createElement('div'); row.className='gps-input-row';
+            row.innerHTML = `<input class="tag-input" placeholder="Etiqueta"><input placeholder="lat, lng">`;
+            document.getElementById('gps-entrega-container').appendChild(row);
+        }
+        function obtenerTelefonos() {
+            return Array.from(document.querySelectorAll('#cli-telefonos-container .phone-input-row')).map(r => ({
+                etiqueta: r.querySelector('.tag-input').value.trim(),
+                numero: r.querySelector('input:not(.tag-input)').value.trim()
+            }));
+        }
+        function obtenerCoordenadas() {
+            return Array.from(document.querySelectorAll('#gps-entrega-container .gps-input-row')).map(r => ({
+                etiqueta: r.querySelector('.tag-input').value.trim(),
+                coordenadas: r.querySelector('input:not(.tag-input)').value.trim()
+            }));
+        }
+
+        function actualizarUbicacionDesdeGPS() {
+            if(!navigator.geolocation) { showNotification('Geolocalización no disponible', 'error'); return; }
+            navigator.geolocation.getCurrentPosition(pos => {
+                const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
+                if(gpsInputs.length) gpsInputs[0].value = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+                showNotification('Coordenadas actualizadas');
+            }, () => showNotification('No se pudo obtener la ubicación', 'error'));
+        }
+
+        function llenarTiposDocumento() {
+            const sel = document.getElementById('cli-tipo-doc');
+            sel.innerHTML = `<option value="CI">CI</option><option value="Pasaporte">Pasaporte</option><option value="NIT">NIT</option>`;
+        }
+
+        async function editarCliente(id) {
+            if(!id) return;
+            try {
+                const cli = (await apiFetch(`clientes?id=eq.${id}&select=*`))[0];
+                if(!cli) return;
+                document.getElementById('cliente-id').value = cli.id;
+                document.getElementById('cli-tipo-persona').value = cli.razon_social?'juridica':'natural'; toggleClientePersona();
+                document.getElementById('cli-nombres').value = cli.nombres||'';
+                document.getElementById('cli-ap').value = cli.apellido_paterno||'';
+                document.getElementById('cli-am').value = cli.apellido_materno||'';
+                document.getElementById('cli-razon-social').value = cli.razon_social||'';
+                document.getElementById('cli-tipo-doc').value = cli.tipo_documento||'';
+                document.getElementById('cli-num-doc').value = cli.numero_documento||'';
+                document.getElementById('cli-email').value = cli.email||'';
+                document.getElementById('cli-direccion').value = cli.direccion||'';
+                document.getElementById('cli-pais').value = cli.pais||'';
+                document.getElementById('cli-estado').value = cli.estado_provincia||'';
+                document.getElementById('cli-ciudad').value = cli.ciudad||'';
+                document.getElementById('cli-tipo-negocio').value = cli.tipo_negocio||'';
+                document.getElementById('cli-telefonos-container').innerHTML = '';
+                (cli.telefonos?.length ? cli.telefonos : [{etiqueta:'',numero:''}]).forEach(t => {
+                    const row = document.createElement('div'); row.className='phone-input-row';
+                    row.innerHTML = `<input class="tag-input" value="${t.etiqueta||''}"><input value="${t.numero||''}">`;
+                    document.getElementById('cli-telefonos-container').appendChild(row);
+                });
+                document.getElementById('gps-entrega-container').innerHTML = '';
+                (cli.direcciones_entrega?.length ? cli.direcciones_entrega : [{etiqueta:'',coordenadas:''}]).forEach(p => {
+                    const row = document.createElement('div'); row.className='gps-input-row';
+                    row.innerHTML = `<input class="tag-input" value="${p.etiqueta||''}"><input value="${p.coordenadas||''}" placeholder="lat, lng">`;
+                    document.getElementById('gps-entrega-container').appendChild(row);
+                });
+                document.getElementById('btn-mover-mapa').style.display = 'inline-flex';
+                document.getElementById('btn-eliminar-cliente').style.display = 'flex';
+                document.getElementById('titulo-modal-cliente').textContent = 'Editar Cliente';
+                document.getElementById('modal-cliente').classList.add('active');
+                pushModalState();
+            } catch(e) { showNotification('Error al cargar cliente', 'error'); }
+        }
+
+        function eliminarClienteDesdeEdicion() {
+            const id = document.getElementById('cliente-id').value;
+            if(!id) return;
+            mostrarConfirmacion('¿Eliminar cliente permanentemente?', 'Eliminar cliente', async () => {
+                try {
+                    await apiFetch(`clientes?id=eq.${id}`, 'DELETE');
+                    cerrarModalCliente();
+                    cargarClientesLista(); aplicarFiltroActual();
+                    showNotification('Cliente eliminado');
+                } catch(e) {
+                    if(e.message.includes('23503')) showNotification('No se puede eliminar: tiene pedidos', 'error');
+                    else showNotification('Error: '+e.message, 'error');
+                }
+            });
+        }
+
+        document.getElementById('form-cliente').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('cliente-id').value;
+            const tipo = document.getElementById('cli-tipo-persona').value;
+            const payload = {
+                empresa_id: empresaId,
+                vendedor_asignado_id: currentEmployeeId,
+                tipo_documento: document.getElementById('cli-tipo-doc').value||null,
+                numero_documento: document.getElementById('cli-num-doc').value||null,
+                nombres: tipo==='natural'? document.getElementById('cli-nombres').value.trim():null,
+                apellido_paterno: tipo==='natural'? document.getElementById('cli-ap').value.trim():null,
+                apellido_materno: tipo==='natural'? document.getElementById('cli-am').value.trim():null,
+                razon_social: tipo==='juridica'? document.getElementById('cli-razon-social').value.trim():null,
+                email: document.getElementById('cli-email').value.trim()||null,
+                telefonos: obtenerTelefonos(),
+                direccion: document.getElementById('cli-direccion').value.trim()||null,
+                pais: document.getElementById('cli-pais').value.trim()||null,
+                estado_provincia: document.getElementById('cli-estado').value.trim()||null,
+                ciudad: document.getElementById('cli-ciudad').value.trim()||null,
+                direcciones_entrega: obtenerCoordenadas(),
+                tipo_negocio: document.getElementById('cli-tipo-negocio').value.trim()||null,
+                activo: true
+            };
+            try {
+                const file = document.getElementById('file-cli-imagen').files[0];
+                if(file) {
+                    const url = await uploadFile(file, 'clientes');
+                    payload.imagen = url;
+                }
+                if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); }
+                else await apiFetch('clientes', 'POST', payload);
+                cerrarModalCliente(); cargarClientesLista(); aplicarFiltroActual();
+                showNotification('Cliente guardado');
+            } catch(err) { showNotification('Error: '+err.message,'error'); }
+        });
+
+        async function uploadFile(file, folder) {
+            const name = `${folder}/${Date.now()}-${file.name}`;
+            const fd = new FormData(); fd.append('', file);
+            const res = await fetch(`${SUPABASE_URL}/storage/v1/object/empresas/${name}`, { method:'POST', headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}, body:fd });
+            if(!res.ok) throw new Error('Error al subir imagen');
+            return `${SUPABASE_URL}/storage/v1/object/public/empresas/${name}`;
+        }
+
+        // ---------- MODAL VENTA (CREAR/EDITAR) ----------
         function abrirModalVentaDesdeBotonMas() { abrirModalVenta(null, false); }
 
         async function abrirModalVenta(clienteId=null, modoEdicion=false) {
@@ -628,7 +1097,6 @@
             if (clienteId) sel.value = clienteId;
             clienteVentaChange();
         }
-
         function cerrarModalVenta() { 
             document.getElementById('modal-venta').classList.remove('active'); 
             documentoEditando = null;
@@ -734,340 +1202,42 @@
                 } catch(e) { showNotification('Error al crear cliente: '+e.message, 'error'); return; }
             }
             const moneda = (await apiFetch(`empresas?id=eq.${empresaId}&select=moneda_principal_id`))[0].moneda_principal_id;
+            
             if (documentoEditando) {
-                try { await apiFetch(`ventas?documento_venta=eq.${documentoEditando}`, 'DELETE'); } 
-                catch(e) { showNotification('Error al actualizar: '+e.message, 'error'); return; }
+                try {
+                    await apiFetch(`ventas?documento_venta=eq.${documentoEditando}`, 'DELETE');
+                } catch(e) { showNotification('Error al actualizar: '+e.message, 'error'); return; }
                 var documento = documentoEditando;
                 documentoEditando = null;
             } else {
                 var documento = `PED-${Date.now()}`;
             }
+
             for(let i=0; i<pedidoLineas.length; i++) {
                 const l = pedidoLineas[i];
-                await apiFetch('ventas', 'POST', {
-                    documento_venta: documento, linea: i+1, empresa_id: empresaId,
-                    fecha: new Date().toISOString(), cliente_id: clienteId,
-                    vendedor_id: currentEmployeeId, moneda_id: moneda, estado: 'pendiente',
-                    producto_id: l.producto_id, cantidad: l.cantidad,
-                    precio_unitario: l.precio, descuento_porcentaje: 0, impuesto_porcentaje: l.impuesto
-                });
+                const body = {
+                    documento_venta: documento,
+                    linea: i+1,
+                    empresa_id: empresaId,
+                    fecha: new Date().toISOString(),
+                    cliente_id: clienteId,
+                    vendedor_id: currentEmployeeId,
+                    moneda_id: moneda,
+                    estado: 'pendiente',
+                    producto_id: l.producto_id,
+                    cantidad: l.cantidad,
+                    precio_unitario: l.precio,
+                    descuento_porcentaje: 0,
+                    impuesto_porcentaje: l.impuesto
+                };
+                await apiFetch('ventas', 'POST', body);
             }
             cerrarModalVenta(); 
-            showNotification('Pedido registrado');
+            showNotification(documentoEditando ? 'Pedido actualizado' : 'Pedido registrado');
             aplicarFiltroActual();
         }
 
-        async function editarPedidoExistente(documento) {
-            try {
-                const lineas = await apiFetch(`ventas?documento_venta=eq.${documento}&select=*`);
-                if (!lineas.length) { showNotification('Pedido no encontrado', 'error'); return; }
-                allProducts = await apiFetch(`productos?empresa_id=eq.${empresaId}&activo=eq.true&select=id,nombre,precio_venta_base,impuesto_porcentaje&limit=1000`);
-                pedidoLineas = lineas.map(l => ({
-                    producto_id: l.producto_id,
-                    nombre: allProducts.find(p => p.id === l.producto_id)?.nombre || 'Producto desconocido',
-                    precio: l.precio_unitario,
-                    impuesto: l.impuesto_porcentaje || 0,
-                    cantidad: l.cantidad
-                }));
-                documentoEditando = documento;
-                const clienteId = lineas[0].cliente_id;
-                await abrirModalVenta(clienteId, true);
-            } catch(e) { showNotification('Error al cargar pedido: '+e.message, 'error'); }
-        }
-
-        function eliminarPedidoDesdeEdicion() {
-            if(!documentoEditando) return;
-            mostrarConfirmacion('¿Eliminar este pedido?', 'Eliminar pedido', async () => {
-                try {
-                    await apiFetch(`ventas?documento_venta=eq.${documentoEditando}`, 'DELETE');
-                    cerrarModalVenta();
-                    showNotification('Pedido eliminado');
-                    aplicarFiltroActual(); cargarClientesLista();
-                } catch(e) { showNotification('Error: '+e.message, 'error'); }
-            });
-        }
-
-        async function cargarClientesLista() {
-            if(!currentEmployeeId) return;
-            const clientes = await obtenerClientesFiltrados();
-            let html = clientes.length ? clientes.map(c => {
-                const nombres = [c.nombres, c.apellido_paterno, c.apellido_materno].filter(Boolean).join(' ');
-                const nombreMostrar = c.razon_social || nombres || 'Sin nombre';
-                return `<tr class="clickable-row" onclick="abrirAccionesPanel('${c.id}', '${nombreMostrar.replace(/'/g, "\\'")}')"><td>${nombreMostrar}</td></tr>`;
-            }).join('') : '<tr><td>Sin clientes asignados</td></tr>';
-            document.getElementById('clientes-lista').innerHTML = `<div class="table-wrapper"><table><thead><tr><th>Nombre completo</th></tr></thead><tbody>${html}</tbody></table></div>`;
-        }
-
-        function abrirModalCliente(id=null) {
-            document.getElementById('modal-cliente').classList.add('active');
-            document.getElementById('form-cliente').reset();
-            document.getElementById('cliente-id').value = '';
-            document.getElementById('cli-telefonos-container').innerHTML = '';
-            document.getElementById('gps-entrega-container').innerHTML = '';
-            document.getElementById('btn-mover-mapa').style.display = id ? 'inline-flex' : 'inline-flex';
-            document.getElementById('titulo-modal-cliente').textContent = id ? 'Editar Cliente' : 'Nuevo Cliente';
-            document.getElementById('btn-eliminar-cliente').style.display = id ? 'flex' : 'none';
-            agregarTelefonoCliente(); agregarPuntoGPS();
-            llenarTiposDocumento();
-            if(!id) actualizarUbicacionDesdeGPS();
-            else editarCliente(id);
-            pushModalState();
-        }
-        function cerrarModalCliente() { document.getElementById('modal-cliente').classList.remove('active'); }
-
-        function toggleClientePersona() {
-            const tipo = document.getElementById('cli-tipo-persona').value;
-            document.getElementById('natural-fields').style.display = tipo==='natural'?'block':'none';
-            document.getElementById('juridica-fields').style.display = tipo==='juridica'?'block':'none';
-        }
-        function agregarTelefonoCliente() {
-            const row = document.createElement('div'); row.className='phone-input-row';
-            row.innerHTML = `<input class="tag-input" placeholder="Etiqueta"><input placeholder="Número">`;
-            document.getElementById('cli-telefonos-container').appendChild(row);
-        }
-        function agregarPuntoGPS() {
-            const row = document.createElement('div'); row.className='gps-input-row';
-            row.innerHTML = `<input class="tag-input" placeholder="Etiqueta"><input placeholder="lat, lng">`;
-            document.getElementById('gps-entrega-container').appendChild(row);
-        }
-        function obtenerTelefonos() {
-            return Array.from(document.querySelectorAll('#cli-telefonos-container .phone-input-row')).map(r => ({
-                etiqueta: r.querySelector('.tag-input').value.trim(),
-                numero: r.querySelector('input:not(.tag-input)').value.trim()
-            }));
-        }
-        function obtenerCoordenadas() {
-            return Array.from(document.querySelectorAll('#gps-entrega-container .gps-input-row')).map(r => ({
-                etiqueta: r.querySelector('.tag-input').value.trim(),
-                coordenadas: r.querySelector('input:not(.tag-input)').value.trim()
-            }));
-        }
-        function actualizarUbicacionDesdeGPS() {
-            if(!navigator.geolocation) { showNotification('Geolocalización no disponible', 'error'); return; }
-            navigator.geolocation.getCurrentPosition(pos => {
-                const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
-                if(gpsInputs.length) gpsInputs[0].value = `${pos.coords.latitude}, ${pos.coords.longitude}`;
-                showNotification('Coordenadas actualizadas');
-            }, () => showNotification('No se pudo obtener la ubicación', 'error'));
-        }
-        function llenarTiposDocumento() {
-            const sel = document.getElementById('cli-tipo-doc');
-            sel.innerHTML = `<option value="CI">CI</option><option value="Pasaporte">Pasaporte</option><option value="NIT">NIT</option>`;
-        }
-
-        async function editarCliente(id) {
-            if(!id) return;
-            try {
-                const cli = (await apiFetch(`clientes?id=eq.${id}&select=*`))[0];
-                if(!cli) return;
-                document.getElementById('cliente-id').value = cli.id;
-                document.getElementById('cli-tipo-persona').value = cli.razon_social?'juridica':'natural'; toggleClientePersona();
-                document.getElementById('cli-nombres').value = cli.nombres||'';
-                document.getElementById('cli-ap').value = cli.apellido_paterno||'';
-                document.getElementById('cli-am').value = cli.apellido_materno||'';
-                document.getElementById('cli-razon-social').value = cli.razon_social||'';
-                document.getElementById('cli-tipo-doc').value = cli.tipo_documento||'';
-                document.getElementById('cli-num-doc').value = cli.numero_documento||'';
-                document.getElementById('cli-email').value = cli.email||'';
-                document.getElementById('cli-direccion').value = cli.direccion||'';
-                document.getElementById('cli-pais').value = cli.pais||'';
-                document.getElementById('cli-estado').value = cli.estado_provincia||'';
-                document.getElementById('cli-ciudad').value = cli.ciudad||'';
-                document.getElementById('cli-tipo-negocio').value = cli.tipo_negocio||'';
-                document.getElementById('cli-telefonos-container').innerHTML = '';
-                (cli.telefonos?.length ? cli.telefonos : [{etiqueta:'',numero:''}]).forEach(t => {
-                    const row = document.createElement('div'); row.className='phone-input-row';
-                    row.innerHTML = `<input class="tag-input" value="${t.etiqueta||''}"><input value="${t.numero||''}">`;
-                    document.getElementById('cli-telefonos-container').appendChild(row);
-                });
-                document.getElementById('gps-entrega-container').innerHTML = '';
-                (cli.direcciones_entrega?.length ? cli.direcciones_entrega : [{etiqueta:'',coordenadas:''}]).forEach(p => {
-                    const row = document.createElement('div'); row.className='gps-input-row';
-                    row.innerHTML = `<input class="tag-input" value="${p.etiqueta||''}"><input value="${p.coordenadas||''}" placeholder="lat, lng">`;
-                    document.getElementById('gps-entrega-container').appendChild(row);
-                });
-                document.getElementById('btn-mover-mapa').style.display = 'inline-flex';
-                document.getElementById('btn-eliminar-cliente').style.display = 'flex';
-                document.getElementById('titulo-modal-cliente').textContent = 'Editar Cliente';
-                document.getElementById('modal-cliente').classList.add('active');
-                pushModalState();
-            } catch(e) { showNotification('Error al cargar cliente', 'error'); }
-        }
-
-        function eliminarClienteDesdeEdicion() {
-            const id = document.getElementById('cliente-id').value;
-            if(!id) return;
-            mostrarConfirmacion('¿Eliminar cliente permanentemente?', 'Eliminar cliente', async () => {
-                try {
-                    await apiFetch(`clientes?id=eq.${id}`, 'DELETE');
-                    cerrarModalCliente();
-                    cargarClientesLista(); aplicarFiltroActual();
-                    showNotification('Cliente eliminado');
-                } catch(e) {
-                    if(e.message.includes('23503')) showNotification('No se puede eliminar: tiene pedidos', 'error');
-                    else showNotification('Error: '+e.message, 'error');
-                }
-            });
-        }
-
-        document.getElementById('form-cliente').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const id = document.getElementById('cliente-id').value;
-            const tipo = document.getElementById('cli-tipo-persona').value;
-            const payload = {
-                empresa_id: empresaId,
-                vendedor_asignado_id: currentEmployeeId,
-                tipo_documento: document.getElementById('cli-tipo-doc').value||null,
-                numero_documento: document.getElementById('cli-num-doc').value||null,
-                nombres: tipo==='natural'? document.getElementById('cli-nombres').value.trim():null,
-                apellido_paterno: tipo==='natural'? document.getElementById('cli-ap').value.trim():null,
-                apellido_materno: tipo==='natural'? document.getElementById('cli-am').value.trim():null,
-                razon_social: tipo==='juridica'? document.getElementById('cli-razon-social').value.trim():null,
-                email: document.getElementById('cli-email').value.trim()||null,
-                telefonos: obtenerTelefonos(),
-                direccion: document.getElementById('cli-direccion').value.trim()||null,
-                pais: document.getElementById('cli-pais').value.trim()||null,
-                estado_provincia: document.getElementById('cli-estado').value.trim()||null,
-                ciudad: document.getElementById('cli-ciudad').value.trim()||null,
-                direcciones_entrega: obtenerCoordenadas(),
-                tipo_negocio: document.getElementById('cli-tipo-negocio').value.trim()||null,
-                activo: true
-            };
-            try {
-                const file = document.getElementById('file-cli-imagen').files[0];
-                if(file) {
-                    const url = await uploadFile(file, 'clientes');
-                    payload.imagen = url;
-                }
-                if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); }
-                else await apiFetch('clientes', 'POST', payload);
-                cerrarModalCliente(); cargarClientesLista(); aplicarFiltroActual();
-                showNotification('Cliente guardado');
-            } catch(err) { showNotification('Error: '+err.message,'error'); }
-        });
-
-        async function uploadFile(file, folder) {
-            const name = `${folder}/${Date.now()}-${file.name}`;
-            const fd = new FormData(); fd.append('', file);
-            const res = await fetch(`${SUPABASE_URL}/storage/v1/object/empresas/${name}`, { method:'POST', headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}, body:fd });
-            if(!res.ok) throw new Error('Error al subir imagen');
-            return `${SUPABASE_URL}/storage/v1/object/public/empresas/${name}`;
-        }
-
-        function moverUbicacionDesdeModal() {
-            const id = document.getElementById('cliente-id').value;
-            if(!id) { seleccionarUbicacionParaNuevoCliente(); return; }
-            cerrarModalCliente();
-            activarArrastreUbicacion(id, true);
-        }
-
-        async function seleccionarUbicacionParaNuevoCliente() {
-            if(!map) { showNotification('Mapa no disponible', 'error'); return; }
-            document.getElementById('modal-cliente').classList.remove('active');
-            let coordsActuales = miUbicacionMarker ? { lat: miUbicacionMarker.position.lat, lng: miUbicacionMarker.position.lng } : { lat: map.getCenter().lat(), lng: map.getCenter().lng() };
-            const pinElement = new google.maps.marker.PinElement({ background: '#e67e22', borderColor: '#0f172a', glyphColor: '#fff', scale: 1.3 });
-            tempLocationMarker = new google.maps.marker.AdvancedMarkerElement({ position: coordsActuales, map, title: 'Arrastra para ajustar ubicación', content: pinElement, gmpDraggable: true });
-            map.setCenter(coordsActuales); map.setZoom(16);
-            showNotification('Arrastra el marcador naranja y presiona "Listo"', 'success');
-            const confirmBtn = document.createElement('button');
-            confirmBtn.id = 'btn-confirmar-temp-location';
-            confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
-            confirmBtn.style.cssText = 'position:absolute; bottom:220px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
-            confirmBtn.onclick = confirmarSeleccionUbicacionTemporal;
-            document.getElementById('mapa-tab').appendChild(confirmBtn);
-            const cancelBtn = document.createElement('button');
-            cancelBtn.id = 'btn-cancelar-temp-location';
-            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar';
-            cancelBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
-            cancelBtn.onclick = cancelarSeleccionUbicacionTemporal;
-            document.getElementById('mapa-tab').appendChild(cancelBtn);
-            pushModalState();
-        }
-
-        function confirmarSeleccionUbicacionTemporal() {
-            if(!tempLocationMarker) return;
-            const pos = tempLocationMarker.position;
-            const coordStr = `${pos.lat}, ${pos.lng}`;
-            const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
-            if(gpsInputs.length) gpsInputs[0].value = coordStr;
-            else { agregarPuntoGPS(); const nuevos = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)'); if(nuevos.length) nuevos[0].value = coordStr; }
-            limpiarSeleccionTemporal();
-            document.getElementById('modal-cliente').classList.add('active');
-            pushModalState();
-            showNotification('Ubicación actualizada en el formulario');
-        }
-
-        function cancelarSeleccionUbicacionTemporal() {
-            limpiarSeleccionTemporal();
-            document.getElementById('modal-cliente').classList.add('active');
-            pushModalState();
-        }
-
-        function limpiarSeleccionTemporal() {
-            if(tempLocationMarker) { tempLocationMarker.setMap(null); tempLocationMarker = null; }
-            const confirmBtn = document.getElementById('btn-confirmar-temp-location');
-            const cancelBtn = document.getElementById('btn-cancelar-temp-location');
-            if(confirmBtn) confirmBtn.remove();
-            if(cancelBtn) cancelBtn.remove();
-        }
-
-        function activarArrastreUbicacion(clienteId, reopenModal = false) {
-            if(!map || !clienteId) return;
-            const marker = clientMarkers.find(m => m.clienteId === clienteId);
-            if(!marker) { showNotification('No se encontró el marcador del cliente en el mapa', 'error'); return; }
-            draggingMarker = marker;
-            dragClienteId = clienteId;
-            dragStartCoords = marker.position;
-            marker.gmpDraggable = true;
-            pendingReopenModal = reopenModal;
-            showNotification('Arrastra el marcador a la nueva ubicación. Luego presiona "Listo".', 'success');
-            const confirmBtn = document.createElement('button');
-            confirmBtn.id = 'btn-confirmar-arrastre';
-            confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
-            confirmBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
-            confirmBtn.onclick = confirmarArrastreUbicacion;
-            document.getElementById('mapa-tab').appendChild(confirmBtn);
-            const cancelBtn = document.createElement('button');
-            cancelBtn.id = 'btn-cancelar-arrastre';
-            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar';
-            cancelBtn.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
-            cancelBtn.onclick = cancelarArrastreUbicacion;
-            document.getElementById('mapa-tab').appendChild(cancelBtn);
-            pushModalState();
-        }
-
-        async function confirmarArrastreUbicacion() {
-            if(!draggingMarker || !dragClienteId) return;
-            const newPos = draggingMarker.position;
-            const lat = newPos.lat, lng = newPos.lng;
-            try {
-                const cliente = (await apiFetch(`clientes?id=eq.${dragClienteId}&select=direcciones_entrega`))[0];
-                if(cliente && cliente.direcciones_entrega?.length) {
-                    cliente.direcciones_entrega[0].coordenadas = `${lat}, ${lng}`;
-                    await apiFetch(`clientes?id=eq.${dragClienteId}`, 'PATCH', { direcciones_entrega: cliente.direcciones_entrega });
-                    showNotification('Ubicación actualizada');
-                    await aplicarFiltroActual();
-                }
-            } catch(e) { showNotification('Error: '+e.message, 'error'); }
-            const shouldReopen = pendingReopenModal;
-            limpiarArrastre();
-            if(shouldReopen) editarCliente(dragClienteId);
-        }
-
-        function cancelarArrastreUbicacion() {
-            if(draggingMarker && dragStartCoords) draggingMarker.position = dragStartCoords;
-            limpiarArrastre();
-        }
-
-        function limpiarArrastre() {
-            if(draggingMarker) draggingMarker.gmpDraggable = false;
-            draggingMarker = null; dragClienteId = null; dragStartCoords = null; pendingReopenModal = false;
-            const confirmBtn = document.getElementById('btn-confirmar-arrastre');
-            const cancelBtn = document.getElementById('btn-cancelar-arrastre');
-            if(confirmBtn) confirmBtn.remove();
-            if(cancelBtn) cancelBtn.remove();
-        }
-
+        // ---------- AVANCE ----------
         async function cargarAvance() {
             if(!currentEmployeeId) return;
             const mes = new Date().getMonth()+1, anio = new Date().getFullYear();
@@ -1087,9 +1257,12 @@
             if(ctx) avanceChart = new Chart(ctx, {type:'doughnut', data:{labels:['Alcanzado','Restante'], datasets:[{data:[total, Math.max(0,objetivo-total)], backgroundColor:['#2563eb','#e2e8f0']}]}, options:{cutout:'70%', plugins:{legend:{display:false}}}});
         }
 
+        // ---------- INICIO ----------
         window.onload = async function() {
             await verificarSesion();
-            if (!document.querySelector('.section.active')) showMain();
+            if (!document.querySelector('.section.active')) {
+                showMain();
+            }
         };
     </script>
 </body>
