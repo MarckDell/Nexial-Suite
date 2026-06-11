@@ -185,7 +185,6 @@
                 <input type="hidden" id="cli-pais-hidden">
                 <input type="hidden" id="cli-estado-hidden">
                 <input type="hidden" id="cli-ciudad-hidden">
-                <div class="form-group"><label>País</label><input id="cli-pais-input" list="cli-paises-list" autocomplete="off" oninput="capitalizarInput(this); actualizarTipoDocPorPais();"><datalist id="cli-paises-list"></datalist></div>
                 <div class="form-group"><label>Tipo</label><select id="cli-tipo-persona" onchange="toggleClientePersona()"><option value="natural">Persona Natural</option><option value="juridica">Jurídica</option></select></div>
                 <div id="natural-fields">
                     <div class="form-group"><label>Nombres</label><input id="cli-nombres" oninput="capitalizarInput(this)"></div>
@@ -284,12 +283,6 @@
             'México':['INE','Pasaporte','RFC'], 'España':['DNI','Pasaporte','NIE'],
             'Estados Unidos':['Pasaporte','SSN','Driver License']
         };
-
-        const paisesEstaticos = [
-            "Argentina","Bolivia","Brasil","Chile","Colombia","Costa Rica","Cuba","Ecuador","El Salvador",
-            "España","Estados Unidos","Guatemala","Honduras","México","Nicaragua","Panamá","Paraguay",
-            "Perú","Portugal","República Dominicana","Uruguay","Venezuela"
-        ].sort();
 
         function getCurrentDayName() {
             const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
@@ -406,20 +399,8 @@
             return text ? JSON.parse(text) : null;
         }
 
-        function cargarPaisesEstaticos() {
-            const dl = document.getElementById('cli-paises-list');
-            if(dl) {
-                dl.innerHTML = '';
-                paisesEstaticos.forEach(p => {
-                    const o = document.createElement('option');
-                    o.value = p;
-                    dl.appendChild(o);
-                });
-            }
-        }
-
         function actualizarTipoDocPorPais() {
-            const pais = document.getElementById('cli-pais-input').value.trim();
+            const pais = document.getElementById('cli-pais-hidden').value.trim();
             const sel = document.getElementById('cli-tipo-doc');
             sel.innerHTML = '<option value="">Seleccione tipo</option>';
             if(!pais) return;
@@ -749,6 +730,10 @@
             try {
                 if (pedidoTemporalDoc) await apiFetch(`ventas?documento_venta=eq.${pedidoTemporalDoc}`, 'DELETE');
                 if (clienteTemporalId) await apiFetch(`clientes?id=eq.${clienteTemporalId}`, 'DELETE');
+                if (tempLocationMarker) {
+                    tempLocationMarker.setMap(null);
+                    tempLocationMarker = null;
+                }
             } catch(e) { console.warn('Error al eliminar temporales:', e); }
             clienteTemporalId = null;
             pedidoTemporalDoc = null;
@@ -882,6 +867,20 @@
                     clienteTemporalId = nuevoId;
                     const doc = await procesarEnvioPedido(nuevoId);
                     pedidoTemporalDoc = doc;
+
+                    // Crear marcador temporal automáticamente en el mapa
+                    if (tempLocationMarker) tempLocationMarker.setMap(null);
+                    const latLng = coords.split(',').map(Number);
+                    const posicion = { lat: latLng[0], lng: latLng[1] };
+                    const pinElement = new google.maps.marker.PinElement({
+                        background: '#e67e22', borderColor: '#0f172a', glyphColor: '#fff', scale: 1.3
+                    });
+                    tempLocationMarker = new google.maps.marker.AdvancedMarkerElement({
+                        position: posicion, map, title: 'Arrastra para ajustar ubicación', content: pinElement, gmpDraggable: true
+                    });
+                    map.setCenter(posicion);
+                    map.setZoom(16);
+
                     cerrarModalVenta();
                     showNotification('Pedido registrado. Ahora complete los datos del cliente.');
                     flujoNuevoClientePendiente = true;
@@ -962,9 +961,8 @@
             document.getElementById('cli-telefonos-container').innerHTML = '';
             document.getElementById('gps-entrega-container').innerHTML = '';
             document.getElementById('btn-mover-mapa').style.display = 'inline-flex';
-            document.getElementById('titulo-modal-cliente').textContent = id ? 'Editar Cliente' : 'Nuevo Cliente';
+            document.getElementById('titulo-modal-cliente').textContent = id ? 'Editar Datos del Cliente' : 'Nuevo Cliente';
             document.getElementById('btn-eliminar-cliente-modal').style.display = id ? 'flex' : 'none';
-            document.getElementById('cli-pais-input').value = '';
             document.getElementById('cli-pais-hidden').value = '';
             document.getElementById('cli-estado-hidden').value = '';
             document.getElementById('cli-ciudad-hidden').value = '';
@@ -1016,7 +1014,7 @@
                 const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
                 if(gpsInputs.length) gpsInputs[0].value = `${lat}, ${lng}`;
                 const geo = await geocodificarInversa(lat, lng);
-                if(geo.pais) { document.getElementById('cli-pais-input').value = geo.pais; document.getElementById('cli-pais-hidden').value = geo.pais; actualizarTipoDocPorPais(); }
+                if(geo.pais) { document.getElementById('cli-pais-hidden').value = geo.pais; actualizarTipoDocPorPais(); }
                 if(geo.estado) document.getElementById('cli-estado-hidden').value = geo.estado;
                 if(geo.ciudad) document.getElementById('cli-ciudad-hidden').value = geo.ciudad;
                 showNotification('Coordenadas y ubicación actualizadas');
@@ -1034,7 +1032,6 @@
                 document.getElementById('cli-ap').value = (cli.apellido_paterno === 'Cliente' || cli.apellido_paterno === 'null' || !cli.apellido_paterno) ? '' : cli.apellido_paterno;
                 document.getElementById('cli-am').value = cli.apellido_materno || '';
                 document.getElementById('cli-razon-social').value = cli.razon_social || '';
-                document.getElementById('cli-pais-input').value = cli.pais || '';
                 document.getElementById('cli-pais-hidden').value = cli.pais || '';
                 document.getElementById('cli-estado-hidden').value = cli.estado_provincia || '';
                 document.getElementById('cli-ciudad-hidden').value = cli.ciudad || '';
@@ -1058,7 +1055,7 @@
                 });
                 document.getElementById('btn-mover-mapa').style.display = 'inline-flex';
                 document.getElementById('btn-eliminar-cliente-modal').style.display = 'flex';
-                document.getElementById('titulo-modal-cliente').textContent = 'Editar Cliente';
+                document.getElementById('titulo-modal-cliente').textContent = 'Editar Datos del Cliente';
                 document.getElementById('modal-cliente').classList.add('active');
                 pushModalState();
             } catch(e) { showNotification('Error al cargar cliente', 'error'); }
@@ -1091,6 +1088,15 @@
 
         async function seleccionarUbicacionParaNuevoCliente() {
             if(!map) { showNotification('Mapa no disponible', 'error'); return; }
+            // Si ya existe un marcador temporal, simplemente mostramos botones y permitimos arrastrar
+            if (tempLocationMarker) {
+                document.getElementById('modal-cliente').classList.remove('active');
+                showNotification('Arrastra el marcador naranja y presiona "Listo"', 'success');
+                agregarBotonesTempLocation();
+                pushModalState();
+                return;
+            }
+            // Si no hay marcador, lo creamos con coordenadas del primer input GPS
             document.getElementById('modal-cliente').classList.remove('active');
             let coordsActuales = null;
             const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
@@ -1145,9 +1151,22 @@
             if(gpsInputs.length) gpsInputs[0].value = coordStr;
             else { agregarPuntoGPS(); const nuevos = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)'); if(nuevos.length) nuevos[0].value = coordStr; }
             const geo = await geocodificarInversa(lat, lng);
-            if(geo.pais) { document.getElementById('cli-pais-input').value = geo.pais; document.getElementById('cli-pais-hidden').value = geo.pais; actualizarTipoDocPorPais(); }
+            if(geo.pais) { document.getElementById('cli-pais-hidden').value = geo.pais; actualizarTipoDocPorPais(); }
             if(geo.estado) document.getElementById('cli-estado-hidden').value = geo.estado;
             if(geo.ciudad) document.getElementById('cli-ciudad-hidden').value = geo.ciudad;
+
+            // Si estamos en flujo de nuevo cliente, actualizar el cliente temporal en Supabase
+            if (flujoNuevoClientePendiente && clienteTemporalId) {
+                try {
+                    await apiFetch(`clientes?id=eq.${clienteTemporalId}`, 'PATCH', {
+                        direcciones_entrega: [{etiqueta:'Principal', coordenadas: coordStr}],
+                        pais: geo.pais || null,
+                        estado_provincia: geo.estado || null,
+                        ciudad: geo.ciudad || null
+                    });
+                } catch(e) { console.warn('Error al actualizar cliente temporal:', e); }
+            }
+
             limpiarSeleccionTemporal();
             document.getElementById('modal-cliente').classList.add('active');
             pushModalState();
@@ -1161,7 +1180,7 @@
         }
 
         function limpiarSeleccionTemporal() {
-            if(tempLocationMarker) { tempLocationMarker.setMap(null); tempLocationMarker = null; }
+            // Solo limpiamos botones, el marcador temporal se conserva para seguir usándose
             eliminarBotonesTempLocation();
         }
 
@@ -1255,6 +1274,10 @@
                 if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); }
                 else await apiFetch('clientes', 'POST', payload);
                 limpiarEstadoFlujo();
+                if (tempLocationMarker) {
+                    tempLocationMarker.setMap(null);
+                    tempLocationMarker = null;
+                }
                 cerrarModalCliente(); cargarClientesLista(); aplicarFiltroActual();
                 showNotification('Cliente guardado');
             } catch(err) { showNotification('Error: '+err.message,'error'); }
@@ -1288,7 +1311,6 @@
         }
 
         window.onload = async function() {
-            cargarPaisesEstaticos();
             await verificarSesion();
             if (!document.querySelector('.section.active')) showMain();
         };
