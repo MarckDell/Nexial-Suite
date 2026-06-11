@@ -11,10 +11,13 @@
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Inter',-apple-system,sans-serif; background:#f4f6fb; color:#1a1f36; touch-action:manipulation; -webkit-tap-highlight-color:transparent; overscroll-behavior: none; }
-        .app-header { position:fixed; top:0; left:0; width:100%; height:80px; background:rgba(10,15,30,0.96); backdrop-filter:blur(14px); z-index:1000; display:flex; align-items:center; justify-content:center; padding:0 16px; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .app-header { position:fixed; top:0; left:0; width:100%; height:80px; background:rgba(10,15,30,0.96); backdrop-filter:blur(14px); z-index:1000; display:flex; align-items:center; justify-content:space-between; padding:0 16px; border-bottom:1px solid rgba(255,255,255,0.08); }
         .header-brand { display:flex; align-items:center; gap:12px; }
         .app-logo { font-size:3rem; background:linear-gradient(135deg,#1a56db,#00a3ff); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 0 14px rgba(26,86,219,0.7)); }
         .brand-name { color:white; font-weight:900; font-size:1.8rem; letter-spacing:-0.5px; text-shadow: 0 0 20px rgba(0,163,255,0.5); }
+        .header-actions { display:flex; align-items:center; gap:8px; }
+        .btn-icon-header { background:rgba(255,255,255,0.1); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; transition:0.2s; }
+        .btn-icon-header:hover { background:rgba(255,255,255,0.2); }
         .main-menu { position:fixed; top:80px; left:0; width:100%; height:calc(100vh - 80px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px; padding:24px; background:#f4f6fb; }
         .profile-card { background:white; border-radius:28px; padding:32px 24px; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.04); width:100%; max-width:320px; margin:0 auto; }
         .profile-card .user-fullname { font-size:1.5rem; font-weight:700; color:#0f172a; margin-bottom:4px; line-height:1.3; word-break: break-word; }
@@ -30,7 +33,7 @@
         .tabs { display:flex; gap:4px; padding:12px 16px; background:#f4f6fb; }
         .tab-btn { flex:1; padding:10px; border-radius:16px; border:none; font-weight:600; font-size:0.9rem; background:white; color:#64748b; box-shadow:0 1px 3px rgba(0,0,0,0.04); transition:0.2s; cursor:pointer; }
         .tab-btn.active { background:#1a56db; color:white; }
-        .sub-tabs { display:flex; gap:4px; padding:0 16px 12px; background:#f4f6fb; flex-wrap:wrap; }
+        .sub-tabs { display:flex; gap:4px; padding:0 16px 12px; background:#f4f6fb; flex-wrap:wrap; align-items:center; }
         .sub-tab-btn { padding:6px 14px; border-radius:20px; border:none; font-weight:500; font-size:0.75rem; background:#f1f5f9; color:#475569; cursor:pointer; transition:0.2s; }
         .sub-tab-btn.active { background:#1e293b; color:white; }
         .tab-content { flex:1; overflow-y:auto; padding:0 16px 16px; display:none; }
@@ -39,6 +42,8 @@
         #map-container { width:100%; height:100%; border-radius:0; }
         .map-location-btn { position:absolute; bottom:100px; right:16px; background:white; border:none; border-radius:50%; width:48px; height:48px; box-shadow:0 4px 12px rgba(0,0,0,0.15); display:flex; align-items:center; justify-content:center; font-size:1.2rem; z-index:500; cursor:pointer; }
         .map-add-client-btn { position:absolute; bottom:164px; right:16px; background:#1a56db; color:white; border:none; border-radius:50%; width:48px; height:48px; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; font-size:1.5rem; z-index:500; cursor:pointer; }
+        .map-extra-controls { position:absolute; top:12px; left:12px; z-index:500; display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.95); backdrop-filter:blur(8px); border-radius:14px; padding:8px 14px; box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+        .map-extra-controls label { font-size:0.8rem; font-weight:600; display:flex; align-items:center; gap:6px; color:#1e293b; }
         .card { background:white; border-radius:20px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.04); margin-bottom:16px; }
         .table-wrapper { overflow-x:auto; }
         table { width:100%; border-collapse:collapse; font-size:0.85rem; }
@@ -74,7 +79,7 @@
         .acciones-panel .danger-btn { color:#991b1b; } .acciones-panel .cancel-btn { color:#1e293b; background:transparent; border:2px solid #cbd5e1; font-weight:700; }
         .order-line { display:flex; align-items:center; gap:8px; margin-bottom:8px; background:#f8fafc; padding:8px; border-radius:12px; }
         .order-line span { flex:1; font-size:0.85rem; }
-        .order-line input.qty { width:50px; text-align:center; }
+        .order-line input.qty { width:50px; text-align:center; inputmode:numeric; }
         .confirm-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,18,0.8); backdrop-filter:blur(8px); z-index:3000; display:none; align-items:center; justify-content:center; }
         .confirm-overlay.active { display:flex; }
         .confirm-box { background:white; border-radius:28px; padding:36px 32px; max-width:440px; width:90%; text-align:center; box-shadow:0 30px 60px rgba(0,0,0,0.4); animation:modalIn 0.3s ease; }
@@ -119,6 +124,9 @@
             <i class="fas fa-brain app-logo"></i>
             <span class="brand-name">Nexial Suite</span>
         </div>
+        <div class="header-actions">
+            <button class="btn-icon-header" onclick="recargarTodo()" title="Actualizar datos"><i class="fas fa-sync-alt"></i></button>
+        </div>
     </header>
 
     <div id="main-menu" class="main-menu">
@@ -141,6 +149,9 @@
             <button class="sub-tab-btn" onclick="filtrarClientes('atendidos')">Atendidos</button>
             <button class="sub-tab-btn" onclick="filtrarClientes('sin_compras')">Sin compras</button>
             <button class="sub-tab-btn" onclick="filtrarClientes('todos')">Todos</button>
+            <label style="margin-left:auto; font-size:0.75rem; font-weight:600; display:flex; align-items:center; gap:6px; color:#475569;">
+                <input type="checkbox" id="chk-ver-todos-dias" onchange="toggleVerTodosDias()"> Ver todos los días
+            </label>
         </div>
         <div id="mapa-tab" class="tab-content active" style="position:relative;">
             <div id="map-container"></div>
@@ -247,6 +258,7 @@
         let ultimoPedidoClienteMap = {};
         let documentoEditando = null;
         let pedidosDelClienteActual = [];
+        let verTodosLosDias = false;
 
         let draggingMarker = null;
         let dragStartCoords = null;
@@ -445,6 +457,11 @@
             else cargarClientesLista();
         }
 
+        function toggleVerTodosDias() {
+            verTodosLosDias = document.getElementById('chk-ver-todos-dias').checked;
+            cargarDatosMapa();
+        }
+
         async function obtenerClientesFiltrados() {
             if(!currentEmployeeId) return [];
             const clientes = await apiFetch(`clientes?vendedor_asignado_id=eq.${currentEmployeeId}&activo=eq.true&select=*&limit=1000`);
@@ -509,11 +526,16 @@
             zoneOverlays = [];
             const diaActual = getCurrentDayName();
             try {
-                const zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&dia_semana=eq.${diaActual}&select=*`);
-                const color = DAY_COLORS[diaActual] || '#1a56db';
+                let zonas;
+                if (verTodosLosDias) {
+                    zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&select=*`);
+                } else {
+                    zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&dia_semana=eq.${diaActual}&select=*`);
+                }
                 zonas.forEach(z => {
                     if(z.geometria?.coordinates) {
                         const paths = z.geometria.coordinates[0].map(c => new google.maps.LatLng(c[1], c[0]));
+                        const color = DAY_COLORS[z.dia_semana] || '#1a56db';
                         const polygon = new google.maps.Polygon({
                             paths: paths,
                             fillColor: color,
@@ -758,7 +780,7 @@
                 <div class="order-line">
                     <span>${l.nombre}</span>
                     <span>$${l.precio.toFixed(2)}</span>
-                    <input class="qty" type="number" value="${l.cantidad}" min="1" onchange="actualizarCantidad(${i}, this.value)">
+                    <input class="qty" type="number" inputmode="numeric" value="${l.cantidad}" min="1" onchange="actualizarCantidad(${i}, this.value)">
                     <span>$${(l.precio * l.cantidad).toFixed(2)}</span>
                     <button class="btn-sm danger" onclick="pedidoLineas.splice(${i},1); renderizarLineasPedido();"><i class="fas fa-trash"></i></button>
                 </div>`).join('');
@@ -779,7 +801,6 @@
             const clienteId = document.getElementById('venta-cliente').value;
             if(pedidoLineas.length===0) return showNotification('Agregue al menos un producto', 'error');
             if(!clienteId && flujoNuevoClientePendiente) {
-                // Crear cliente temporal con coordenadas actuales
                 try {
                     let coords = '';
                     if(miUbicacionMarker) {
@@ -793,8 +814,8 @@
                     const nuevoCliente = await apiFetch('clientes', 'POST', {
                         empresa_id: empresaId,
                         vendedor_asignado_id: currentEmployeeId,
-                        nombres: 'Nuevo',
-                        apellido_paterno: 'Cliente',
+                        nombres: '',
+                        apellido_paterno: '',
                         direcciones_entrega: [{etiqueta:'Principal', coordenadas: coords}],
                         activo: true
                     });
@@ -890,7 +911,7 @@
             document.getElementById('cliente-id').value = '';
             document.getElementById('cli-telefonos-container').innerHTML = '';
             document.getElementById('gps-entrega-container').innerHTML = '';
-            document.getElementById('btn-mover-mapa').style.display = id ? 'inline-flex' : 'inline-flex';
+            document.getElementById('btn-mover-mapa').style.display = 'inline-flex';
             document.getElementById('titulo-modal-cliente').textContent = id ? 'Editar Cliente' : 'Nuevo Cliente';
             document.getElementById('btn-eliminar-cliente-modal').style.display = id ? 'flex' : 'none';
             agregarTelefonoCliente(); agregarPuntoGPS();
@@ -945,7 +966,29 @@
 
         function llenarTiposDocumento() {
             const sel = document.getElementById('cli-tipo-doc');
-            sel.innerHTML = `<option value="CI">CI</option><option value="Pasaporte">Pasaporte</option><option value="NIT">NIT</option>`;
+            if (!sel) return;
+            sel.innerHTML = '';
+            const opciones = [
+                { value: 'CI', text: 'CI - Cédula de Identidad' },
+                { value: 'Pasaporte', text: 'Pasaporte' },
+                { value: 'NIT', text: 'NIT - Número de Identificación Tributaria' },
+                { value: 'DNI', text: 'DNI - Documento Nacional de Identidad' },
+                { value: 'RUC', text: 'RUC - Registro Único de Contribuyentes' },
+                { value: 'RUN', text: 'RUN - Rol Único Nacional' },
+                { value: 'RUT', text: 'RUT - Rol Único Tributario' },
+                { value: 'CC', text: 'CC - Cédula de Ciudadanía' },
+                { value: 'INE', text: 'INE - Instituto Nacional Electoral' },
+                { value: 'RFC', text: 'RFC - Registro Federal de Contribuyentes' },
+                { value: 'NIE', text: 'NIE - Número de Identidad de Extranjero' },
+                { value: 'SSN', text: 'SSN - Social Security Number' },
+                { value: 'Driver License', text: 'Driver License - Licencia de Conducir' }
+            ];
+            opciones.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.text;
+                sel.appendChild(option);
+            });
         }
 
         async function editarCliente(id) {
@@ -955,8 +998,8 @@
                 if(!cli) return;
                 document.getElementById('cliente-id').value = cli.id;
                 document.getElementById('cli-tipo-persona').value = cli.razon_social?'juridica':'natural'; toggleClientePersona();
-                document.getElementById('cli-nombres').value = cli.nombres||'';
-                document.getElementById('cli-ap').value = cli.apellido_paterno||'';
+                document.getElementById('cli-nombres').value = (cli.nombres === 'Nuevo' && cli.apellido_paterno === 'Cliente') ? '' : (cli.nombres||'');
+                document.getElementById('cli-ap').value = (cli.nombres === 'Nuevo' && cli.apellido_paterno === 'Cliente') ? '' : (cli.apellido_paterno||'');
                 document.getElementById('cli-am').value = cli.apellido_materno||'';
                 document.getElementById('cli-razon-social').value = cli.razon_social||'';
                 document.getElementById('cli-tipo-doc').value = cli.tipo_documento||'';
@@ -1014,7 +1057,7 @@
         }
 
         async function seleccionarUbicacionParaNuevoCliente() {
-            if(!map) { showNotification('Mapa no disponible', 'error'); return; }
+            if(!map) { inicializarMapa(); if(!map) { showNotification('Mapa no disponible', 'error'); return; } }
             document.getElementById('modal-cliente').classList.remove('active');
             let coordsActuales = null;
             const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
@@ -1196,6 +1239,14 @@
             if(avanceChart) avanceChart.destroy();
             const ctx = document.getElementById('grafico-avance')?.getContext('2d');
             if(ctx) avanceChart = new Chart(ctx, {type:'doughnut', data:{labels:['Alcanzado','Restante'], datasets:[{data:[total, Math.max(0,objetivo-total)], backgroundColor:['#2563eb','#e2e8f0']}]}, options:{cutout:'70%', plugins:{legend:{display:false}}}});
+        }
+
+        function recargarTodo() {
+            if(currentEmployeeId) {
+                cargarDatosMapa();
+                cargarClientesLista();
+            }
+            showNotification('Datos actualizados');
         }
 
         window.onload = async function() {
