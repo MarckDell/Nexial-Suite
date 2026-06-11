@@ -11,13 +11,10 @@
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Inter',-apple-system,sans-serif; background:#f4f6fb; color:#1a1f36; touch-action:manipulation; -webkit-tap-highlight-color:transparent; overscroll-behavior: none; }
-        .app-header { position:fixed; top:0; left:0; width:100%; height:80px; background:rgba(10,15,30,0.96); backdrop-filter:blur(14px); z-index:1000; display:flex; align-items:center; justify-content:space-between; padding:0 16px; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .app-header { position:fixed; top:0; left:0; width:100%; height:80px; background:rgba(10,15,30,0.96); backdrop-filter:blur(14px); z-index:1000; display:flex; align-items:center; justify-content:center; padding:0 16px; border-bottom:1px solid rgba(255,255,255,0.08); }
         .header-brand { display:flex; align-items:center; gap:12px; }
         .app-logo { font-size:3rem; background:linear-gradient(135deg,#1a56db,#00a3ff); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 0 14px rgba(26,86,219,0.7)); }
         .brand-name { color:white; font-weight:900; font-size:1.8rem; letter-spacing:-0.5px; text-shadow: 0 0 20px rgba(0,163,255,0.5); }
-        .header-actions { display:flex; align-items:center; gap:8px; }
-        .btn-icon-header { background:rgba(255,255,255,0.1); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; transition:0.2s; }
-        .btn-icon-header:hover { background:rgba(255,255,255,0.2); }
         .main-menu { position:fixed; top:80px; left:0; width:100%; height:calc(100vh - 80px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px; padding:24px; background:#f4f6fb; }
         .profile-card { background:white; border-radius:28px; padding:32px 24px; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.04); width:100%; max-width:320px; margin:0 auto; }
         .profile-card .user-fullname { font-size:1.5rem; font-weight:700; color:#0f172a; margin-bottom:4px; line-height:1.3; word-break: break-word; }
@@ -36,14 +33,16 @@
         .sub-tabs { display:flex; gap:4px; padding:0 16px 12px; background:#f4f6fb; flex-wrap:wrap; align-items:center; }
         .sub-tab-btn { padding:6px 14px; border-radius:20px; border:none; font-weight:500; font-size:0.75rem; background:#f1f5f9; color:#475569; cursor:pointer; transition:0.2s; }
         .sub-tab-btn.active { background:#1e293b; color:white; }
+        .filter-extras { display:flex; align-items:center; gap:8px; margin-left:auto; }
+        .checkbox-label { display:flex; align-items:center; gap:6px; font-size:0.73rem; font-weight:600; color:#334155; background:#f1f5f9; padding:6px 12px; border-radius:20px; cursor:pointer; }
+        .checkbox-label input { width:16px; height:16px; accent-color:#1a56db; }
+        .refresh-btn { background:white; border:1px solid #e2e8f0; border-radius:20px; padding:6px 12px; font-size:0.9rem; cursor:pointer; color:#1e293b; display:flex; align-items:center; gap:4px; }
         .tab-content { flex:1; overflow-y:auto; padding:0 16px 16px; display:none; }
         .tab-content.active { display:block; }
         #mapa-tab { padding:0; height:100%; position:relative; }
         #map-container { width:100%; height:100%; border-radius:0; }
         .map-location-btn { position:absolute; bottom:100px; right:16px; background:white; border:none; border-radius:50%; width:48px; height:48px; box-shadow:0 4px 12px rgba(0,0,0,0.15); display:flex; align-items:center; justify-content:center; font-size:1.2rem; z-index:500; cursor:pointer; }
         .map-add-client-btn { position:absolute; bottom:164px; right:16px; background:#1a56db; color:white; border:none; border-radius:50%; width:48px; height:48px; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; font-size:1.5rem; z-index:500; cursor:pointer; }
-        .map-extra-controls { position:absolute; top:12px; left:12px; z-index:500; display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.95); backdrop-filter:blur(8px); border-radius:14px; padding:8px 14px; box-shadow:0 4px 16px rgba(0,0,0,0.08); }
-        .map-extra-controls label { font-size:0.8rem; font-weight:600; display:flex; align-items:center; gap:6px; color:#1e293b; }
         .card { background:white; border-radius:20px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.04); margin-bottom:16px; }
         .table-wrapper { overflow-x:auto; }
         table { width:100%; border-collapse:collapse; font-size:0.85rem; }
@@ -79,7 +78,7 @@
         .acciones-panel .danger-btn { color:#991b1b; } .acciones-panel .cancel-btn { color:#1e293b; background:transparent; border:2px solid #cbd5e1; font-weight:700; }
         .order-line { display:flex; align-items:center; gap:8px; margin-bottom:8px; background:#f8fafc; padding:8px; border-radius:12px; }
         .order-line span { flex:1; font-size:0.85rem; }
-        .order-line input.qty { width:50px; text-align:center; inputmode:numeric; }
+        .order-line input.qty { width:60px; text-align:center; padding:6px; border:1px solid #e2e8f0; border-radius:8px; }
         .confirm-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,18,0.8); backdrop-filter:blur(8px); z-index:3000; display:none; align-items:center; justify-content:center; }
         .confirm-overlay.active { display:flex; }
         .confirm-box { background:white; border-radius:28px; padding:36px 32px; max-width:440px; width:90%; text-align:center; box-shadow:0 30px 60px rgba(0,0,0,0.4); animation:modalIn 0.3s ease; }
@@ -124,9 +123,6 @@
             <i class="fas fa-brain app-logo"></i>
             <span class="brand-name">Nexial Suite</span>
         </div>
-        <div class="header-actions">
-            <button class="btn-icon-header" onclick="recargarTodo()" title="Actualizar datos"><i class="fas fa-sync-alt"></i></button>
-        </div>
     </header>
 
     <div id="main-menu" class="main-menu">
@@ -149,9 +145,12 @@
             <button class="sub-tab-btn" onclick="filtrarClientes('atendidos')">Atendidos</button>
             <button class="sub-tab-btn" onclick="filtrarClientes('sin_compras')">Sin compras</button>
             <button class="sub-tab-btn" onclick="filtrarClientes('todos')">Todos</button>
-            <label style="margin-left:auto; font-size:0.75rem; font-weight:600; display:flex; align-items:center; gap:6px; color:#475569;">
-                <input type="checkbox" id="chk-ver-todos-dias" onchange="toggleVerTodosDias()"> Ver todos los días
-            </label>
+            <div class="filter-extras">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="chk-todos-dias" onchange="toggleTodosDias()"> Ver todos los días
+                </label>
+                <button class="refresh-btn" onclick="recargarDatos()" title="Actualizar datos"><i class="fas fa-sync-alt"></i></button>
+            </div>
         </div>
         <div id="mapa-tab" class="tab-content active" style="position:relative;">
             <div id="map-container"></div>
@@ -457,9 +456,17 @@
             else cargarClientesLista();
         }
 
-        function toggleVerTodosDias() {
-            verTodosLosDias = document.getElementById('chk-ver-todos-dias').checked;
+        function toggleTodosDias() {
+            verTodosLosDias = document.getElementById('chk-todos-dias').checked;
             cargarDatosMapa();
+        }
+
+        function recargarDatos() {
+            if(currentEmployeeId) {
+                cargarDatosMapa();
+                cargarClientesLista();
+                showNotification('Datos actualizados');
+            }
         }
 
         async function obtenerClientesFiltrados() {
@@ -524,12 +531,12 @@
             if(!map || !currentEmployeeId) return;
             zoneOverlays.forEach(o => o.setMap(null));
             zoneOverlays = [];
-            const diaActual = getCurrentDayName();
             try {
                 let zonas;
                 if (verTodosLosDias) {
                     zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&select=*`);
                 } else {
+                    const diaActual = getCurrentDayName();
                     zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&dia_semana=eq.${diaActual}&select=*`);
                 }
                 zonas.forEach(z => {
@@ -772,6 +779,14 @@
             document.getElementById('busqueda-producto').value = '';
             document.getElementById('panel-busqueda-producto').style.display = 'none';
             renderizarLineasPedido();
+            // Enfocar el input de cantidad del último producto agregado
+            setTimeout(() => {
+                const qtyInputs = document.querySelectorAll('#lineas-pedido input.qty');
+                if(qtyInputs.length) {
+                    qtyInputs[qtyInputs.length-1].focus();
+                    qtyInputs[qtyInputs.length-1].select();
+                }
+            }, 100);
         }
 
         function renderizarLineasPedido() {
@@ -780,7 +795,7 @@
                 <div class="order-line">
                     <span>${l.nombre}</span>
                     <span>$${l.precio.toFixed(2)}</span>
-                    <input class="qty" type="number" inputmode="numeric" value="${l.cantidad}" min="1" onchange="actualizarCantidad(${i}, this.value)">
+                    <input class="qty" type="number" value="${l.cantidad}" min="1" onchange="actualizarCantidad(${i}, this.value)">
                     <span>$${(l.precio * l.cantidad).toFixed(2)}</span>
                     <button class="btn-sm danger" onclick="pedidoLineas.splice(${i},1); renderizarLineasPedido();"><i class="fas fa-trash"></i></button>
                 </div>`).join('');
@@ -814,8 +829,10 @@
                     const nuevoCliente = await apiFetch('clientes', 'POST', {
                         empresa_id: empresaId,
                         vendedor_asignado_id: currentEmployeeId,
-                        nombres: '',
-                        apellido_paterno: '',
+                        nombres: null,
+                        apellido_paterno: null,
+                        apellido_materno: null,
+                        razon_social: null,
                         direcciones_entrega: [{etiqueta:'Principal', coordenadas: coords}],
                         activo: true
                     });
@@ -966,29 +983,7 @@
 
         function llenarTiposDocumento() {
             const sel = document.getElementById('cli-tipo-doc');
-            if (!sel) return;
-            sel.innerHTML = '';
-            const opciones = [
-                { value: 'CI', text: 'CI - Cédula de Identidad' },
-                { value: 'Pasaporte', text: 'Pasaporte' },
-                { value: 'NIT', text: 'NIT - Número de Identificación Tributaria' },
-                { value: 'DNI', text: 'DNI - Documento Nacional de Identidad' },
-                { value: 'RUC', text: 'RUC - Registro Único de Contribuyentes' },
-                { value: 'RUN', text: 'RUN - Rol Único Nacional' },
-                { value: 'RUT', text: 'RUT - Rol Único Tributario' },
-                { value: 'CC', text: 'CC - Cédula de Ciudadanía' },
-                { value: 'INE', text: 'INE - Instituto Nacional Electoral' },
-                { value: 'RFC', text: 'RFC - Registro Federal de Contribuyentes' },
-                { value: 'NIE', text: 'NIE - Número de Identidad de Extranjero' },
-                { value: 'SSN', text: 'SSN - Social Security Number' },
-                { value: 'Driver License', text: 'Driver License - Licencia de Conducir' }
-            ];
-            opciones.forEach(opt => {
-                const option = document.createElement('option');
-                option.value = opt.value;
-                option.textContent = opt.text;
-                sel.appendChild(option);
-            });
+            sel.innerHTML = `<option value="">Seleccione tipo</option><option value="CI">CI - Cédula de Identidad</option><option value="Pasaporte">Pasaporte</option><option value="NIT">NIT</option>`;
         }
 
         async function editarCliente(id) {
@@ -998,18 +993,18 @@
                 if(!cli) return;
                 document.getElementById('cliente-id').value = cli.id;
                 document.getElementById('cli-tipo-persona').value = cli.razon_social?'juridica':'natural'; toggleClientePersona();
-                document.getElementById('cli-nombres').value = (cli.nombres === 'Nuevo' && cli.apellido_paterno === 'Cliente') ? '' : (cli.nombres||'');
-                document.getElementById('cli-ap').value = (cli.nombres === 'Nuevo' && cli.apellido_paterno === 'Cliente') ? '' : (cli.apellido_paterno||'');
-                document.getElementById('cli-am').value = cli.apellido_materno||'';
-                document.getElementById('cli-razon-social').value = cli.razon_social||'';
-                document.getElementById('cli-tipo-doc').value = cli.tipo_documento||'';
-                document.getElementById('cli-num-doc').value = cli.numero_documento||'';
-                document.getElementById('cli-email').value = cli.email||'';
-                document.getElementById('cli-direccion').value = cli.direccion||'';
-                document.getElementById('cli-pais').value = cli.pais||'';
-                document.getElementById('cli-estado').value = cli.estado_provincia||'';
-                document.getElementById('cli-ciudad').value = cli.ciudad||'';
-                document.getElementById('cli-tipo-negocio').value = cli.tipo_negocio||'';
+                document.getElementById('cli-nombres').value = (cli.nombres === 'Nuevo' || cli.nombres === 'null') ? '' : (cli.nombres||'');
+                document.getElementById('cli-ap').value = (cli.apellido_paterno === 'Cliente' || cli.apellido_paterno === 'null') ? '' : (cli.apellido_paterno||'');
+                document.getElementById('cli-am').value = cli.apellido_materno || '';
+                document.getElementById('cli-razon-social').value = cli.razon_social || '';
+                document.getElementById('cli-tipo-doc').value = cli.tipo_documento || '';
+                document.getElementById('cli-num-doc').value = cli.numero_documento || '';
+                document.getElementById('cli-email').value = cli.email || '';
+                document.getElementById('cli-direccion').value = cli.direccion || '';
+                document.getElementById('cli-pais').value = cli.pais || '';
+                document.getElementById('cli-estado').value = cli.estado_provincia || '';
+                document.getElementById('cli-ciudad').value = cli.ciudad || '';
+                document.getElementById('cli-tipo-negocio').value = cli.tipo_negocio || '';
                 document.getElementById('cli-telefonos-container').innerHTML = '';
                 (cli.telefonos?.length ? cli.telefonos : [{etiqueta:'',numero:''}]).forEach(t => {
                     const row = document.createElement('div'); row.className='phone-input-row';
@@ -1057,7 +1052,7 @@
         }
 
         async function seleccionarUbicacionParaNuevoCliente() {
-            if(!map) { inicializarMapa(); if(!map) { showNotification('Mapa no disponible', 'error'); return; } }
+            if(!map) { showNotification('Mapa no disponible', 'error'); return; }
             document.getElementById('modal-cliente').classList.remove('active');
             let coordsActuales = null;
             const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
@@ -1074,6 +1069,7 @@
             if(!coordsActuales) {
                 coordsActuales = { lat: map.getCenter().lat(), lng: map.getCenter().lng() };
             }
+            if(tempLocationMarker) tempLocationMarker.setMap(null);
             const pinElement = new google.maps.marker.PinElement({
                 background: '#e67e22', borderColor: '#0f172a', glyphColor: '#fff', scale: 1.3
             });
@@ -1082,6 +1078,12 @@
             });
             map.setCenter(coordsActuales); map.setZoom(16);
             showNotification('Arrastra el marcador naranja y presiona "Listo"', 'success');
+            agregarBotonesTempLocation();
+            pushModalState();
+        }
+
+        function agregarBotonesTempLocation() {
+            eliminarBotonesTempLocation();
             const confirmBtn = document.createElement('button');
             confirmBtn.id = 'btn-confirmar-temp-location';
             confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
@@ -1094,7 +1096,12 @@
             cancelBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
             cancelBtn.onclick = cancelarSeleccionUbicacionTemporal;
             document.getElementById('mapa-tab').appendChild(cancelBtn);
-            pushModalState();
+        }
+
+        function eliminarBotonesTempLocation() {
+            ['btn-confirmar-temp-location','btn-cancelar-temp-location'].forEach(id => {
+                const el = document.getElementById(id); if(el) el.remove();
+            });
         }
 
         function confirmarSeleccionUbicacionTemporal() {
@@ -1118,10 +1125,7 @@
 
         function limpiarSeleccionTemporal() {
             if(tempLocationMarker) { tempLocationMarker.setMap(null); tempLocationMarker = null; }
-            const confirmBtn = document.getElementById('btn-confirmar-temp-location');
-            const cancelBtn = document.getElementById('btn-cancelar-temp-location');
-            if(confirmBtn) confirmBtn.remove();
-            if(cancelBtn) cancelBtn.remove();
+            eliminarBotonesTempLocation();
         }
 
         function activarArrastreUbicacion(clienteId, reopenModal = false) {
@@ -1131,6 +1135,12 @@
             draggingMarker = marker; dragClienteId = clienteId; dragStartCoords = marker.position;
             marker.gmpDraggable = true; pendingReopenModal = reopenModal;
             showNotification('Arrastra el marcador a la nueva ubicación. Luego presiona "Listo".', 'success');
+            agregarBotonesArrastre();
+            pushModalState();
+        }
+
+        function agregarBotonesArrastre() {
+            eliminarBotonesArrastre();
             const confirmBtn = document.createElement('button');
             confirmBtn.id = 'btn-confirmar-arrastre';
             confirmBtn.innerHTML = '<i class="fas fa-check"></i> Listo';
@@ -1143,7 +1153,12 @@
             cancelBtn.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
             cancelBtn.onclick = cancelarArrastreUbicacion;
             document.getElementById('mapa-tab').appendChild(cancelBtn);
-            pushModalState();
+        }
+
+        function eliminarBotonesArrastre() {
+            ['btn-confirmar-arrastre','btn-cancelar-arrastre'].forEach(id => {
+                const el = document.getElementById(id); if(el) el.remove();
+            });
         }
 
         async function confirmarArrastreUbicacion() {
@@ -1172,10 +1187,7 @@
         function limpiarArrastre() {
             if(draggingMarker) draggingMarker.gmpDraggable = false;
             draggingMarker = null; dragClienteId = null; dragStartCoords = null; pendingReopenModal = false;
-            const confirmBtn = document.getElementById('btn-confirmar-arrastre');
-            const cancelBtn = document.getElementById('btn-cancelar-arrastre');
-            if(confirmBtn) confirmBtn.remove();
-            if(cancelBtn) cancelBtn.remove();
+            eliminarBotonesArrastre();
         }
 
         document.getElementById('form-cliente').addEventListener('submit', async function(e) {
@@ -1239,14 +1251,6 @@
             if(avanceChart) avanceChart.destroy();
             const ctx = document.getElementById('grafico-avance')?.getContext('2d');
             if(ctx) avanceChart = new Chart(ctx, {type:'doughnut', data:{labels:['Alcanzado','Restante'], datasets:[{data:[total, Math.max(0,objetivo-total)], backgroundColor:['#2563eb','#e2e8f0']}]}, options:{cutout:'70%', plugins:{legend:{display:false}}}});
-        }
-
-        function recargarTodo() {
-            if(currentEmployeeId) {
-                cargarDatosMapa();
-                cargarClientesLista();
-            }
-            showNotification('Datos actualizados');
         }
 
         window.onload = async function() {
