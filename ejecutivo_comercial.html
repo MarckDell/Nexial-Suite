@@ -104,6 +104,10 @@
         .producto-busqueda-item:active { background:#e0f2fe; }
         .venta-header-compact { display:flex; align-items:center; gap:8px; }
         .venta-lista-scroll { flex:1; overflow-y:auto; margin:8px 0; }
+        .floating-location-btns { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); display:flex; gap:12px; z-index:5000; }
+        .floating-location-btns button { padding:12px 24px; border-radius:30px; font-weight:600; border:none; cursor:pointer; font-size:0.9rem; display:flex; align-items:center; gap:8px; }
+        .floating-location-btns .save-btn { background:#059669; color:white; }
+        .floating-location-btns .cancel-btn { background:#991b1b; color:white; }
     </style>
 </head>
 <body>
@@ -244,6 +248,10 @@
     </div>
 
     <div id="notification" class="notification"></div>
+    <div class="floating-location-btns" id="floating-location-btns" style="display:none;">
+        <button class="save-btn" id="btn-save-location"><i class="fas fa-save"></i> Guardar ubicación</button>
+        <button class="cancel-btn" id="btn-cancel-location"><i class="fas fa-times"></i> Cancelar</button>
+    </div>
 
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTFh4VNHNHFT2uN1LShwJ5f6IeMCFMjHc&loading=async&callback=initMap&libraries=marker,places,geocoding"></script>
     <script>
@@ -269,6 +277,7 @@
         let dragClienteId = null;
         let pendingReopenModal = false;
         let tempLocationMarker = null;
+        let currentLocationConfirmCallback = null;
 
         const DAY_COLORS = {
             'Lunes': '#e74c3c', 'Martes': '#e67e22', 'Miércoles': '#f1c40f',
@@ -319,6 +328,7 @@
             document.getElementById('confirm-overlay').classList.remove('active');
             if (draggingMarker) cancelarArrastreUbicacion();
             if (tempLocationMarker) cancelarSeleccionUbicacionTemporal();
+            ocultarBotonesFlotantes();
             limpiarEstadoFlujo();
         }
 
@@ -740,6 +750,7 @@
             flujoNuevoClientePendiente = false;
             cerrarModalVenta();
             cerrarModalCliente();
+            ocultarBotonesFlotantes();
             showNotification('Pedido cancelado y cliente temporal eliminado');
         }
 
@@ -751,6 +762,7 @@
             } else {
                 cerrarModalCliente();
                 limpiarEstadoFlujo();
+                ocultarBotonesFlotantes();
             }
         }
 
@@ -858,9 +870,7 @@
                         const pos = await new Promise((resolve, reject) => { navigator.geolocation.getCurrentPosition(resolve, reject); });
                         coords = `${pos.coords.latitude}, ${pos.coords.longitude}`;
                     }
-                    if (!coords) {
-                        coords = `${map.getCenter().lat()}, ${map.getCenter().lng()}`;
-                    }
+                    if (!coords) coords = `${map.getCenter().lat()}, ${map.getCenter().lng()}`;
                     const [lat, lng] = coords.split(',').map(Number);
                     const geo = await geocodificarInversa(lat, lng);
                     const nuevoCliente = await apiFetch('clientes', 'POST', {
@@ -1093,15 +1103,26 @@
             activarArrastreUbicacion(id, true);
         }
 
+        function mostrarBotonesFlotantes(saveCallback, cancelCallback) {
+            currentLocationConfirmCallback = { save: saveCallback, cancel: cancelCallback };
+            document.getElementById('floating-location-btns').style.display = 'flex';
+            document.getElementById('btn-save-location').onclick = () => {
+                ocultarBotonesFlotantes();
+                if (saveCallback) saveCallback();
+            };
+            document.getElementById('btn-cancel-location').onclick = () => {
+                ocultarBotonesFlotantes();
+                if (cancelCallback) cancelCallback();
+            };
+        }
+
+        function ocultarBotonesFlotantes() {
+            document.getElementById('floating-location-btns').style.display = 'none';
+            currentLocationConfirmCallback = null;
+        }
+
         async function seleccionarUbicacionParaNuevoCliente() {
             if(!map) { showNotification('Mapa no disponible', 'error'); return; }
-            if (tempLocationMarker) {
-                document.getElementById('modal-cliente').classList.remove('active');
-                showNotification('Arrastra el marcador naranja y presiona "Listo" para guardar', 'success');
-                agregarBotonesTempLocation();
-                pushModalState();
-                return;
-            }
             document.getElementById('modal-cliente').classList.remove('active');
             let coordsActuales = null;
             const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
@@ -1112,42 +1133,26 @@
             }
             if(!coordsActuales && miUbicacionMarker) coordsActuales = { lat: miUbicacionMarker.position.lat, lng: miUbicacionMarker.position.lng };
             if(!coordsActuales) coordsActuales = { lat: map.getCenter().lat(), lng: map.getCenter().lng() };
-            if(tempLocationMarker) tempLocationMarker.setMap(null);
-            const pinElement = new google.maps.marker.PinElement({
-                background: '#e67e22', borderColor: '#0f172a', glyphColor: '#fff', scale: 1.3
-            });
-            tempLocationMarker = new google.maps.marker.AdvancedMarkerElement({
-                position: coordsActuales, map, title: 'Arrastra para ajustar ubicación', content: pinElement, gmpDraggable: true
-            });
+            if(!tempLocationMarker) {
+                const pinElement = new google.maps.marker.PinElement({
+                    background: '#e67e22', borderColor: '#0f172a', glyphColor: '#fff', scale: 1.3
+                });
+                tempLocationMarker = new google.maps.marker.AdvancedMarkerElement({
+                    position: coordsActuales, map, title: 'Arrastra para ajustar ubicación', content: pinElement, gmpDraggable: true
+                });
+            } else {
+                tempLocationMarker.position = coordsActuales;
+            }
             map.setCenter(coordsActuales); map.setZoom(16);
-            showNotification('Arrastra el marcador naranja y presiona "Listo" para guardar', 'success');
-            agregarBotonesTempLocation();
+            showNotification('Arrastra el marcador naranja y presiona "Guardar ubicación"', 'success');
+            mostrarBotonesFlotantes(
+                async () => { await confirmarUbicacionTemporal(); },
+                () => { cancelarUbicacionTemporal(); }
+            );
             pushModalState();
         }
 
-        function agregarBotonesTempLocation() {
-            eliminarBotonesTempLocation();
-            const confirmBtn = document.createElement('button');
-            confirmBtn.id = 'btn-confirmar-temp-location';
-            confirmBtn.innerHTML = '<i class="fas fa-save"></i> Guardar ubicación';
-            confirmBtn.style.cssText = 'position:absolute; bottom:220px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
-            confirmBtn.onclick = confirmarSeleccionUbicacionTemporal;
-            document.getElementById('mapa-tab').appendChild(confirmBtn);
-            const cancelBtn = document.createElement('button');
-            cancelBtn.id = 'btn-cancelar-temp-location';
-            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar';
-            cancelBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
-            cancelBtn.onclick = cancelarSeleccionUbicacionTemporal;
-            document.getElementById('mapa-tab').appendChild(cancelBtn);
-        }
-
-        function eliminarBotonesTempLocation() {
-            ['btn-confirmar-temp-location','btn-cancelar-temp-location'].forEach(id => {
-                const el = document.getElementById(id); if(el) el.remove();
-            });
-        }
-
-        async function confirmarSeleccionUbicacionTemporal() {
+        async function confirmarUbicacionTemporal() {
             if(!tempLocationMarker) return;
             const pos = tempLocationMarker.position;
             const lat = pos.lat, lng = pos.lng;
@@ -1159,7 +1164,6 @@
             if(geo.pais) { document.getElementById('cli-pais-hidden').value = geo.pais; actualizarTipoDocPorPais(); }
             if(geo.estado) document.getElementById('cli-estado-hidden').value = geo.estado;
             if(geo.ciudad) document.getElementById('cli-ciudad-hidden').value = geo.ciudad;
-
             if (flujoNuevoClientePendiente && clienteTemporalId) {
                 try {
                     await apiFetch(`clientes?id=eq.${clienteTemporalId}`, 'PATCH', {
@@ -1168,25 +1172,16 @@
                         estado_provincia: geo.estado || null,
                         ciudad: geo.ciudad || null
                     });
-                    showNotification('Ubicación guardada correctamente');
-                } catch(e) { showNotification('Error al guardar ubicación', 'error'); }
-            } else {
-                showNotification('Ubicación actualizada en el formulario');
+                } catch(e) { showNotification('Error al actualizar ubicación', 'error'); }
             }
-
-            limpiarSeleccionTemporal();
             document.getElementById('modal-cliente').classList.add('active');
             pushModalState();
+            showNotification('Ubicación actualizada correctamente');
         }
 
-        function cancelarSeleccionUbicacionTemporal() {
-            limpiarSeleccionTemporal();
+        function cancelarUbicacionTemporal() {
             document.getElementById('modal-cliente').classList.add('active');
             pushModalState();
-        }
-
-        function limpiarSeleccionTemporal() {
-            eliminarBotonesTempLocation();
         }
 
         function activarArrastreUbicacion(clienteId, reopenModal = false) {
@@ -1195,42 +1190,31 @@
             if(!marker) { showNotification('No se encontró el marcador del cliente en el mapa', 'error'); return; }
             draggingMarker = marker; dragClienteId = clienteId; dragStartCoords = marker.position;
             marker.gmpDraggable = true; pendingReopenModal = reopenModal;
-            showNotification('Arrastra el marcador a la nueva ubicación. Luego presiona "Listo".', 'success');
-            agregarBotonesArrastre();
+            showNotification('Arrastra el marcador y presiona "Guardar ubicación"', 'success');
+            mostrarBotonesFlotantes(
+                async () => { await confirmarArrastreUbicacion(); },
+                () => { cancelarArrastreUbicacion(); }
+            );
             pushModalState();
-        }
-
-        function agregarBotonesArrastre() {
-            eliminarBotonesArrastre();
-            const confirmBtn = document.createElement('button');
-            confirmBtn.id = 'btn-confirmar-arrastre';
-            confirmBtn.innerHTML = '<i class="fas fa-save"></i> Guardar ubicación';
-            confirmBtn.style.cssText = 'position:absolute; bottom:160px; left:50%; transform:translateX(-50%); background:#059669; color:white; border:none; padding:12px 24px; border-radius:30px; font-weight:600; z-index:600;';
-            confirmBtn.onclick = confirmarArrastreUbicacion;
-            document.getElementById('mapa-tab').appendChild(confirmBtn);
-            const cancelBtn = document.createElement('button');
-            cancelBtn.id = 'btn-cancelar-arrastre';
-            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar';
-            cancelBtn.style.cssText = 'position:absolute; bottom:100px; left:50%; transform:translateX(-50%); background:#991b1b; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:600; z-index:600;';
-            cancelBtn.onclick = cancelarArrastreUbicacion;
-            document.getElementById('mapa-tab').appendChild(cancelBtn);
-        }
-
-        function eliminarBotonesArrastre() {
-            ['btn-confirmar-arrastre','btn-cancelar-arrastre'].forEach(id => {
-                const el = document.getElementById(id); if(el) el.remove();
-            });
         }
 
         async function confirmarArrastreUbicacion() {
             if(!draggingMarker || !dragClienteId) return;
             const newPos = draggingMarker.position;
             const lat = newPos.lat, lng = newPos.lng;
+            const coordStr = `${lat}, ${lng}`;
             try {
-                const cliente = (await apiFetch(`clientes?id=eq.${dragClienteId}&select=direcciones_entrega`))[0];
+                const cliente = (await apiFetch(`clientes?id=eq.${dragClienteId}&select=direcciones_entrega,pais,estado_provincia,ciudad`))[0];
                 if(cliente && cliente.direcciones_entrega?.length) {
-                    cliente.direcciones_entrega[0].coordenadas = `${lat}, ${lng}`;
-                    await apiFetch(`clientes?id=eq.${dragClienteId}`, 'PATCH', { direcciones_entrega: cliente.direcciones_entrega });
+                    cliente.direcciones_entrega[0].coordenadas = coordStr;
+                    const geo = await geocodificarInversa(lat, lng);
+                    const updatePayload = {
+                        direcciones_entrega: cliente.direcciones_entrega,
+                        pais: geo.pais || cliente.pais,
+                        estado_provincia: geo.estado || cliente.estado_provincia,
+                        ciudad: geo.ciudad || cliente.ciudad
+                    };
+                    await apiFetch(`clientes?id=eq.${dragClienteId}`, 'PATCH', updatePayload);
                     showNotification('Ubicación guardada correctamente');
                     await aplicarFiltroActual();
                 }
@@ -1248,7 +1232,7 @@
         function limpiarArrastre() {
             if(draggingMarker) draggingMarker.gmpDraggable = false;
             draggingMarker = null; dragClienteId = null; dragStartCoords = null; pendingReopenModal = false;
-            eliminarBotonesArrastre();
+            ocultarBotonesFlotantes();
         }
 
         document.getElementById('form-cliente').addEventListener('submit', async function(e) {
@@ -1283,6 +1267,7 @@
                     tempLocationMarker.setMap(null);
                     tempLocationMarker = null;
                 }
+                ocultarBotonesFlotantes();
                 cerrarModalCliente(); cargarClientesLista(); aplicarFiltroActual();
                 showNotification('Cliente guardado');
             } catch(err) { showNotification('Error: '+err.message,'error'); }
