@@ -182,7 +182,10 @@
             </div>
             <form id="form-cliente" autocomplete="off">
                 <input type="hidden" id="cliente-id">
-                <div class="form-group"><label>País <span style="color:#1a56db; cursor:help;" title="Determina los tipos de documento disponibles">?</span></label><input id="cli-pais-input" list="cli-paises-list" autocomplete="off" oninput="capitalizarInput(this); actualizarTipoDocPorPais();"><datalist id="cli-paises-list"></datalist></div>
+                <input type="hidden" id="cli-pais-hidden">
+                <input type="hidden" id="cli-estado-hidden">
+                <input type="hidden" id="cli-ciudad-hidden">
+                <div class="form-group"><label>País</label><input id="cli-pais-input" list="cli-paises-list" autocomplete="off" oninput="capitalizarInput(this); actualizarTipoDocPorPais();"><datalist id="cli-paises-list"></datalist></div>
                 <div class="form-group"><label>Tipo</label><select id="cli-tipo-persona" onchange="toggleClientePersona()"><option value="natural">Persona Natural</option><option value="juridica">Jurídica</option></select></div>
                 <div id="natural-fields">
                     <div class="form-group"><label>Nombres</label><input id="cli-nombres" oninput="capitalizarInput(this)"></div>
@@ -197,11 +200,6 @@
                 <div class="form-group"><label>Email</label><input id="cli-email" type="email"></div>
                 <div class="form-group"><label>Teléfonos</label><div id="cli-telefonos-container"></div><button type="button" class="btn-phone-add" onclick="agregarTelefonoCliente()">+ Teléfono</button></div>
                 <div class="form-group"><label>Dirección</label><input id="cli-direccion" oninput="capitalizarInput(this)"></div>
-                <div class="form-row" style="display:flex; gap:12px; flex-wrap:wrap;">
-                    <div class="form-col" style="flex:1; min-width:140px;"><div class="form-group"><label>Estado / Provincia</label><input id="cli-estado-input" oninput="capitalizarInput(this)" readonly style="background:#f8fafc;"></div></div>
-                    <div class="form-col" style="flex:1; min-width:140px;"><div class="form-group"><label>Ciudad</label><input id="cli-ciudad-input" oninput="capitalizarInput(this)" readonly style="background:#f8fafc;"></div></div>
-                </div>
-                <input type="hidden" id="cli-pais-hidden"><input type="hidden" id="cli-estado-hidden"><input type="hidden" id="cli-ciudad-hidden">
                 <div class="form-group">
                     <label>Coordenadas GPS (lat, lng)</label>
                     <div id="gps-entrega-container"></div>
@@ -263,7 +261,6 @@
         let documentoEditando = null;
         let pedidosDelClienteActual = [];
         let verTodosLosDias = false;
-        let paisesData = [];
         let clienteTemporalId = null;
         let pedidoTemporalDoc = null;
         let flujoNuevoClientePendiente = false;
@@ -287,6 +284,12 @@
             'México':['INE','Pasaporte','RFC'], 'España':['DNI','Pasaporte','NIE'],
             'Estados Unidos':['Pasaporte','SSN','Driver License']
         };
+
+        const paisesEstaticos = [
+            "Argentina","Bolivia","Brasil","Chile","Colombia","Costa Rica","Cuba","Ecuador","El Salvador",
+            "España","Estados Unidos","Guatemala","Honduras","México","Nicaragua","Panamá","Paraguay",
+            "Perú","Portugal","República Dominicana","Uruguay","Venezuela"
+        ].sort();
 
         function getCurrentDayName() {
             const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
@@ -323,6 +326,13 @@
             document.getElementById('confirm-overlay').classList.remove('active');
             if (draggingMarker) cancelarArrastreUbicacion();
             if (tempLocationMarker) cancelarSeleccionUbicacionTemporal();
+            limpiarEstadoFlujo();
+        }
+
+        function limpiarEstadoFlujo() {
+            flujoNuevoClientePendiente = false;
+            clienteTemporalId = null;
+            pedidoTemporalDoc = null;
         }
 
         function irASeccion(seccion) {
@@ -396,20 +406,16 @@
             return text ? JSON.parse(text) : null;
         }
 
-        async function cargarPaises() {
-            try {
-                const resp = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
-                paisesData = await resp.json();
-                const dl = document.getElementById('cli-paises-list');
-                if(dl) {
-                    dl.innerHTML = '';
-                    paisesData.sort((a,b) => a.name.common.localeCompare(b.name.common)).forEach(p => {
-                        const o = document.createElement('option');
-                        o.value = p.name.common;
-                        dl.appendChild(o);
-                    });
-                }
-            } catch(e) { console.warn('Error al cargar países:', e); }
+        function cargarPaisesEstaticos() {
+            const dl = document.getElementById('cli-paises-list');
+            if(dl) {
+                dl.innerHTML = '';
+                paisesEstaticos.forEach(p => {
+                    const o = document.createElement('option');
+                    o.value = p;
+                    dl.appendChild(o);
+                });
+            }
         }
 
         function actualizarTipoDocPorPais() {
@@ -735,6 +741,7 @@
                 eliminarClienteYPedidoTemporal();
             } else {
                 cerrarModalVenta();
+                limpiarEstadoFlujo();
             }
         }
 
@@ -747,17 +754,18 @@
             pedidoTemporalDoc = null;
             flujoNuevoClientePendiente = false;
             cerrarModalVenta();
-            showNotification('Pedido cancelado');
+            cerrarModalCliente();
+            showNotification('Pedido cancelado y cliente temporal eliminado');
         }
 
         function cancelarFlujoNuevoCliente() {
             if (flujoNuevoClientePendiente && clienteTemporalId) {
                 mostrarConfirmacion('¿Cancelar el registro? Se eliminará el cliente y el pedido.', 'Cancelar registro', async () => {
                     await eliminarClienteYPedidoTemporal();
-                    cerrarModalCliente();
                 });
             } else {
                 cerrarModalCliente();
+                limpiarEstadoFlujo();
             }
         }
 
@@ -957,10 +965,9 @@
             document.getElementById('titulo-modal-cliente').textContent = id ? 'Editar Cliente' : 'Nuevo Cliente';
             document.getElementById('btn-eliminar-cliente-modal').style.display = id ? 'flex' : 'none';
             document.getElementById('cli-pais-input').value = '';
-            document.getElementById('cli-estado-input').value = '';
-            document.getElementById('cli-ciudad-input').value = '';
-            document.getElementById('cli-estado-input').readOnly = true;
-            document.getElementById('cli-ciudad-input').readOnly = true;
+            document.getElementById('cli-pais-hidden').value = '';
+            document.getElementById('cli-estado-hidden').value = '';
+            document.getElementById('cli-ciudad-hidden').value = '';
             agregarTelefonoCliente(); agregarPuntoGPS();
             actualizarTipoDocPorPais();
             if(!id) {
@@ -1009,9 +1016,9 @@
                 const gpsInputs = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)');
                 if(gpsInputs.length) gpsInputs[0].value = `${lat}, ${lng}`;
                 const geo = await geocodificarInversa(lat, lng);
-                if(geo.pais) { document.getElementById('cli-pais-input').value = geo.pais; actualizarTipoDocPorPais(); }
-                if(geo.estado) document.getElementById('cli-estado-input').value = geo.estado;
-                if(geo.ciudad) document.getElementById('cli-ciudad-input').value = geo.ciudad;
+                if(geo.pais) { document.getElementById('cli-pais-input').value = geo.pais; document.getElementById('cli-pais-hidden').value = geo.pais; actualizarTipoDocPorPais(); }
+                if(geo.estado) document.getElementById('cli-estado-hidden').value = geo.estado;
+                if(geo.ciudad) document.getElementById('cli-ciudad-hidden').value = geo.ciudad;
                 showNotification('Coordenadas y ubicación actualizadas');
             }, () => showNotification('No se pudo obtener la ubicación', 'error'));
         }
@@ -1028,13 +1035,14 @@
                 document.getElementById('cli-am').value = cli.apellido_materno || '';
                 document.getElementById('cli-razon-social').value = cli.razon_social || '';
                 document.getElementById('cli-pais-input').value = cli.pais || '';
+                document.getElementById('cli-pais-hidden').value = cli.pais || '';
+                document.getElementById('cli-estado-hidden').value = cli.estado_provincia || '';
+                document.getElementById('cli-ciudad-hidden').value = cli.ciudad || '';
                 actualizarTipoDocPorPais();
                 document.getElementById('cli-tipo-doc').value = cli.tipo_documento || '';
                 document.getElementById('cli-num-doc').value = cli.numero_documento || '';
                 document.getElementById('cli-email').value = cli.email || '';
                 document.getElementById('cli-direccion').value = cli.direccion || '';
-                document.getElementById('cli-estado-input').value = cli.estado_provincia || '';
-                document.getElementById('cli-ciudad-input').value = cli.ciudad || '';
                 document.getElementById('cli-tipo-negocio').value = cli.tipo_negocio || '';
                 document.getElementById('cli-telefonos-container').innerHTML = '';
                 (cli.telefonos?.length ? cli.telefonos : [{etiqueta:'',numero:''}]).forEach(t => {
@@ -1137,9 +1145,9 @@
             if(gpsInputs.length) gpsInputs[0].value = coordStr;
             else { agregarPuntoGPS(); const nuevos = document.querySelectorAll('#gps-entrega-container input:not(.tag-input)'); if(nuevos.length) nuevos[0].value = coordStr; }
             const geo = await geocodificarInversa(lat, lng);
-            if(geo.pais) { document.getElementById('cli-pais-input').value = geo.pais; actualizarTipoDocPorPais(); }
-            if(geo.estado) document.getElementById('cli-estado-input').value = geo.estado;
-            if(geo.ciudad) document.getElementById('cli-ciudad-input').value = geo.ciudad;
+            if(geo.pais) { document.getElementById('cli-pais-input').value = geo.pais; document.getElementById('cli-pais-hidden').value = geo.pais; actualizarTipoDocPorPais(); }
+            if(geo.estado) document.getElementById('cli-estado-hidden').value = geo.estado;
+            if(geo.ciudad) document.getElementById('cli-ciudad-hidden').value = geo.ciudad;
             limpiarSeleccionTemporal();
             document.getElementById('modal-cliente').classList.add('active');
             pushModalState();
@@ -1234,9 +1242,9 @@
                 email: document.getElementById('cli-email').value.trim()||null,
                 telefonos: obtenerTelefonos(),
                 direccion: document.getElementById('cli-direccion').value.trim()||null,
-                pais: document.getElementById('cli-pais-input').value.trim()||null,
-                estado_provincia: document.getElementById('cli-estado-input').value.trim()||null,
-                ciudad: document.getElementById('cli-ciudad-input').value.trim()||null,
+                pais: document.getElementById('cli-pais-hidden').value.trim()||null,
+                estado_provincia: document.getElementById('cli-estado-hidden').value.trim()||null,
+                ciudad: document.getElementById('cli-ciudad-hidden').value.trim()||null,
                 direcciones_entrega: obtenerCoordenadas(),
                 tipo_negocio: document.getElementById('cli-tipo-negocio').value.trim()||null,
                 activo: true
@@ -1246,9 +1254,7 @@
                 if(file) { const url = await uploadFile(file, 'clientes'); payload.imagen = url; }
                 if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); }
                 else await apiFetch('clientes', 'POST', payload);
-                flujoNuevoClientePendiente = false;
-                clienteTemporalId = null;
-                pedidoTemporalDoc = null;
+                limpiarEstadoFlujo();
                 cerrarModalCliente(); cargarClientesLista(); aplicarFiltroActual();
                 showNotification('Cliente guardado');
             } catch(err) { showNotification('Error: '+err.message,'error'); }
@@ -1282,7 +1288,7 @@
         }
 
         window.onload = async function() {
-            await cargarPaises();
+            cargarPaisesEstaticos();
             await verificarSesion();
             if (!document.querySelector('.section.active')) showMain();
         };
