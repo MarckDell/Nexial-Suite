@@ -321,7 +321,7 @@
             </div>
             <form id="form-cliente" autocomplete="off">
                 <input type="hidden" id="cliente-id">
-                <div class="info-banner"><i class="fas fa-info-circle"></i> Complete primero el <strong>País</strong> para configurar documentos y moneda.</div>
+                <div class="info-banner"><i class="fas fa-info-circle"></i> Complete primero el <strong>País</strong> para configurar documentos y moneda. Use las sugerencias para Tipo, Segmento y Canal.</div>
                 <div class="form-row">
                     <div class="form-col"><div class="form-group"><label>País</label><input id="cli-pais" list="cli-paises-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="cli-paises-list"></datalist></div></div>
                     <div class="form-col"><div class="form-group"><label>Tipo Persona <span class="tooltip-trigger" data-tooltip="Natural: persona con nombre. Jurídica: empresa con razón social.">?</span></label><select id="cli-tipo-persona" onchange="toggleClientePersona()"><option value="natural">Persona Natural</option><option value="juridica">Persona Jurídica</option></select></div></div>
@@ -333,6 +333,9 @@
                 </div>
                 <div class="form-row" id="row-cli-juridica" style="display:none;">
                     <div class="form-col"><div class="form-group"><label>Razón Social *</label><input id="cli-razon-social" oninput="capitalizarInput(this)"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Nombre Comercial <span class="tooltip-trigger" data-tooltip="Nombre del establecimiento o tienda (Ej: Abarrotes Doña Juanita).">?</span></label><input id="cli-nombre-comercial" oninput="capitalizarInput(this)"></div></div>
                 </div>
                 <div class="form-row">
                     <div class="form-col"><div class="form-group"><label>Tipo Documento <span class="tooltip-trigger" data-tooltip="Documento de identidad fiscal según país.">?</span></label><select id="cli-tipo-doc"></select></div></div>
@@ -355,12 +358,9 @@
                     <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="cli-ciudad" list="cli-ciudades-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="cli-ciudades-list"></datalist></div></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Tipo Cliente <span class="tooltip-trigger" data-tooltip="Mayorista, Minorista, Distribuidor, Consumidor Final...">?</span></label><input id="cli-tipo-cliente" list="cli-tipo-cliente-list"><datalist id="cli-tipo-cliente-list"></datalist></div></div>
-                    <div class="form-col"><div class="form-group"><label>Segmento Mercado <span class="tooltip-trigger" data-tooltip="Premium, Estándar, Económico, Industrial, Masivo.">?</span></label><input id="cli-segmento" list="cli-segmento-list"><datalist id="cli-segmento-list"></datalist></div></div>
-                    <div class="form-col"><div class="form-group"><label>Canal Venta <span class="tooltip-trigger" data-tooltip="Venta Directa, Online, Retail...">?</span></label><input id="cli-canal" list="cli-canal-list"><datalist id="cli-canal-list"></datalist></div></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Tipo de Negocio <span class="tooltip-trigger" data-tooltip="Ej: Tienda, Mecánica, Abarrotes, Carnicería, Farmacia...">?</span></label><input id="cli-tipo-negocio" list="tipo-negocio-list" oninput="capitalizarInput(this)"><datalist id="tipo-negocio-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Tipo Cliente <span class="tooltip-trigger" data-tooltip="Rol en la cadena: Distribuidor, Minorista, HORECA...">?</span></label><input id="cli-tipo-cliente" list="cli-tipo-cliente-list" autocomplete="off"><datalist id="cli-tipo-cliente-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Segmento Mercado <span class="tooltip-trigger" data-tooltip="Perfil del cliente: Moderno, Tradicional, Industrial...">?</span></label><input id="cli-segmento" list="cli-segmento-list" autocomplete="off"><datalist id="cli-segmento-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Canal Venta <span class="tooltip-trigger" data-tooltip="Cómo llega tu empresa a este cliente: Venta Directa, Televenta...">?</span></label><input id="cli-canal" list="cli-canal-list" autocomplete="off"><datalist id="cli-canal-list"></datalist></div></div>
                 </div>
                 <div class="form-row">
                     <div class="form-col"><div class="form-group"><label>Límite Crédito <span class="tooltip-trigger" data-tooltip="Monto máximo de deuda permitido.">?</span></label><input id="cli-limite-credito" type="number" step="0.01" min="0"></div></div>
@@ -373,7 +373,6 @@
                 </div>
                 <div class="form-row">
                     <div class="form-col"><div class="form-group"><label>Lista de Precios Especiales <span class="tooltip-trigger" data-tooltip="Producto: SKU-001, Precio: 9.99">?</span></label><textarea id="cli-lista-precios" rows="2" placeholder="Producto: SKU-001, Precio: 9.99"></textarea></div></div>
-                    <div class="form-col"><div class="form-group"><label>Sucursales Adicionales <span class="tooltip-trigger" data-tooltip="Nombre: Sucursal Norte, Dirección: Calle 123">?</span></label><textarea id="cli-sucursales" rows="2" placeholder="Nombre: Sucursal Norte, Dirección: Calle 123"></textarea></div></div>
                 </div>
                 <div style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
                     <button type="button" class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalCliente()">Cancelar</button>
@@ -410,7 +409,7 @@
         const unidadPesoMap = { 'Kilogramo':'kg', 'Gramo':'g', 'Tonelada':'ton', 'Libra':'lb', 'Onza':'oz' };
         const unidadVolumenMap = { 'Litro':'litro', 'Mililitro':'ml', 'Metro cúbico':'m³', 'Centímetro cúbico':'cm³', 'Galón':'galón' };
 
-        // Datos de países estáticos (sin dependencia externa)
+        // Países estáticos (sin dependencia externa)
         const PAISES_ESTATICOS = [
             { name: { common: 'Bolivia' }, cca2: 'BO', idd: { root: '+591', suffixes: [''] }, currencies: { BOB: { name: 'Boliviano', symbol: 'Bs.' } } },
             { name: { common: 'Argentina' }, cca2: 'AR', idd: { root: '+54', suffixes: [''] }, currencies: { ARS: { name: 'Peso argentino', symbol: '$' } } },
@@ -434,7 +433,7 @@
             { name: { common: 'Corea del Sur' }, cca2: 'KR', idd: { root: '+82', suffixes: [''] }, currencies: { KRW: { name: 'Won', symbol: '₩' } } }
         ];
 
-        // Opciones configurables de metas con sus campos en la tabla objetivos_empleado
+        // Metas configurables
         const META_CAMPOS = {
             monto: { label: 'Monto de venta (Dinero)', campo: 'monto_objetivo', moneda: 'moneda_objetivo_id', tipo: 'dinero' },
             cantidad: { label: 'Cantidad de producto (Unidades)', campo: 'cantidad_objetivo', unidad: 'unidad_objetivo_id', tipo: 'cantidad' },
@@ -641,41 +640,23 @@
             }, () => showNotification('No se pudo obtener la ubicación.', 'error'));
         }
 
-        async function getCurrentUserEmpleadoId() {
-            const empId = currentUser.empresa_id;
-            const email = currentUser.email;
-            const emps = await apiFetch(`empleados?empresa_id=eq.${empId}&email=eq.${encodeURIComponent(email)}&select=id&limit=1`);
-            return emps.length ? emps[0].id : null;
-        }
-
         async function cargarDatosIniciales() {
-            // Usar directamente datos estáticos para evitar error CORS
             paisesData = PAISES_ESTATICOS;
-
-            // Poblar datalists de países
             ['usr-paises-list','cli-paises-list'].forEach(id => {
                 const dl = document.getElementById(id); if (!dl) return; dl.innerHTML = '';
                 paisesData.forEach(p => { const o = document.createElement('option'); o.value = p.name.common; dl.appendChild(o); });
             });
-
-            // Extraer monedas de los datos estáticos
             const monSet = new Map();
             paisesData.forEach(p => { if (p.currencies) Object.entries(p.currencies).forEach(([c,i]) => { if (!monSet.has(c)) monSet.set(c, { name:i.name, symbol:i.symbol||'' }); }); });
             todasLasMonedas = Array.from(monSet, ([c,d]) => ({ codigo:c, nombre:d.name, simbolo:d.symbol }));
-
-            // Agregar monedas de la base de datos si existen
             try {
                 const bdMonedas = await apiFetch('monedas?select=codigo,nombre,simbolo');
                 bdMonedas.forEach(m => { if (!todasLasMonedas.find(t => t.codigo === m.codigo)) todasLasMonedas.push({ codigo:m.codigo, nombre:m.nombre, simbolo:m.simbolo||'' }); });
             } catch(e) {}
-
-            // Poblar datalists de monedas
             ['monedas-global-list-emp','monedas-global-list-prod','monedas-global-list-cli'].forEach(id => {
                 const dl = document.getElementById(id); if (!dl) return; dl.innerHTML = '';
                 todasLasMonedas.forEach(m => { const o = document.createElement('option'); o.value = `${m.codigo} - ${m.nombre}`; dl.appendChild(o); });
             });
-
-            // Obtener datos de la empresa actual
             if (currentUser && currentUser.empresa_id) {
                 const emp = await apiFetch(`empresas?id=eq.${currentUser.empresa_id}&select=moneda_principal_id,pais`);
                 if (emp.length > 0) {
@@ -683,7 +664,6 @@
                     empresaPais = emp[0].pais || '';
                 }
             }
-
             cargarDatalistsEstaticos();
             initTooltips();
         }
@@ -691,14 +671,17 @@
         function cargarDatalistsEstaticos() {
             const caps = ['toneladas','kg','m³','litros','unidades','pallets'];
             const dlCap = document.getElementById('unidad-cap-list'); if (dlCap) { dlCap.innerHTML = ''; caps.forEach(u => { const o = document.createElement('option'); o.value = u; dlCap.appendChild(o); }); }
-            const tiposCliente = ['Mayorista','Minorista','Distribuidor','Consumidor Final','Gubernamental','Corporativo'];
+
+            // Listas profesionales para consumo masivo
+            const tiposCliente = ['Distribuidor','Mayorista','Minorista','Mayorista-Distribuidor','Cuenta Clave (Key Account)','Institucional','HORECA','Consumidor Final','E-commerce (Marketplace)'];
             const dlTc = document.getElementById('cli-tipo-cliente-list'); if (dlTc) { dlTc.innerHTML = ''; tiposCliente.forEach(u => { const o = document.createElement('option'); o.value = u; dlTc.appendChild(o); }); }
-            const segmentos = ['Premium','Estándar','Económico','Industrial','Masivo'];
+
+            const segmentos = ['Moderno – Hipermercado','Moderno – Supermercado','Moderno – Discount','Moderno – Conveniencia','Tradicional – Tienda de barrio','Tradicional – Canal Mayorista','Industrial / B2B','Institucional','HORECA','Digital'];
             const dlSg = document.getElementById('cli-segmento-list'); if (dlSg) { dlSg.innerHTML = ''; segmentos.forEach(u => { const o = document.createElement('option'); o.value = u; dlSg.appendChild(o); }); }
-            const canales = ['Venta Directa','Distribuidor','Online','Retail','Telemarketing'];
+
+            const canales = ['Venta Directa – Fuerza Propia','Venta Directa – Preventa','Venta Directa – Autoventa','Distribuidor Exclusivo','Televenta','E-commerce B2B','E-commerce B2C','Mayorista / Cash & Carry','Retail Moderno'];
             const dlCn = document.getElementById('cli-canal-list'); if (dlCn) { dlCn.innerHTML = ''; canales.forEach(u => { const o = document.createElement('option'); o.value = u; dlCn.appendChild(o); }); }
-            const tiposNegocio = ['Tienda','Mecánica','Abarrotes','Carnicería','Farmacia','Ferretería','Panadería','Restaurante','Veterinaria','Librería'];
-            const dlTn = document.getElementById('tipo-negocio-list'); if (dlTn) { dlTn.innerHTML = ''; tiposNegocio.forEach(u => { const o = document.createElement('option'); o.value = u; dlTn.appendChild(o); }); }
+
             const unidades = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón'];
             const dlUnidad = document.getElementById('unidad-list'); if (dlUnidad) { dlUnidad.innerHTML = ''; unidades.forEach(u => { const o = document.createElement('option'); o.value = u; dlUnidad.appendChild(o); }); }
             const pesos = ['kg','g','lb','oz','ton'];
@@ -872,6 +855,7 @@
             const tipo = document.getElementById('cli-tipo-persona').value;
             document.getElementById('row-cli-natural').style.display = tipo === 'natural' ? 'flex' : 'none';
             document.getElementById('row-cli-juridica').style.display = tipo === 'juridica' ? 'flex' : 'none';
+            // El campo nombre_comercial siempre visible
         }
 
         function abrirWhatsApp(numero) {
@@ -1309,7 +1293,8 @@
             } catch(err) { showNotification('Error: '+err.message, 'error'); }
         });
 
-        async function cargarClientes(vendedorId='', filtroTipo='', filtroSegmento='', filtroCanal='', filtroNegocio='', estadoFiltro='true') {
+        // ===== CLIENTES ACTUALIZADO =====
+        async function cargarClientes(vendedorId='', filtroTipo='', filtroSegmento='', filtroCanal='', estadoFiltro='true') {
             const empId = currentUser.empresa_id;
             let query = `clientes?empresa_id=eq.${empId}&select=*&limit=1000`;
             if (estadoFiltro === 'true') query += `&activo=eq.true`;
@@ -1318,44 +1303,41 @@
             if(filtroTipo) query += `&tipo_cliente=eq.${encodeURIComponent(filtroTipo)}`;
             if(filtroSegmento) query += `&segmento_mercado=eq.${encodeURIComponent(filtroSegmento)}`;
             if(filtroCanal) query += `&canal_venta=eq.${encodeURIComponent(filtroCanal)}`;
-            if(filtroNegocio) query += `&tipo_negocio=eq.${encodeURIComponent(filtroNegocio)}`;
             const clientes = await apiFetch(query);
             const vendedores = await apiFetch(`empleados?empresa_id=eq.${empId}&select=id,nombres,apellido_paterno&activo=eq.true&limit=1000`);
             const vendedorMap = {}; vendedores.forEach(v => vendedorMap[v.id] = v.nombres+' '+v.apellido_paterno);
             let filas = '';
             clientes.forEach(c => {
-                const nombre = c.razon_social || (c.nombres||'')+' '+(c.apellido_paterno||'');
+                const nombreMostrar = c.razon_social || (c.nombres||'')+' '+(c.apellido_paterno||'');
                 const gpsCount = Array.isArray(c.direcciones_entrega) ? c.direcciones_entrega.length : 0;
                 const estadoBadge = c.activo ? '<span class="badge badge-success">Activo</span>' : '<span class="badge badge-danger">Inactivo</span>';
                 const acciones = c.activo
                     ? `<button class="btn-sm btn-edit" onclick="editarCliente('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-delete" onclick="eliminarCliente('${c.id}')"><i class="fas fa-ban"></i></button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button>`
                     : `<button class="btn-sm btn-activate" onclick="activarCliente('${c.id}')"><i class="fas fa-check"></i> Activar</button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button>`;
-                filas += `<tr><td>${nombre.trim()||'-'}</td><td>${c.email||'-'}</td><td>${c.ciudad||'-'}, ${c.pais||'-'}</td><td>${c.tipo_cliente||'-'}</td><td>${c.tipo_negocio||'-'}</td><td>${gpsCount > 0 ? `<i class="fas fa-map-marker-alt" style="color:#1a56db;" title="${gpsCount} punto(s) de entrega"></i> ${gpsCount}` : '-'}</td><td>${c.vendedor_asignado_id ? (vendedorMap[c.vendedor_asignado_id]||'Asignado') : 'Sin asignar'}</td><td>${estadoBadge}</td><td class="action-buttons">${acciones}</td></tr>`;
+                filas += `<tr><td>${nombreMostrar.trim()||'-'}</td><td>${c.nombre_comercial || '-'}</td><td>${c.email||'-'}</td><td>${c.ciudad||'-'}, ${c.pais||'-'}</td><td>${c.tipo_cliente||'-'}</td><td>${c.segmento_mercado||'-'}</td><td>${c.canal_venta||'-'}</td><td>${gpsCount > 0 ? `<i class="fas fa-map-marker-alt" style="color:#1a56db;" title="${gpsCount} punto(s) de entrega"></i> ${gpsCount}` : '-'}</td><td>${c.vendedor_asignado_id ? (vendedorMap[c.vendedor_asignado_id]||'Asignado') : 'Sin asignar'}</td><td>${estadoBadge}</td><td class="action-buttons">${acciones}</td></tr>`;
             });
-            if(!filas) filas = '<tr><td colspan="9" style="text-align:center;">No se encontraron clientes.</td></tr>';
+            if(!filas) filas = '<tr><td colspan="11" style="text-align:center;">No se encontraron clientes.</td></tr>';
             document.getElementById('panel-clientes').innerHTML = `
             <div class="card"><div class="card-header"><h2>Clientes</h2><button class="btn-solid" onclick="abrirModalCliente()"><i class="fas fa-plus"></i> Nuevo Cliente</button></div>
             <div class="filtros"><div class="filtro-group"><label>Vendedor:</label><select id="filtro-vendedor-clientes" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
             <div class="filtro-group"><label>Estado:</label><select id="filtro-estado-clientes" onchange="aplicarFiltrosClientes()"><option value="true" ${estadoFiltro==='true'?'selected':''}>Activos</option><option value="false" ${estadoFiltro==='false'?'selected':''}>Inactivos</option><option value="all" ${estadoFiltro==='all'?'selected':''}>Todos</option></select></div>
             <div class="filtro-group"><label>Tipo:</label><select id="filtro-tipo-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
             <div class="filtro-group"><label>Segmento:</label><select id="filtro-segmento-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
-            <div class="filtro-group"><label>Canal:</label><select id="filtro-canal-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
-            <div class="filtro-group"><label>Negocio:</label><select id="filtro-negocio-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div></div>
-            <div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Email</th><th>Ubicación</th><th>Tipo</th><th>Negocio</th><th>GPS</th><th>Vendedor</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div></div>`;
+            <div class="filtro-group"><label>Canal:</label><select id="filtro-canal-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div></div>
+            <div class="table-wrapper"><table><thead><tr><th>Razón Social / Nombre</th><th>Nombre Comercial</th><th>Email</th><th>Ubicación</th><th>Tipo</th><th>Segmento</th><th>Canal</th><th>GPS</th><th>Vendedor</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div></div>`;
             const selVend = document.getElementById('filtro-vendedor-clientes'); vendedores.forEach(v => { const o = document.createElement('option'); o.value=v.id; o.text=v.nombres+' '+v.apellido_paterno; if(v.id===vendedorId) o.selected=true; selVend.appendChild(o); });
             const tipos = [...new Set(clientes.map(c=>c.tipo_cliente).filter(Boolean))].sort();
             const segs = [...new Set(clientes.map(c=>c.segmento_mercado).filter(Boolean))].sort();
             const canales = [...new Set(clientes.map(c=>c.canal_venta).filter(Boolean))].sort();
-            const negocios = [...new Set(clientes.map(c=>c.tipo_negocio).filter(Boolean))].sort();
-            ['filtro-tipo-cliente','filtro-segmento-cliente','filtro-canal-cliente','filtro-negocio-cliente'].forEach((id,i) => {
-                const sel = document.getElementById(id), arr = [tipos,segs,canales,negocios][i], val = [filtroTipo,filtroSegmento,filtroCanal,filtroNegocio][i];
+            ['filtro-tipo-cliente','filtro-segmento-cliente','filtro-canal-cliente'].forEach((id,i) => {
+                const sel = document.getElementById(id), arr = [tipos,segs,canales][i], val = [filtroTipo,filtroSegmento,filtroCanal][i];
                 arr.forEach(v => { const o = document.createElement('option'); o.value=v; o.text=v; if(v===val) o.selected=true; sel.appendChild(o); });
             });
             initTooltips();
         }
         function aplicarFiltrosClientes() {
             const estado = document.getElementById('filtro-estado-clientes')?.value || 'true';
-            cargarClientes(document.getElementById('filtro-vendedor-clientes')?.value||'', document.getElementById('filtro-tipo-cliente')?.value||'', document.getElementById('filtro-segmento-cliente')?.value||'', document.getElementById('filtro-canal-cliente')?.value||'', document.getElementById('filtro-negocio-cliente')?.value||'', estado);
+            cargarClientes(document.getElementById('filtro-vendedor-clientes')?.value||'', document.getElementById('filtro-tipo-cliente')?.value||'', document.getElementById('filtro-segmento-cliente')?.value||'', document.getElementById('filtro-canal-cliente')?.value||'', estado);
         }
         function activarCliente(id) {
             mostrarConfirmacion('¿Activar cliente? Volverá a estar visible.', 'Activar Cliente', async () => {
@@ -1370,8 +1352,8 @@
             document.getElementById('form-cliente').reset(); document.getElementById('cliente-id').value='';
             document.getElementById('titulo-modal-cliente').textContent='Nuevo Cliente';
             document.getElementById('cli-tipo-persona').value='natural'; document.getElementById('cli-moneda-credito').value=monedaPorDefecto();
-            document.getElementById('cli-pais').value=empresaPais; document.getElementById('cli-lista-precios').value=''; document.getElementById('cli-sucursales').value='';
-            document.getElementById('cli-tipo-negocio').value='';
+            document.getElementById('cli-pais').value=empresaPais; document.getElementById('cli-lista-precios').value='';
+            document.getElementById('cli-nombre-comercial').value='';
             if(empresaPais) { actualizarSelectTiposDocumento(empresaPais, 'cli-tipo-doc'); actualizarMonedaConPais(document.getElementById('cli-pais'), 'cli-moneda-credito'); cargarEstados(empresaPais, 'cli-estados-list'); }
             else actualizarSelectTiposDocumento('', 'cli-tipo-doc');
             llenarInputsTelefonoDesdeJson('#cli-telefonos-container', [{etiqueta:'', numero:''}]);
@@ -1390,14 +1372,13 @@
             document.getElementById('cli-tipo-doc').value = cli.tipo_documento||''; document.getElementById('cli-num-doc').value = cli.numero_documento||'';
             document.getElementById('cli-nombres').value = cli.nombres||''; document.getElementById('cli-ap').value = cli.apellido_paterno||''; document.getElementById('cli-am').value = cli.apellido_materno||'';
             document.getElementById('cli-razon-social').value = cli.razon_social||'';
+            document.getElementById('cli-nombre-comercial').value = cli.nombre_comercial||'';
             document.getElementById('cli-email').value = cli.email||''; document.getElementById('cli-direccion').value = cli.direccion||'';
             document.getElementById('cli-estado').value = cli.estado_provincia||''; document.getElementById('cli-ciudad').value = cli.ciudad||'';
             document.getElementById('cli-tipo-cliente').value = cli.tipo_cliente||''; document.getElementById('cli-segmento').value = cli.segmento_mercado||''; document.getElementById('cli-canal').value = cli.canal_venta||'';
-            document.getElementById('cli-tipo-negocio').value = cli.tipo_negocio||'';
             document.getElementById('cli-limite-credito').value = cli.limite_credito||''; document.getElementById('cli-dias-credito').value = cli.dias_credito||'';
             document.getElementById('cli-moneda-credito').value = monedaPorDefecto();
             document.getElementById('cli-lista-precios').value = cli.lista_precios ? JSON.stringify(cli.lista_precios, null, 2) : '';
-            document.getElementById('cli-sucursales').value = cli.sucursales ? JSON.stringify(cli.sucursales, null, 2) : '';
             llenarInputsTelefonoDesdeJson('#cli-telefonos-container', cli.telefonos||[{etiqueta:'', numero:''}]);
             llenarCoordenadasGPSDesdeArray(cli.direcciones_entrega||[{etiqueta:'', coordenadas:''}]);
             if(cli.moneda_credito_id) { const mon = await apiFetch(`monedas?id=eq.${cli.moneda_credito_id}&select=codigo,nombre`); if(mon.length) document.getElementById('cli-moneda-credito').value = `${mon[0].codigo} - ${mon[0].nombre}`; }
@@ -1425,6 +1406,7 @@
                 apellido_paterno: tipoPersona==='natural' ? document.getElementById('cli-ap').value.trim() : null,
                 apellido_materno: tipoPersona==='natural' ? document.getElementById('cli-am').value.trim() : null,
                 razon_social: tipoPersona==='juridica' ? document.getElementById('cli-razon-social').value.trim() : null,
+                nombre_comercial: document.getElementById('cli-nombre-comercial').value.trim()||null,
                 email: document.getElementById('cli-email').value.trim()||null,
                 telefonos: telefonosArray,
                 direccion: document.getElementById('cli-direccion').value.trim()||null,
@@ -1435,13 +1417,11 @@
                 tipo_cliente: document.getElementById('cli-tipo-cliente').value.trim()||null,
                 segmento_mercado: document.getElementById('cli-segmento').value.trim()||null,
                 canal_venta: document.getElementById('cli-canal').value.trim()||null,
-                tipo_negocio: document.getElementById('cli-tipo-negocio').value.trim()||null,
                 limite_credito: parseFloat(document.getElementById('cli-limite-credito').value)||null,
                 moneda_credito_id: monCreditoId,
                 dias_credito: parseInt(document.getElementById('cli-dias-credito').value)||null,
                 vendedor_asignado_id: document.getElementById('cli-vendedor').value||null,
-                lista_precios: parseJsonSeguro(document.getElementById('cli-lista-precios').value),
-                sucursales: parseJsonSeguro(document.getElementById('cli-sucursales').value)
+                lista_precios: parseJsonSeguro(document.getElementById('cli-lista-precios').value)
             };
             try { const file = document.getElementById('file-cli-imagen').files[0]; if(file) payload.imagen = await uploadFile(file, 'clientes'); } catch {}
             try {
