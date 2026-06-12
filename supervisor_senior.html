@@ -111,15 +111,17 @@
         .tab-btn-compact.active { background:white; color:#1a56db; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
         .tooltip-trigger { position:relative; display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px; border-radius:50%; background:#cbd5e1; color:white; font-size:0.65rem; font-weight:700; cursor:help; transition:0.2s; flex-shrink:0; }
         .tooltip-trigger:hover { background:#1a56db; transform:scale(1.1); }
-        #tooltip-global { position:fixed; background:#0f172a; color:#f1f5f9; padding:10px 16px; border-radius:12px; font-size:0.76rem; font-weight:400; white-space:normal; width:260px; text-align:left; line-height:1.5; box-shadow:0 12px 28px rgba(0,0,0,0.25); z-index:5000; pointer-events:none; opacity:0; visibility:hidden; transition:opacity 0.2s ease, visibility 0.2s ease; }
+        #tooltip-global { position:fixed; background:#0f172a; color:#f1f5f9; padding:12px 18px; border-radius:14px; font-size:0.78rem; font-weight:400; white-space:normal; width:320px; text-align:left; line-height:1.5; box-shadow:0 12px 28px rgba(0,0,0,0.25); z-index:5000; pointer-events:none; opacity:0; visibility:hidden; transition:opacity 0.2s ease, visibility 0.2s ease; }
         #tooltip-global.visible { opacity:1; visibility:visible; }
         .chart-container { position:relative; height:400px; width:100%; margin-top:20px; }
         .orden-select { padding:8px 16px; border-radius:30px; border:1.5px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:500; background:white; color:#1e293b; cursor:pointer; min-width:200px; }
         .confirm-buttons { display:flex; gap:12px; justify-content:center; margin-top:24px; }
         .info-banner { background:#f0f9ff; border:1px solid #bae6fd; border-radius:16px; padding:14px 20px; margin-bottom:20px; font-size:0.85rem; color:#0369a1; display:flex; align-items:flex-start; gap:10px; }
         .info-banner i { font-size:1.2rem; margin-top:2px; flex-shrink:0; }
-        .meta-edit-table td { padding:6px 10px; vertical-align:middle; }
-        .meta-edit-table input, .meta-edit-table select { padding:8px 12px; border-radius:12px; border:1.5px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.88rem; width:100%; }
+        .meta-edit-input { width:100%; padding:6px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.82rem; font-family:'Inter',sans-serif; background:white; text-align:right; }
+        .meta-edit-input:focus { border-color:#1a56db; outline:none; box-shadow:0 0 0 2px rgba(26,86,219,0.1); }
+        .meta-moneda-input { width:100%; padding:6px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.8rem; font-family:'Inter',sans-serif; background:white; }
+        .meta-moneda-input:focus { border-color:#1a56db; outline:none; box-shadow:0 0 0 2px rgba(26,86,219,0.1); }
         @media (max-width:900px) {
             .sidebar { width:100%; height:auto; position:relative; top:auto; bottom:auto; flex-direction:row; overflow-x:auto; padding:8px; border-right:none; border-bottom:1px solid #e2e8f0; }
             .sidebar-menu { display:flex; gap:4px; }
@@ -164,6 +166,7 @@
         </main>
     </div>
 
+    <!-- Confirmación modal -->
     <div class="modal-overlay" id="modal-confirm">
         <div class="modal modal-sm">
             <div class="modal-header" style="justify-content:center;"><h2 id="confirm-titulo">Confirmar acción</h2></div>
@@ -175,9 +178,13 @@
         </div>
     </div>
 
+    <!-- Modal Usuario -->
     <div class="modal-overlay" id="modal-usuario">
         <div class="modal">
-            <div class="modal-header"><h2 id="titulo-modal-usuario">Nuevo Miembro</h2><button class="close-modal" onclick="cerrarModalUsuario()">&times;</button></div>
+            <div class="modal-header">
+                <h2 id="titulo-modal-usuario">Nuevo Miembro</h2>
+                <button class="close-modal" onclick="cerrarModalUsuario()">&times;</button>
+            </div>
             <form id="form-usuario" autocomplete="off">
                 <input type="hidden" id="usuario-id"><input type="hidden" id="empleado-id">
                 <div class="info-banner"><i class="fas fa-info-circle"></i> Complete primero el <strong>País</strong> para que los campos de documento, moneda, estados y ciudades se configuren automáticamente.</div>
@@ -193,7 +200,10 @@
                 <div class="form-row">
                     <div class="form-col"><div class="form-group"><label>Email *</label><input id="usr-email" type="email" required></div></div>
                     <div class="form-col"><div class="form-group"><label>Rol * <span class="tooltip-trigger" data-tooltip="Define permisos: Ejecutivo Comercial (ventas), Especialista Logístico (distribución), Gestor de Almacén (inventario).">?</span></label><select id="usr-rol" required></select></div></div>
-                    <div class="form-col"><div class="form-group"><label>Teléfonos <span class="tooltip-trigger" data-tooltip="Añada números con etiqueta (casa, trabajo, etc.). Se guardan como objetos.">?</span></label><div id="telefonos-container"></div><button type="button" class="btn-add-phone" onclick="agregarTelefono()" title="Agregar teléfono" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar teléfono</button></div></div>
+                    <div class="form-col"><div class="form-group"><label>Teléfonos <span class="tooltip-trigger" data-tooltip="Añada números con etiqueta (casa, trabajo, etc.). Se guardan como objetos.">?</span></label>
+                        <div id="telefonos-container"></div>
+                        <button type="button" class="btn-add-phone" onclick="agregarTelefono()" title="Agregar teléfono" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar teléfono</button>
+                    </div></div>
                 </div>
                 <div class="form-row" id="password-fields">
                     <div class="form-col" style="position:relative;"><div class="form-group"><label>Contraseña *</label><input id="usr-password" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div><button type="button" class="password-toggle" tabindex="-1" onclick="togglePassword('usr-password', this)"><i class="far fa-eye"></i></button></div>
@@ -236,9 +246,13 @@
         </div>
     </div>
 
+    <!-- Modal Producto -->
     <div class="modal-overlay" id="modal-producto">
         <div class="modal">
-            <div class="modal-header"><h2 id="titulo-modal-producto">Nuevo Producto</h2><button class="close-modal" onclick="cerrarModalProducto()">&times;</button></div>
+            <div class="modal-header">
+                <h2 id="titulo-modal-producto">Nuevo Producto</h2>
+                <button class="close-modal" onclick="cerrarModalProducto()">&times;</button>
+            </div>
             <form id="form-producto" autocomplete="off">
                 <input type="hidden" id="producto-id">
                 <div class="info-banner"><i class="fas fa-info-circle"></i> Todos los campos con <strong>*</strong> son obligatorios. Pase el cursor sobre <span class="tooltip-trigger" style="display:inline-flex;vertical-align:middle;">?</span> para ayuda.</div>
@@ -285,7 +299,9 @@
                     <div class="form-col"><div class="form-group"><label>Maneja Lote <span class="tooltip-trigger" data-tooltip="¿Rastreo por número de lote?">?</span></label><select id="prod-lote"><option value="false">No</option><option value="true">Sí</option></select></div></div>
                     <div class="form-col"><div class="form-group"><label>Maneja Vencimiento <span class="tooltip-trigger" data-tooltip="¿Tiene fecha de caducidad?">?</span></label><select id="prod-vencimiento"><option value="false">No</option><option value="true">Sí</option></select></div></div>
                 </div>
-                <div class="form-row"><div class="form-col"><div class="form-group"><label>Imagen <span class="tooltip-trigger" data-tooltip="Fotografía del producto. Recomendado 800x800px.">?</span></label><input type="file" id="file-prod-imagen" accept="image/*"></div></div></div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Imagen <span class="tooltip-trigger" data-tooltip="Fotografía del producto. Recomendado 800x800px.">?</span></label><input type="file" id="file-prod-imagen" accept="image/*"></div></div>
+                </div>
                 <div style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
                     <button type="button" class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalProducto()">Cancelar</button>
                     <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
@@ -294,12 +310,16 @@
         </div>
     </div>
 
+    <!-- Modal Cliente -->
     <div class="modal-overlay" id="modal-cliente">
         <div class="modal">
-            <div class="modal-header"><h2 id="titulo-modal-cliente">Nuevo Cliente</h2><button class="close-modal" onclick="cerrarModalCliente()">&times;</button></div>
+            <div class="modal-header">
+                <h2 id="titulo-modal-cliente">Nuevo Cliente</h2>
+                <button class="close-modal" onclick="cerrarModalCliente()">&times;</button>
+            </div>
             <form id="form-cliente" autocomplete="off">
                 <input type="hidden" id="cliente-id">
-                <div class="info-banner"><i class="fas fa-info-circle"></i> Complete primero el <strong>País</strong> para configurar documentos y moneda. Los campos Tipo, Segmento y Canal son listas desplegables estandarizadas.</div>
+                <div class="info-banner"><i class="fas fa-info-circle"></i> Complete primero el <strong>País</strong> para configurar documentos y moneda. Use los desplegables para Tipo, Segmento y Canal.</div>
                 <div class="form-row">
                     <div class="form-col"><div class="form-group"><label>País</label><input id="cli-pais" list="cli-paises-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="cli-paises-list"></datalist></div></div>
                     <div class="form-col"><div class="form-group"><label>Tipo Persona <span class="tooltip-trigger" data-tooltip="Natural: persona con nombre. Jurídica: empresa con razón social.">?</span></label><select id="cli-tipo-persona" onchange="toggleClientePersona()"><option value="natural">Persona Natural</option><option value="juridica">Persona Jurídica</option></select></div></div>
@@ -321,18 +341,24 @@
                 </div>
                 <div class="form-row">
                     <div class="form-col"><div class="form-group"><label>Email</label><input id="cli-email" type="email"></div></div>
-                    <div class="form-col"><div class="form-group"><label>Teléfonos <span class="tooltip-trigger" data-tooltip="Añada números con etiqueta (casa, trabajo...).">?</span></label><div id="cli-telefonos-container"></div><button type="button" class="btn-add-phone" onclick="agregarTelefonoCliente()" title="Agregar teléfono" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar teléfono</button></div></div>
+                    <div class="form-col"><div class="form-group"><label>Teléfonos <span class="tooltip-trigger" data-tooltip="Añada números con etiqueta (casa, trabajo...).">?</span></label>
+                        <div id="cli-telefonos-container"></div>
+                        <button type="button" class="btn-add-phone" onclick="agregarTelefonoCliente()" title="Agregar teléfono" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar teléfono</button>
+                    </div></div>
                     <div class="form-col"><div class="form-group"><label>Dirección</label><input id="cli-direccion" oninput="capitalizarInput(this)"></div></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Coordenadas GPS de Entrega * <span class="tooltip-trigger" data-tooltip="Ingrese coordenadas y etiqueta (Tienda, Almacén). Puede agregar varios puntos.">?</span></label><div id="gps-entrega-container"></div><button type="button" class="btn-add-phone" onclick="agregarPuntoGPS()" title="Agregar punto GPS" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar punto GPS</button></div></div>
+                    <div class="form-col"><div class="form-group"><label>Coordenadas GPS de Entrega * <span class="tooltip-trigger" data-tooltip="Ingrese coordenadas y etiqueta (Tienda, Almacén). Puede agregar varios puntos.">?</span></label>
+                        <div id="gps-entrega-container"></div>
+                        <button type="button" class="btn-add-phone" onclick="agregarPuntoGPS()" title="Agregar punto GPS" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar punto GPS</button>
+                    </div></div>
                     <div class="form-col"><div class="form-group"><label>Estado / Provincia</label><input id="cli-estado" list="cli-estados-list" autocomplete="off"><datalist id="cli-estados-list"></datalist></div></div>
                     <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="cli-ciudad" list="cli-ciudades-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="cli-ciudades-list"></datalist></div></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Tipo Cliente <span class="tooltip-trigger" data-tooltip="Rol del cliente en la cadena de suministro.&#10;&#10;• Distribuidor: Intermediario que compra para revender a minoristas. Suele tener exclusividad geográfica.&#10;• Mayorista: Compra grandes volúmenes y vende a otros negocios.&#10;• Minorista: Punto de venta al consumidor final (supermercados, tiendas).&#10;• Mayorista-Distribuidor: Opera ambos roles simultáneamente.&#10;• Cuenta Clave (Key Account): Cadena de retail estratégica con negociación centralizada.&#10;• Institucional: Hospitales, escuelas, gobierno, comedores industriales.&#10;• HORECA: Hoteles, Restaurantes, Cafeterías.&#10;• Consumidor Final: Persona natural (venta directa B2C).&#10;• E-commerce (Marketplace): Plataformas digitales que venden sus productos.">?</span></label><select id="cli-tipo-cliente"><option value="">Seleccione...</option></select></div></div>
-                    <div class="form-col"><div class="form-group"><label>Segmento Mercado <span class="tooltip-trigger" data-tooltip="Perfil del cliente según su formato comercial.&#10;&#10;• Moderno – Hipermercado: Grandes superficies (>2.500 m²), surtido completo.&#10;• Moderno – Supermercado: Medianas superficies (400‑2.500 m²).&#10;• Moderno – Discount: Formato de bajo precio, surtido limitado.&#10;• Moderno – Conveniencia: Tiendas pequeñas, horarios extendidos.&#10;• Tradicional – Tienda de barrio: Autoservicio pequeño, atención personalizada.&#10;• Tradicional – Canal Mayorista: Centrales de abasto o mercados mayoristas.&#10;• Industrial / B2B: Clientes que usan el producto como insumo.&#10;• Institucional: Organismos públicos, comedores, hospitales.&#10;• HORECA: Hoteles, Restaurantes, Cafeterías.&#10;• Digital: Clientes que operan exclusivamente en línea.">?</span></label><select id="cli-segmento"><option value="">Seleccione...</option></select></div></div>
-                    <div class="form-col"><div class="form-group"><label>Canal Venta <span class="tooltip-trigger" data-tooltip="Ruta o método de comercialización hacia el cliente.&#10;&#10;• Venta Directa – Fuerza Propia: Vendedor empleado de la empresa que visita al cliente.&#10;• Venta Directa – Preventa: Vendedor toma pedido y luego se entrega.&#10;• Venta Directa – Autoventa: Vendedor carga producto y entrega en el momento.&#10;• Distribuidor Exclusivo: La venta se hace a través de un distribuidor autorizado.&#10;• Televenta: Pedidos por teléfono (call center).&#10;• E-commerce B2B: Pedidos mediante portal web para clientes empresariales.&#10;• E-commerce B2C: Venta directa al consumidor final por web/app.&#10;• Mayorista / Cash & Carry: Cliente compra en su centro de distribución mayorista.&#10;• Retail Moderno: Negociación centralizada con oficinas de compras de grandes cadenas.">?</span></label><select id="cli-canal"><option value="">Seleccione...</option></select></div></div>
+                    <div class="form-col"><div class="form-group"><label>Tipo Cliente <span class="tooltip-trigger" data-tooltip="ROL EN LA CADENA DE SUMINISTRO:&#10;• Distribuidor: Intermediario que compra para revender a minoristas. Suele tener exclusividad geográfica.&#10;• Mayorista: Compra grandes volúmenes y vende a otros negocios (no al público final).&#10;• Minorista: Punto de venta que llega al consumidor final.&#10;• Mayorista-Distribuidor: Opera ambos roles simultáneamente.&#10;• Cuenta Clave (Key Account): Cadena de retail estratégica con negociación centralizada (Walmart, Carrefour).&#10;• Institucional: Hospitales, escuelas, gobierno, comedores industriales.&#10;• HORECA: Hoteles, Restaurantes, Cafeterías.&#10;• Consumidor Final: Persona natural (venta directa B2C).&#10;• E-commerce (Marketplace): Plataformas digitales (Amazon, Mercado Libre).">?</span></label><select id="cli-tipo-cliente"><option value="">Seleccione...</option></select></div></div>
+                    <div class="form-col"><div class="form-group"><label>Segmento Mercado <span class="tooltip-trigger" data-tooltip="PERFIL DEL CLIENTE SEGÚN FORMATO COMERCIAL:&#10;• Moderno – Hipermercado: Grandes superficies (>2.500 m²), surtido completo.&#10;• Moderno – Supermercado: Medianas superficies (400-2.500 m²).&#10;• Moderno – Discount: Formato de bajo precio, surtido limitado (D1, Justo & Bueno).&#10;• Moderno – Conveniencia: Tiendas pequeñas, horarios extendidos (OXXO, 7-Eleven).&#10;• Tradicional – Tienda de barrio: Autoservicio pequeño, atención personalizada.&#10;• Tradicional – Canal Mayorista: Centrales de abasto o mercados mayoristas.&#10;• Industrial / B2B: Clientes que usan el producto como insumo.&#10;• Institucional: Organismos públicos, comedores, hospitales.&#10;• HORECA: Hoteles, Restaurantes, Cafeterías.&#10;• Digital: Clientes que operan exclusivamente en línea.">?</span></label><select id="cli-segmento"><option value="">Seleccione...</option></select></div></div>
+                    <div class="form-col"><div class="form-group"><label>Canal Venta <span class="tooltip-trigger" data-tooltip="CÓMO LLEGA TU EMPRESA A ESTE CLIENTE:&#10;• Venta Directa – Fuerza Propia: Vendedor empleado de la empresa visita al cliente.&#10;• Venta Directa – Preventa: Vendedor toma pedido y luego se entrega.&#10;• Venta Directa – Autoventa: Vendedor carga producto y entrega en el momento.&#10;• Distribuidor Exclusivo: La venta se hace a través de un distribuidor autorizado.&#10;• Televenta: Pedidos por teléfono (call center).&#10;• E-commerce B2B: Pedidos mediante portal web para clientes empresariales.&#10;• E-commerce B2C: Venta directa al consumidor final por web/app.&#10;• Mayorista / Cash & Carry: Cliente compra en tu centro de distribución mayorista.&#10;• Retail Moderno: Negociación centralizada con oficinas de compras de grandes cadenas.">?</span></label><select id="cli-canal"><option value="">Seleccione...</option></select></div></div>
                 </div>
                 <div class="form-row">
                     <div class="form-col"><div class="form-group"><label>Límite Crédito <span class="tooltip-trigger" data-tooltip="Monto máximo de deuda permitido.">?</span></label><input id="cli-limite-credito" type="number" step="0.01" min="0"></div></div>
@@ -381,6 +407,7 @@
         const unidadPesoMap = { 'Kilogramo':'kg', 'Gramo':'g', 'Tonelada':'ton', 'Libra':'lb', 'Onza':'oz' };
         const unidadVolumenMap = { 'Litro':'litro', 'Mililitro':'ml', 'Metro cúbico':'m³', 'Centímetro cúbico':'cm³', 'Galón':'galón' };
 
+        // Países estáticos
         const PAISES_ESTATICOS = [
             { name: { common: 'Bolivia' }, cca2: 'BO', idd: { root: '+591', suffixes: [''] }, currencies: { BOB: { name: 'Boliviano', symbol: 'Bs.' } } },
             { name: { common: 'Argentina' }, cca2: 'AR', idd: { root: '+54', suffixes: [''] }, currencies: { ARS: { name: 'Peso argentino', symbol: '$' } } },
@@ -404,18 +431,20 @@
             { name: { common: 'Corea del Sur' }, cca2: 'KR', idd: { root: '+82', suffixes: [''] }, currencies: { KRW: { name: 'Won', symbol: '₩' } } }
         ];
 
+        // Opciones fijas para desplegables de clientes
         const TIPOS_CLIENTE = ['Distribuidor','Mayorista','Minorista','Mayorista-Distribuidor','Cuenta Clave (Key Account)','Institucional','HORECA','Consumidor Final','E-commerce (Marketplace)'];
         const SEGMENTOS_MERCADO = ['Moderno – Hipermercado','Moderno – Supermercado','Moderno – Discount','Moderno – Conveniencia','Tradicional – Tienda de barrio','Tradicional – Canal Mayorista','Industrial / B2B','Institucional','HORECA','Digital'];
         const CANALES_VENTA = ['Venta Directa – Fuerza Propia','Venta Directa – Preventa','Venta Directa – Autoventa','Distribuidor Exclusivo','Televenta','E-commerce B2B','E-commerce B2C','Mayorista / Cash & Carry','Retail Moderno'];
 
-        const META_CAMPOS = [
-            { key: 'monto_objetivo', label: 'Volumen de Ventas (Valor Monetario)', tipo: 'dinero', moneda: 'moneda_objetivo_id' },
-            { key: 'cantidad_objetivo', label: 'Volumen de Ventas (Unidades Físicas)', tipo: 'cantidad', unidad: 'unidad_objetivo_id' },
-            { key: 'clientes_nuevos_objetivo', label: 'Captación de Nuevos Clientes', tipo: 'entero' },
-            { key: 'variedad_objetivo', label: 'Diversificación de Portafolio (SKU\'s Distintos)', tipo: 'entero' },
-            { key: 'peso_objetivo', label: 'Carga Distribuida (Peso Total)', tipo: 'decimal' },
-            { key: 'volumen_objetivo', label: 'Carga Distribuida (Volumen Total)', tipo: 'decimal' },
-            { key: 'visitas_objetivo', label: 'Cobertura de Visitas Programadas', tipo: 'entero' }
+        // Metadatos de metas con nombres profesionales
+        const METAS_CONFIG = [
+            { key: 'monto_objetivo', label: 'Volumen de Ventas (Ingresos)', tipo: 'dinero', moneda: 'moneda_objetivo_id', tooltip: 'Ingresos brutos por ventas en el período. Representa el valor monetario total de las transacciones comerciales.' },
+            { key: 'cantidad_objetivo', label: 'Unidades Vendidas (Volumen Físico)', tipo: 'cantidad', unidad: 'unidad_objetivo_id', tooltip: 'Cantidad total de unidades de producto despachadas. Mide el volumen operativo sin importar el precio.' },
+            { key: 'variedad_objetivo', label: 'Diversidad de Portafolio (Mix de Productos)', tipo: 'entero', tooltip: 'Número de SKU o productos distintos vendidos. Indica penetración de catálogo y capacidad de venta cruzada.' },
+            { key: 'peso_objetivo', label: 'Tonelaje Distribuido (Peso Total)', tipo: 'decimal', tooltip: 'Peso total en kilogramos de los productos entregados. Relevante para logística y distribución.' },
+            { key: 'volumen_objetivo', label: 'Volumen Cúbico Despachado', tipo: 'decimal', tooltip: 'Volumen total en metros cúbicos de los productos entregados. Útil para planificación de carga y almacenamiento.' },
+            { key: 'clientes_nuevos_objetivo', label: 'Captación de Nuevos Clientes (Cobertura)', tipo: 'entero', tooltip: 'Número de clientes nuevos adquiridos en el período. Mide expansión de mercado y efectividad comercial.' },
+            { key: 'visitas_objetivo', label: 'Visitas Comerciales Programadas', tipo: 'entero', tooltip: 'Total de visitas o contactos comerciales planificados. Indicador de actividad y cobertura del territorio.' }
         ];
 
         function capitalizarInput(el) {
@@ -638,14 +667,21 @@
                     empresaPais = emp[0].pais || '';
                 }
             }
-            cargarSelectoresFijos();
+            cargarDatalistsEstaticos();
+            poblarSelectsFijosClientes();
             initTooltips();
         }
 
-        function cargarSelectoresFijos() {
-            const selTipo = document.getElementById('cli-tipo-cliente'); if(selTipo) { selTipo.innerHTML = '<option value="">Seleccione...</option>'; TIPOS_CLIENTE.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; selTipo.appendChild(o); }); }
-            const selSeg = document.getElementById('cli-segmento'); if(selSeg) { selSeg.innerHTML = '<option value="">Seleccione...</option>'; SEGMENTOS_MERCADO.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; selSeg.appendChild(o); }); }
-            const selCan = document.getElementById('cli-canal'); if(selCan) { selCan.innerHTML = '<option value="">Seleccione...</option>'; CANALES_VENTA.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; selCan.appendChild(o); }); }
+        function poblarSelectsFijosClientes() {
+            const selTipo = document.getElementById('cli-tipo-cliente');
+            if (selTipo) { selTipo.innerHTML = '<option value="">Seleccione...</option>'; TIPOS_CLIENTE.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; selTipo.appendChild(o); }); }
+            const selSeg = document.getElementById('cli-segmento');
+            if (selSeg) { selSeg.innerHTML = '<option value="">Seleccione...</option>'; SEGMENTOS_MERCADO.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; selSeg.appendChild(o); }); }
+            const selCan = document.getElementById('cli-canal');
+            if (selCan) { selCan.innerHTML = '<option value="">Seleccione...</option>'; CANALES_VENTA.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; selCan.appendChild(o); }); }
+        }
+
+        function cargarDatalistsEstaticos() {
             const caps = ['toneladas','kg','m³','litros','unidades','pallets'];
             const dlCap = document.getElementById('unidad-cap-list'); if (dlCap) { dlCap.innerHTML = ''; caps.forEach(u => { const o = document.createElement('option'); o.value = u; dlCap.appendChild(o); }); }
             const unidades = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón'];
@@ -668,7 +704,7 @@
                 });
                 trigger.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
                 trigger.addEventListener('mousemove', function(e) {
-                    tooltip.style.left = e.clientX - 130 + 'px';
+                    tooltip.style.left = e.clientX - 160 + 'px';
                     tooltip.style.top = e.clientY - 10 - tooltip.offsetHeight + 'px';
                 });
             });
@@ -880,24 +916,24 @@
             }
         }
 
+        // CORREGIDO: llenarSelectSupervisores ahora busca entre TODOS los empleados activos de la empresa,
+        // sin filtrar por email de usuario con rol Supervisor Senior, para asegurar que aparezcan.
         async function llenarSelectSupervisores(selectId, seleccionado = '') {
             const sel = document.getElementById(selectId); if (!sel) return;
             const empId = currentUser.empresa_id;
             sel.innerHTML = '<option value="">Sin supervisor</option>';
             try {
-                const usuarios = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent('Supervisor Senior')}&select=email&limit=1000`);
-                let emails = usuarios.map(u => u.email.toLowerCase());
-                if (emails.length > 0) {
-                    const emps = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
-                    const filtrados = emps.filter(e => emails.includes((e.email||'').toLowerCase()));
-                    filtrados.forEach(e => { const o = document.createElement('option'); o.value = e.id; o.text = `${e.nombres} ${e.apellido_paterno}`; if (e.id === seleccionado) o.selected = true; sel.appendChild(o); });
-                } else {
-                    const emps = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno&limit=1000`);
-                    emps.forEach(e => { const o = document.createElement('option'); o.value = e.id; o.text = `${e.nombres} ${e.apellido_paterno}`; if (e.id === seleccionado) o.selected = true; sel.appendChild(o); });
-                }
+                // Obtenemos todos los empleados activos de la empresa para usarlos como posibles supervisores
+                const todos = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno&limit=1000`);
+                todos.forEach(e => {
+                    const o = document.createElement('option');
+                    o.value = e.id;
+                    o.text = `${e.nombres} ${e.apellido_paterno}`;
+                    if (e.id === seleccionado) o.selected = true;
+                    sel.appendChild(o);
+                });
             } catch(e) {
-                const emps = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno&limit=1000`);
-                emps.forEach(e => { const o = document.createElement('option'); o.value = e.id; o.text = `${e.nombres} ${e.apellido_paterno}`; if (e.id === seleccionado) o.selected = true; sel.appendChild(o); });
+                console.warn('Error al cargar supervisores:', e);
             }
         }
 
@@ -1067,15 +1103,44 @@
             });
         }
 
-        function abrirModalProducto(id=null) { document.getElementById('modal-producto').classList.add('active'); document.getElementById('form-producto').reset(); document.getElementById('producto-id').value=''; document.getElementById('titulo-modal-producto').textContent='Nuevo Producto'; document.getElementById('prod-moneda-precio').value=monedaPorDefecto(); document.getElementById('prod-moneda-costo').value=monedaPorDefecto(); document.getElementById('prod-lote').value='false'; document.getElementById('prod-vencimiento').value='false'; cargarDatalistsProductos(); if(id) editarProducto(id); initTooltips(); }
+        function abrirModalProducto(id=null) {
+            document.getElementById('modal-producto').classList.add('active');
+            document.getElementById('form-producto').reset(); document.getElementById('producto-id').value='';
+            document.getElementById('titulo-modal-producto').textContent='Nuevo Producto';
+            document.getElementById('prod-moneda-precio').value=monedaPorDefecto();
+            document.getElementById('prod-moneda-costo').value=monedaPorDefecto();
+            document.getElementById('prod-lote').value='false'; document.getElementById('prod-vencimiento').value='false';
+            cargarDatalistsProductos(); if(id) editarProducto(id); initTooltips();
+        }
         function cerrarModalProducto() { document.getElementById('modal-producto').classList.remove('active'); }
 
         async function editarProducto(id) {
             const p = await apiFetch(`productos?id=eq.${id}&select=*`); if(!p.length) return;
             const prod = p[0];
             document.getElementById('producto-id').value = prod.id;
-            document.getElementById('prod-sku').value = prod.sku||''; document.getElementById('prod-codigo-barras').value = prod.codigo_barras||''; document.getElementById('prod-nombre').value = prod.nombre||''; document.getElementById('prod-descripcion').value = prod.descripcion||''; document.getElementById('prod-categoria').value = prod.categoria||''; document.getElementById('prod-marca').value = prod.marca||''; document.getElementById('prod-modelo').value = prod.modelo||''; document.getElementById('prod-unidad').value = ''; document.getElementById('prod-peso').value = prod.peso||''; document.getElementById('prod-peso-unidad').value = prod.peso_unidad||''; document.getElementById('prod-volumen').value = prod.volumen||''; document.getElementById('prod-volumen-unidad').value = prod.volumen_unidad||''; document.getElementById('prod-impuesto').value = prod.impuesto_porcentaje||''; document.getElementById('prod-tipo-impuesto').value = prod.tipo_impuesto||''; document.getElementById('prod-precio').value = prod.precio_venta_base||''; document.getElementById('prod-costo').value = prod.costo_unitario||''; document.getElementById('prod-stock-min').value = prod.stock_minimo||''; document.getElementById('prod-stock-max').value = prod.stock_maximo||''; document.getElementById('prod-dias-vida').value = prod.dias_vida_util||''; document.getElementById('prod-fecha-vencimiento').value = ''; document.getElementById('prod-lote').value = prod.maneja_lote?'true':'false'; document.getElementById('prod-vencimiento').value = prod.maneja_vencimiento?'true':'false'; document.getElementById('prod-unidades-caja').value = prod.unidades_por_caja||'';
-            document.getElementById('prod-moneda-precio').value = monedaPorDefecto(); document.getElementById('prod-moneda-costo').value = monedaPorDefecto();
+            document.getElementById('prod-sku').value = prod.sku||'';
+            document.getElementById('prod-codigo-barras').value = prod.codigo_barras||'';
+            document.getElementById('prod-nombre').value = prod.nombre||'';
+            document.getElementById('prod-descripcion').value = prod.descripcion||'';
+            document.getElementById('prod-categoria').value = prod.categoria||'';
+            document.getElementById('prod-marca').value = prod.marca||'';
+            document.getElementById('prod-modelo').value = prod.modelo||'';
+            document.getElementById('prod-unidad').value = '';
+            document.getElementById('prod-peso').value = prod.peso||''; document.getElementById('prod-peso-unidad').value = prod.peso_unidad||'';
+            document.getElementById('prod-volumen').value = prod.volumen||''; document.getElementById('prod-volumen-unidad').value = prod.volumen_unidad||'';
+            document.getElementById('prod-impuesto').value = prod.impuesto_porcentaje||'';
+            document.getElementById('prod-tipo-impuesto').value = prod.tipo_impuesto||'';
+            document.getElementById('prod-precio').value = prod.precio_venta_base||'';
+            document.getElementById('prod-costo').value = prod.costo_unitario||'';
+            document.getElementById('prod-stock-min').value = prod.stock_minimo||'';
+            document.getElementById('prod-stock-max').value = prod.stock_maximo||'';
+            document.getElementById('prod-dias-vida').value = prod.dias_vida_util||'';
+            document.getElementById('prod-fecha-vencimiento').value = '';
+            document.getElementById('prod-lote').value = prod.maneja_lote?'true':'false';
+            document.getElementById('prod-vencimiento').value = prod.maneja_vencimiento?'true':'false';
+            document.getElementById('prod-unidades-caja').value = prod.unidades_por_caja||'';
+            document.getElementById('prod-moneda-precio').value = monedaPorDefecto();
+            document.getElementById('prod-moneda-costo').value = monedaPorDefecto();
             if(prod.moneda_precio_id) { const mon = await apiFetch(`monedas?id=eq.${prod.moneda_precio_id}&select=codigo,nombre`); if(mon.length) document.getElementById('prod-moneda-precio').value = `${mon[0].codigo} - ${mon[0].nombre}`; }
             if(prod.moneda_costo_id) { const mon = await apiFetch(`monedas?id=eq.${prod.moneda_costo_id}&select=codigo,nombre`); if(mon.length) document.getElementById('prod-moneda-costo').value = `${mon[0].codigo} - ${mon[0].nombre}`; }
             if(prod.unidad_medida_id) { const um = await apiFetch(`unidades_medida?id=eq.${prod.unidad_medida_id}&select=nombre`); if(um.length) document.getElementById('prod-unidad').value = um[0].nombre; }
@@ -1091,9 +1156,27 @@
             const monPrecioId = await ensureCurrency(document.getElementById('prod-moneda-precio').value.trim());
             const monCostoId = await ensureCurrency(document.getElementById('prod-moneda-costo').value.trim());
             const unidadId = await ensureUnidadMedida(document.getElementById('prod-unidad').value.trim());
-            const payload = { sku: document.getElementById('prod-sku').value.trim(), codigo_barras: document.getElementById('prod-codigo-barras').value.trim()||null, nombre: document.getElementById('prod-nombre').value.trim(), descripcion: document.getElementById('prod-descripcion').value.trim()||null, categoria: document.getElementById('prod-categoria').value.trim()||null, marca: document.getElementById('prod-marca').value.trim()||null, modelo: document.getElementById('prod-modelo').value.trim()||null, unidad_medida_id: unidadId, peso: parseFloat(document.getElementById('prod-peso').value)||null, peso_unidad: document.getElementById('prod-peso-unidad').value.trim()||null, volumen: parseFloat(document.getElementById('prod-volumen').value)||null, volumen_unidad: document.getElementById('prod-volumen-unidad').value.trim()||null, impuesto_porcentaje: parseFloat(document.getElementById('prod-impuesto').value)||null, tipo_impuesto: document.getElementById('prod-tipo-impuesto').value.trim()||null, precio_venta_base: parseFloat(document.getElementById('prod-precio').value)||0, moneda_precio_id: monPrecioId, costo_unitario: parseFloat(document.getElementById('prod-costo').value)||null, moneda_costo_id: monCostoId, stock_minimo: parseInt(document.getElementById('prod-stock-min').value)||0, stock_maximo: parseInt(document.getElementById('prod-stock-max').value)||null, dias_vida_util: parseInt(document.getElementById('prod-dias-vida').value)||null, maneja_lote: document.getElementById('prod-lote').value==='true', maneja_vencimiento: document.getElementById('prod-vencimiento').value==='true', unidades_por_caja: parseInt(document.getElementById('prod-unidades-caja').value)||null, empresa_id: currentUser.empresa_id };
+            const payload = {
+                sku: document.getElementById('prod-sku').value.trim(), codigo_barras: document.getElementById('prod-codigo-barras').value.trim()||null,
+                nombre: document.getElementById('prod-nombre').value.trim(), descripcion: document.getElementById('prod-descripcion').value.trim()||null,
+                categoria: document.getElementById('prod-categoria').value.trim()||null, marca: document.getElementById('prod-marca').value.trim()||null,
+                modelo: document.getElementById('prod-modelo').value.trim()||null, unidad_medida_id: unidadId,
+                peso: parseFloat(document.getElementById('prod-peso').value)||null, peso_unidad: document.getElementById('prod-peso-unidad').value.trim()||null,
+                volumen: parseFloat(document.getElementById('prod-volumen').value)||null, volumen_unidad: document.getElementById('prod-volumen-unidad').value.trim()||null,
+                impuesto_porcentaje: parseFloat(document.getElementById('prod-impuesto').value)||null, tipo_impuesto: document.getElementById('prod-tipo-impuesto').value.trim()||null,
+                precio_venta_base: parseFloat(document.getElementById('prod-precio').value)||0, moneda_precio_id: monPrecioId,
+                costo_unitario: parseFloat(document.getElementById('prod-costo').value)||null, moneda_costo_id: monCostoId,
+                stock_minimo: parseInt(document.getElementById('prod-stock-min').value)||0, stock_maximo: parseInt(document.getElementById('prod-stock-max').value)||null,
+                dias_vida_util: parseInt(document.getElementById('prod-dias-vida').value)||null,
+                maneja_lote: document.getElementById('prod-lote').value==='true', maneja_vencimiento: document.getElementById('prod-vencimiento').value==='true',
+                unidades_por_caja: parseInt(document.getElementById('prod-unidades-caja').value)||null, empresa_id: currentUser.empresa_id
+            };
             try { const file = document.getElementById('file-prod-imagen').files[0]; if(file) payload.imagen = await uploadFile(file, 'productos'); } catch {}
-            try { if(id) { delete payload.empresa_id; await apiFetch(`productos?id=eq.${id}`, 'PATCH', payload); } else await apiFetch('productos', 'POST', payload); cerrarModalProducto(); cargarProductos(document.getElementById('filtro-categoria-productos')?.value||''); showNotification(id?'Producto actualizado':'Producto creado'); } catch(err) { showNotification('Error: '+err.message, 'error'); }
+            try {
+                if(id) { delete payload.empresa_id; await apiFetch(`productos?id=eq.${id}`, 'PATCH', payload); }
+                else await apiFetch('productos', 'POST', payload);
+                cerrarModalProducto(); cargarProductos(document.getElementById('filtro-categoria-productos')?.value||''); showNotification(id?'Producto actualizado':'Producto creado');
+            } catch(err) { showNotification('Error: '+err.message, 'error'); }
         });
 
         function llenarRolesSelect() { const sel = document.getElementById('usr-rol'); if(!sel) return; sel.innerHTML = ''; rolesDisponibles.forEach(r => { const o = document.createElement('option'); o.value = r; o.text = r; sel.appendChild(o); }); }
@@ -1113,44 +1196,114 @@
             llenarRolesSelect(); initTooltips();
         }
 
-        async function abrirModalUsuario(id=null, tab=null) { document.getElementById('modal-usuario').classList.add('active'); document.getElementById('form-usuario').reset(); document.getElementById('usuario-id').value=''; document.getElementById('empleado-id').value=''; document.getElementById('password-fields').style.display='flex'; document.getElementById('titulo-modal-usuario').textContent='Nuevo Miembro'; document.getElementById('row-capacidad-vehiculo').style.display='none'; document.getElementById('usr-moneda-salario').value=monedaPorDefecto(); document.getElementById('usr-pais').value=empresaPais; if(empresaPais) actualizarDependenciasPaisEmpleado(empresaPais); else { actualizarSelectTiposDocumento('','usr-tipo-doc'); actualizarTiposContrato(''); } llenarInputsTelefonoDesdeJson('#telefonos-container', [{etiqueta:'', numero:''}]); llenarRolesSelect(); await llenarSelectSupervisores('usr-supervisor'); cargarSelectoresFijos(); if(tab==='distribucion') { document.getElementById('usr-rol').value='Especialista Logístico'; document.getElementById('usr-rol').dispatchEvent(new Event('change')); } else if(tab==='comercial') { document.getElementById('usr-rol').value='Ejecutivo Comercial'; document.getElementById('usr-rol').dispatchEvent(new Event('change')); } if(id) editarUsuario(id); initTooltips(); }
+        async function abrirModalUsuario(id=null, tab=null) {
+            document.getElementById('modal-usuario').classList.add('active');
+            document.getElementById('form-usuario').reset(); document.getElementById('usuario-id').value=''; document.getElementById('empleado-id').value='';
+            document.getElementById('password-fields').style.display='flex';
+            document.getElementById('titulo-modal-usuario').textContent='Nuevo Miembro';
+            document.getElementById('row-capacidad-vehiculo').style.display='none';
+            document.getElementById('usr-moneda-salario').value=monedaPorDefecto();
+            document.getElementById('usr-pais').value=empresaPais;
+            if(empresaPais) actualizarDependenciasPaisEmpleado(empresaPais);
+            else { actualizarSelectTiposDocumento('','usr-tipo-doc'); actualizarTiposContrato(''); }
+            llenarInputsTelefonoDesdeJson('#telefonos-container', [{etiqueta:'', numero:''}]);
+            llenarRolesSelect(); await llenarSelectSupervisores('usr-supervisor'); cargarDatalistsEstaticos();
+            if(tab==='distribucion') { document.getElementById('usr-rol').value='Especialista Logístico'; document.getElementById('usr-rol').dispatchEvent(new Event('change')); }
+            else if(tab==='comercial') { document.getElementById('usr-rol').value='Ejecutivo Comercial'; document.getElementById('usr-rol').dispatchEvent(new Event('change')); }
+            if(id) editarUsuario(id); initTooltips();
+        }
         function cerrarModalUsuario() { document.getElementById('modal-usuario').classList.remove('active'); }
 
         async function editarUsuario(id) {
             const usuarios = await apiFetch(`usuarios?id=eq.${id}&select=*`); if(!usuarios.length) return;
             const u = usuarios[0];
-            document.getElementById('usuario-id').value = u.id; document.getElementById('usr-nombres').value = u.nombres; document.getElementById('usr-ap').value = u.apellido_paterno; document.getElementById('usr-am').value = u.apellido_materno||''; document.getElementById('usr-email').value = u.email; document.getElementById('usr-rol').value = u.rol; document.getElementById('usr-extension').value = u.extension||''; document.getElementById('usr-fecha-nac').value = u.fecha_nacimiento||''; document.getElementById('password-fields').style.display = 'none'; document.getElementById('titulo-modal-usuario').textContent = 'Editar Miembro';
-            const rowCap = document.getElementById('row-capacidad-vehiculo'); if(u.rol==='Especialista Logístico') rowCap.style.display='flex'; else { rowCap.style.display='none'; document.getElementById('usr-capacidad-vehiculo').value=''; document.getElementById('usr-unidad-capacidad').value=''; }
-            document.getElementById('usr-puesto').value = puestoPorRol[u.rol]||''; document.getElementById('usr-departamento').value = deptosPorRol[u.rol]||''; document.getElementById('usr-moneda-salario').value = monedaPorDefecto();
+            document.getElementById('usuario-id').value = u.id;
+            document.getElementById('usr-nombres').value = u.nombres; document.getElementById('usr-ap').value = u.apellido_paterno; document.getElementById('usr-am').value = u.apellido_materno||'';
+            document.getElementById('usr-email').value = u.email; document.getElementById('usr-rol').value = u.rol;
+            document.getElementById('usr-extension').value = u.extension||''; document.getElementById('usr-fecha-nac').value = u.fecha_nacimiento||'';
+            document.getElementById('password-fields').style.display = 'none';
+            document.getElementById('titulo-modal-usuario').textContent = 'Editar Miembro';
+            const rowCap = document.getElementById('row-capacidad-vehiculo');
+            if(u.rol==='Especialista Logístico') rowCap.style.display='flex'; else { rowCap.style.display='none'; document.getElementById('usr-capacidad-vehiculo').value=''; document.getElementById('usr-unidad-capacidad').value=''; }
+            document.getElementById('usr-puesto').value = puestoPorRol[u.rol]||''; document.getElementById('usr-departamento').value = deptosPorRol[u.rol]||'';
+            document.getElementById('usr-moneda-salario').value = monedaPorDefecto();
             const empleados = await apiFetch(`empleados?empresa_id=eq.${currentUser.empresa_id}&email=eq.${encodeURIComponent(u.email)}&select=*&order=creado_en.desc&limit=1`);
             if(empleados.length) {
                 const e = empleados[0];
-                document.getElementById('empleado-id').value = e.id; document.getElementById('usr-tipo-doc').value = e.tipo_documento||''; document.getElementById('usr-num-doc').value = e.numero_documento||''; document.getElementById('usr-direccion').value = e.direccion||''; document.getElementById('usr-pais').value = e.pais||empresaPais; document.getElementById('usr-estado').value = e.estado_provincia||''; document.getElementById('usr-ciudad').value = e.ciudad||''; document.getElementById('usr-puesto').value = e.puesto||''; document.getElementById('usr-departamento').value = e.departamento||''; document.getElementById('usr-salario').value = e.salario_base||''; document.getElementById('usr-fecha-contrato').value = e.fecha_contratacion||''; document.getElementById('usr-fecha-fin').value = e.fecha_fin_contrato||''; document.getElementById('usr-tipo-contrato').value = e.tipo_contrato||''; document.getElementById('usr-capacidad-vehiculo').value = e.capacidad_vehiculo||''; document.getElementById('usr-unidad-capacidad').value = e.unidad_capacidad_vehiculo||'';
+                document.getElementById('empleado-id').value = e.id;
+                document.getElementById('usr-tipo-doc').value = e.tipo_documento||''; document.getElementById('usr-num-doc').value = e.numero_documento||'';
+                document.getElementById('usr-direccion').value = e.direccion||''; document.getElementById('usr-pais').value = e.pais||empresaPais;
+                document.getElementById('usr-estado').value = e.estado_provincia||''; document.getElementById('usr-ciudad').value = e.ciudad||'';
+                document.getElementById('usr-puesto').value = e.puesto||''; document.getElementById('usr-departamento').value = e.departamento||'';
+                document.getElementById('usr-salario').value = e.salario_base||''; document.getElementById('usr-fecha-contrato').value = e.fecha_contratacion||'';
+                document.getElementById('usr-fecha-fin').value = e.fecha_fin_contrato||''; document.getElementById('usr-tipo-contrato').value = e.tipo_contrato||'';
+                document.getElementById('usr-capacidad-vehiculo').value = e.capacidad_vehiculo||''; document.getElementById('usr-unidad-capacidad').value = e.unidad_capacidad_vehiculo||'';
                 if(e.moneda_salario_id) { const mon = await apiFetch(`monedas?id=eq.${e.moneda_salario_id}&select=codigo,nombre`); if(mon.length) document.getElementById('usr-moneda-salario').value = `${mon[0].codigo} - ${mon[0].nombre}`; }
-                actualizarDependenciasPaisEmpleado(e.pais||empresaPais); llenarInputsTelefonoDesdeJson('#telefonos-container', u.telefonos||e.telefonos||[{etiqueta:'', numero:''}]); await llenarSelectSupervisores('usr-supervisor', e.supervisor_id||'');
-            } else { llenarInputsTelefonoDesdeJson('#telefonos-container', u.telefonos||[{etiqueta:'', numero:''}]); if(empresaPais) actualizarDependenciasPaisEmpleado(empresaPais); else { actualizarSelectTiposDocumento('','usr-tipo-doc'); actualizarTiposContrato(''); } await llenarSelectSupervisores('usr-supervisor'); }
+                actualizarDependenciasPaisEmpleado(e.pais||empresaPais);
+                llenarInputsTelefonoDesdeJson('#telefonos-container', u.telefonos||e.telefonos||[{etiqueta:'', numero:''}]);
+                await llenarSelectSupervisores('usr-supervisor', e.supervisor_id||'');
+            } else {
+                llenarInputsTelefonoDesdeJson('#telefonos-container', u.telefonos||[{etiqueta:'', numero:''}]);
+                if(empresaPais) actualizarDependenciasPaisEmpleado(empresaPais); else { actualizarSelectTiposDocumento('','usr-tipo-doc'); actualizarTiposContrato(''); }
+                await llenarSelectSupervisores('usr-supervisor');
+            }
             document.getElementById('modal-usuario').classList.add('active'); initTooltips();
         }
 
         function toggleUsuario(id, activo) { const accion = activo?'activar':'desactivar'; mostrarConfirmacion(`¿${accion} usuario?`,'Cambiar estado', async ()=>{ await apiFetch(`usuarios?id=eq.${id}`, 'PATCH', { activo }); cargarEquipo(document.querySelector('#panel-equipo .tab-btn-compact.active')?.dataset.tab||'comercial'); showNotification(activo?'Usuario activado':'Usuario desactivado'); }); }
         function eliminarUsuarioDefinitivo(id) { mostrarConfirmacion('¿Eliminar permanentemente este usuario y su empleado asociado?','Eliminar Usuario', async ()=>{ await apiFetch(`usuarios?id=eq.${id}`, 'DELETE'); cargarEquipo(document.querySelector('#panel-equipo .tab-btn-compact.active')?.dataset.tab||'comercial'); showNotification('Usuario eliminado'); }); }
+
         function togglePassword(fid, btn) { const i = document.getElementById(fid); i.type = i.type==='password'?'text':'password'; btn.querySelector('i').classList.toggle('fa-eye'); btn.querySelector('i').classList.toggle('fa-eye-slash'); }
 
         document.getElementById('form-usuario').addEventListener('submit', async function(e) {
             e.preventDefault(); const userId = document.getElementById('usuario-id').value, empleadoId = document.getElementById('empleado-id').value;
-            const rol = document.getElementById('usr-rol').value; const telefonosArray = jsonATelefonosDesdeInputs('#telefonos-container');
-            const payloadUsuario = { nombres: document.getElementById('usr-nombres').value.trim(), apellido_paterno: document.getElementById('usr-ap').value.trim(), apellido_materno: document.getElementById('usr-am').value.trim()||null, email: document.getElementById('usr-email').value.trim(), rol: rol, telefonos: telefonosArray, extension: document.getElementById('usr-extension').value.trim()||null, fecha_nacimiento: document.getElementById('usr-fecha-nac').value||null };
-            const payloadEmpleado = { tipo_documento: document.getElementById('usr-tipo-doc').value.trim()||null, numero_documento: document.getElementById('usr-num-doc').value.trim()||null, nombres: payloadUsuario.nombres, apellido_paterno: payloadUsuario.apellido_paterno, apellido_materno: payloadUsuario.apellido_materno, email: payloadUsuario.email, telefonos: telefonosArray, direccion: document.getElementById('usr-direccion').value.trim()||null, pais: document.getElementById('usr-pais').value.trim()||null, estado_provincia: document.getElementById('usr-estado').value.trim()||null, ciudad: document.getElementById('usr-ciudad').value.trim()||null, fecha_nacimiento: payloadUsuario.fecha_nacimiento, puesto: document.getElementById('usr-puesto').value.trim()||null, departamento: document.getElementById('usr-departamento').value.trim()||null, salario_base: parseFloat(document.getElementById('usr-salario').value)||null, tipo_contrato: document.getElementById('usr-tipo-contrato').value.trim()||null, fecha_contratacion: document.getElementById('usr-fecha-contrato').value||null, fecha_fin_contrato: document.getElementById('usr-fecha-fin').value||null, supervisor_id: document.getElementById('usr-supervisor').value||null };
-            if(rol==='Especialista Logístico') { payloadEmpleado.capacidad_vehiculo = parseFloat(document.getElementById('usr-capacidad-vehiculo').value)||null; payloadEmpleado.unidad_capacidad_vehiculo = document.getElementById('usr-unidad-capacidad').value.trim()||null; } else { payloadEmpleado.capacidad_vehiculo = null; payloadEmpleado.unidad_capacidad_vehiculo = null; }
-            const monSal = document.getElementById('usr-moneda-salario').value.trim(); if(monSal) payloadEmpleado.moneda_salario_id = await ensureCurrency(monSal);
+            const rol = document.getElementById('usr-rol').value;
+            const telefonosArray = jsonATelefonosDesdeInputs('#telefonos-container');
+            const payloadUsuario = {
+                nombres: document.getElementById('usr-nombres').value.trim(), apellido_paterno: document.getElementById('usr-ap').value.trim(),
+                apellido_materno: document.getElementById('usr-am').value.trim()||null, email: document.getElementById('usr-email').value.trim(),
+                rol: rol, telefonos: telefonosArray, extension: document.getElementById('usr-extension').value.trim()||null,
+                fecha_nacimiento: document.getElementById('usr-fecha-nac').value||null
+            };
+            const tipoDocVal = document.getElementById('usr-tipo-doc').value.trim();
+            const payloadEmpleado = {
+                tipo_documento: tipoDocVal||null, numero_documento: document.getElementById('usr-num-doc').value.trim()||null,
+                nombres: payloadUsuario.nombres, apellido_paterno: payloadUsuario.apellido_paterno, apellido_materno: payloadUsuario.apellido_materno,
+                email: payloadUsuario.email, telefonos: telefonosArray, direccion: document.getElementById('usr-direccion').value.trim()||null,
+                pais: document.getElementById('usr-pais').value.trim()||null, estado_provincia: document.getElementById('usr-estado').value.trim()||null,
+                ciudad: document.getElementById('usr-ciudad').value.trim()||null, fecha_nacimiento: payloadUsuario.fecha_nacimiento,
+                puesto: document.getElementById('usr-puesto').value.trim()||null, departamento: document.getElementById('usr-departamento').value.trim()||null,
+                salario_base: parseFloat(document.getElementById('usr-salario').value)||null, tipo_contrato: document.getElementById('usr-tipo-contrato').value.trim()||null,
+                fecha_contratacion: document.getElementById('usr-fecha-contrato').value||null, fecha_fin_contrato: document.getElementById('usr-fecha-fin').value||null,
+                supervisor_id: document.getElementById('usr-supervisor').value||null
+            };
+            if(rol==='Especialista Logístico') { payloadEmpleado.capacidad_vehiculo = parseFloat(document.getElementById('usr-capacidad-vehiculo').value)||null; payloadEmpleado.unidad_capacidad_vehiculo = document.getElementById('usr-unidad-capacidad').value.trim()||null; }
+            else { payloadEmpleado.capacidad_vehiculo = null; payloadEmpleado.unidad_capacidad_vehiculo = null; }
+            const monSal = document.getElementById('usr-moneda-salario').value.trim();
+            if(monSal) payloadEmpleado.moneda_salario_id = await ensureCurrency(monSal);
             try { const file = document.getElementById('file-usr-imagen').files[0]; if(file) { const url = await uploadFile(file, 'empleados'); payloadUsuario.imagen = url; payloadEmpleado.imagen = url; } } catch {}
             try {
-                if(!userId) { const pass = document.getElementById('usr-password').value, pass2 = document.getElementById('usr-password2').value; if(!pass||pass.length<6) { showNotification('Contraseña mínima 6 caracteres','error'); return; } if(pass!==pass2) { showNotification('Las contraseñas no coinciden','error'); return; } const hashResp = await apiFetch('rpc/crypt_password', 'POST', { pass }); payloadUsuario.password_hash = typeof hashResp === 'string' ? hashResp : hashResp.crypt_password; payloadUsuario.empresa_id = currentUser.empresa_id; await apiFetch('usuarios', 'POST', payloadUsuario); payloadEmpleado.empresa_id = currentUser.empresa_id; await apiFetch('empleados', 'POST', payloadEmpleado); }
-                else { await apiFetch(`usuarios?id=eq.${userId}`, 'PATCH', payloadUsuario); if(empleadoId) await apiFetch(`empleados?id=eq.${empleadoId}`, 'PATCH', payloadEmpleado); else { payloadEmpleado.empresa_id = currentUser.empresa_id; await apiFetch('empleados', 'POST', payloadEmpleado); } }
-                cerrarModalUsuario(); cargarEquipo(document.querySelector('#panel-equipo .tab-btn-compact.active')?.dataset.tab||'comercial'); showNotification(userId?'Usuario actualizado':'Usuario creado');
+                if(!userId) {
+                    const pass = document.getElementById('usr-password').value, pass2 = document.getElementById('usr-password2').value;
+                    if(!pass||pass.length<6) { showNotification('Contraseña mínima 6 caracteres','error'); return; }
+                    if(pass!==pass2) { showNotification('Las contraseñas no coinciden','error'); return; }
+                    const hashResp = await apiFetch('rpc/crypt_password', 'POST', { pass });
+                    payloadUsuario.password_hash = typeof hashResp === 'string' ? hashResp : hashResp.crypt_password;
+                    payloadUsuario.empresa_id = currentUser.empresa_id;
+                    await apiFetch('usuarios', 'POST', payloadUsuario);
+                    payloadEmpleado.empresa_id = currentUser.empresa_id;
+                    await apiFetch('empleados', 'POST', payloadEmpleado);
+                } else {
+                    await apiFetch(`usuarios?id=eq.${userId}`, 'PATCH', payloadUsuario);
+                    if(empleadoId) await apiFetch(`empleados?id=eq.${empleadoId}`, 'PATCH', payloadEmpleado);
+                    else { payloadEmpleado.empresa_id = currentUser.empresa_id; await apiFetch('empleados', 'POST', payloadEmpleado); }
+                }
+                cerrarModalUsuario(); cargarEquipo(document.querySelector('#panel-equipo .tab-btn-compact.active')?.dataset.tab||'comercial');
+                showNotification(userId?'Usuario actualizado':'Usuario creado');
             } catch(err) { showNotification('Error: '+err.message, 'error'); }
         });
 
+        // ===== CLIENTES ACTUALIZADO CON SELECTS FIJOS =====
         async function cargarClientes(vendedorId='', filtroTipo='', filtroSegmento='', filtroCanal='', estadoFiltro='true') {
             const empId = currentUser.empresa_id;
             let query = `clientes?empresa_id=eq.${empId}&select=*&limit=1000`;
@@ -1168,7 +1321,9 @@
                 const nombreMostrar = c.razon_social || (c.nombres||'')+' '+(c.apellido_paterno||'');
                 const gpsCount = Array.isArray(c.direcciones_entrega) ? c.direcciones_entrega.length : 0;
                 const estadoBadge = c.activo ? '<span class="badge badge-success">Activo</span>' : '<span class="badge badge-danger">Inactivo</span>';
-                const acciones = c.activo ? `<button class="btn-sm btn-edit" onclick="editarCliente('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-delete" onclick="eliminarCliente('${c.id}')"><i class="fas fa-ban"></i></button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button>` : `<button class="btn-sm btn-activate" onclick="activarCliente('${c.id}')"><i class="fas fa-check"></i> Activar</button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button>`;
+                const acciones = c.activo
+                    ? `<button class="btn-sm btn-edit" onclick="editarCliente('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-delete" onclick="eliminarCliente('${c.id}')"><i class="fas fa-ban"></i></button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button>`
+                    : `<button class="btn-sm btn-activate" onclick="activarCliente('${c.id}')"><i class="fas fa-check"></i> Activar</button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button>`;
                 filas += `<tr><td>${nombreMostrar.trim()||'-'}</td><td>${c.nombre_comercial || '-'}</td><td>${c.email||'-'}</td><td>${c.ciudad||'-'}, ${c.pais||'-'}</td><td>${c.tipo_cliente||'-'}</td><td>${c.segmento_mercado||'-'}</td><td>${c.canal_venta||'-'}</td><td>${gpsCount > 0 ? `<i class="fas fa-map-marker-alt" style="color:#1a56db;" title="${gpsCount} punto(s) de entrega"></i> ${gpsCount}` : '-'}</td><td>${c.vendedor_asignado_id ? (vendedorMap[c.vendedor_asignado_id]||'Asignado') : 'Sin asignar'}</td><td>${estadoBadge}</td><td class="action-buttons">${acciones}</td></tr>`;
             });
             if(!filas) filas = '<tr><td colspan="11" style="text-align:center;">No se encontraron clientes.</td></tr>';
@@ -1176,17 +1331,47 @@
             <div class="card"><div class="card-header"><h2>Clientes</h2><button class="btn-solid" onclick="abrirModalCliente()"><i class="fas fa-plus"></i> Nuevo Cliente</button></div>
             <div class="filtros"><div class="filtro-group"><label>Vendedor:</label><select id="filtro-vendedor-clientes" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
             <div class="filtro-group"><label>Estado:</label><select id="filtro-estado-clientes" onchange="aplicarFiltrosClientes()"><option value="true" ${estadoFiltro==='true'?'selected':''}>Activos</option><option value="false" ${estadoFiltro==='false'?'selected':''}>Inactivos</option><option value="all" ${estadoFiltro==='all'?'selected':''}>Todos</option></select></div>
-            <div class="filtro-group"><label>Tipo:</label><select id="filtro-tipo-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option>${TIPOS_CLIENTE.map(t => `<option value="${t}" ${filtroTipo===t?'selected':''}>${t}</option>`).join('')}</select></div>
-            <div class="filtro-group"><label>Segmento:</label><select id="filtro-segmento-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option>${SEGMENTOS_MERCADO.map(s => `<option value="${s}" ${filtroSegmento===s?'selected':''}>${s}</option>`).join('')}</select></div>
-            <div class="filtro-group"><label>Canal:</label><select id="filtro-canal-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option>${CANALES_VENTA.map(c => `<option value="${c}" ${filtroCanal===c?'selected':''}>${c}</option>`).join('')}</select></div></div>
+            <div class="filtro-group"><label>Tipo:</label><select id="filtro-tipo-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
+            <div class="filtro-group"><label>Segmento:</label><select id="filtro-segmento-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
+            <div class="filtro-group"><label>Canal:</label><select id="filtro-canal-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div></div>
             <div class="table-wrapper"><table><thead><tr><th>Razón Social / Nombre</th><th>Nombre Comercial</th><th>Email</th><th>Ubicación</th><th>Tipo</th><th>Segmento</th><th>Canal</th><th>GPS</th><th>Vendedor</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div></div>`;
             const selVend = document.getElementById('filtro-vendedor-clientes'); vendedores.forEach(v => { const o = document.createElement('option'); o.value=v.id; o.text=v.nombres+' '+v.apellido_paterno; if(v.id===vendedorId) o.selected=true; selVend.appendChild(o); });
+            // Poblar filtros fijos
+            const selTipoF = document.getElementById('filtro-tipo-cliente');
+            TIPOS_CLIENTE.forEach(v => { const o = document.createElement('option'); o.value=v; o.text=v; if(v===filtroTipo) o.selected=true; selTipoF.appendChild(o); });
+            const selSegF = document.getElementById('filtro-segmento-cliente');
+            SEGMENTOS_MERCADO.forEach(v => { const o = document.createElement('option'); o.value=v; o.text=v; if(v===filtroSegmento) o.selected=true; selSegF.appendChild(o); });
+            const selCanF = document.getElementById('filtro-canal-cliente');
+            CANALES_VENTA.forEach(v => { const o = document.createElement('option'); o.value=v; o.text=v; if(v===filtroCanal) o.selected=true; selCanF.appendChild(o); });
             initTooltips();
         }
-        function aplicarFiltrosClientes() { const estado = document.getElementById('filtro-estado-clientes')?.value || 'true'; cargarClientes(document.getElementById('filtro-vendedor-clientes')?.value||'', document.getElementById('filtro-tipo-cliente')?.value||'', document.getElementById('filtro-segmento-cliente')?.value||'', document.getElementById('filtro-canal-cliente')?.value||'', estado); }
-        function activarCliente(id) { mostrarConfirmacion('¿Activar cliente? Volverá a estar visible.', 'Activar Cliente', async () => { await apiFetch(`clientes?id=eq.${id}`, 'PATCH', { activo: true }); aplicarFiltrosClientes(); showNotification('Cliente activado'); }); }
+        function aplicarFiltrosClientes() {
+            const estado = document.getElementById('filtro-estado-clientes')?.value || 'true';
+            cargarClientes(document.getElementById('filtro-vendedor-clientes')?.value||'', document.getElementById('filtro-tipo-cliente')?.value||'', document.getElementById('filtro-segmento-cliente')?.value||'', document.getElementById('filtro-canal-cliente')?.value||'', estado);
+        }
+        function activarCliente(id) {
+            mostrarConfirmacion('¿Activar cliente? Volverá a estar visible.', 'Activar Cliente', async () => {
+                await apiFetch(`clientes?id=eq.${id}`, 'PATCH', { activo: true });
+                aplicarFiltrosClientes();
+                showNotification('Cliente activado');
+            });
+        }
 
-        function abrirModalCliente(id=null) { document.getElementById('modal-cliente').classList.add('active'); document.getElementById('form-cliente').reset(); document.getElementById('cliente-id').value=''; document.getElementById('titulo-modal-cliente').textContent='Nuevo Cliente'; document.getElementById('cli-tipo-persona').value='natural'; document.getElementById('cli-moneda-credito').value=monedaPorDefecto(); document.getElementById('cli-pais').value=empresaPais; document.getElementById('cli-lista-precios').value=''; document.getElementById('cli-nombre-comercial').value=''; if(empresaPais) { actualizarSelectTiposDocumento(empresaPais, 'cli-tipo-doc'); actualizarMonedaConPais(document.getElementById('cli-pais'), 'cli-moneda-credito'); cargarEstados(empresaPais, 'cli-estados-list'); } else actualizarSelectTiposDocumento('', 'cli-tipo-doc'); llenarInputsTelefonoDesdeJson('#cli-telefonos-container', [{etiqueta:'', numero:''}]); llenarCoordenadasGPSDesdeArray([{etiqueta:'', coordenadas:''}]); toggleClientePersona(); llenarSelectVendedores('cli-vendedor'); if(id) editarCliente(id); initTooltips(); }
+        function abrirModalCliente(id=null) {
+            document.getElementById('modal-cliente').classList.add('active');
+            document.getElementById('form-cliente').reset(); document.getElementById('cliente-id').value='';
+            document.getElementById('titulo-modal-cliente').textContent='Nuevo Cliente';
+            document.getElementById('cli-tipo-persona').value='natural'; document.getElementById('cli-moneda-credito').value=monedaPorDefecto();
+            document.getElementById('cli-pais').value=empresaPais; document.getElementById('cli-lista-precios').value='';
+            document.getElementById('cli-nombre-comercial').value='';
+            document.getElementById('cli-tipo-cliente').value=''; document.getElementById('cli-segmento').value=''; document.getElementById('cli-canal').value='';
+            if(empresaPais) { actualizarSelectTiposDocumento(empresaPais, 'cli-tipo-doc'); actualizarMonedaConPais(document.getElementById('cli-pais'), 'cli-moneda-credito'); cargarEstados(empresaPais, 'cli-estados-list'); }
+            else actualizarSelectTiposDocumento('', 'cli-tipo-doc');
+            llenarInputsTelefonoDesdeJson('#cli-telefonos-container', [{etiqueta:'', numero:''}]);
+            llenarCoordenadasGPSDesdeArray([{etiqueta:'', coordenadas:''}]);
+            toggleClientePersona(); llenarSelectVendedores('cli-vendedor');
+            if(id) editarCliente(id); initTooltips();
+        }
         function cerrarModalCliente() { document.getElementById('modal-cliente').classList.remove('active'); }
 
         async function editarCliente(id) {
@@ -1197,7 +1382,8 @@
             document.getElementById('cli-pais').value = cli.pais||empresaPais;
             document.getElementById('cli-tipo-doc').value = cli.tipo_documento||''; document.getElementById('cli-num-doc').value = cli.numero_documento||'';
             document.getElementById('cli-nombres').value = cli.nombres||''; document.getElementById('cli-ap').value = cli.apellido_paterno||''; document.getElementById('cli-am').value = cli.apellido_materno||'';
-            document.getElementById('cli-razon-social').value = cli.razon_social||''; document.getElementById('cli-nombre-comercial').value = cli.nombre_comercial||'';
+            document.getElementById('cli-razon-social').value = cli.razon_social||'';
+            document.getElementById('cli-nombre-comercial').value = cli.nombre_comercial||'';
             document.getElementById('cli-email').value = cli.email||''; document.getElementById('cli-direccion').value = cli.direccion||'';
             document.getElementById('cli-estado').value = cli.estado_provincia||''; document.getElementById('cli-ciudad').value = cli.ciudad||'';
             document.getElementById('cli-tipo-cliente').value = cli.tipo_cliente||''; document.getElementById('cli-segmento').value = cli.segmento_mercado||''; document.getElementById('cli-canal').value = cli.canal_venta||'';
@@ -1223,13 +1409,41 @@
             const monCreditoId = await ensureCurrency(document.getElementById('cli-moneda-credito').value.trim());
             const gpsArray = jsonACoordenadasDesdeInputs();
             const telefonosArray = jsonATelefonosDesdeInputs('#cli-telefonos-container');
-            const payload = { empresa_id: currentUser.empresa_id, tipo_documento: document.getElementById('cli-tipo-doc').value.trim()||null, numero_documento: document.getElementById('cli-num-doc').value.trim()||null, nombres: tipoPersona==='natural' ? document.getElementById('cli-nombres').value.trim() : null, apellido_paterno: tipoPersona==='natural' ? document.getElementById('cli-ap').value.trim() : null, apellido_materno: tipoPersona==='natural' ? document.getElementById('cli-am').value.trim() : null, razon_social: tipoPersona==='juridica' ? document.getElementById('cli-razon-social').value.trim() : null, nombre_comercial: document.getElementById('cli-nombre-comercial').value.trim()||null, email: document.getElementById('cli-email').value.trim()||null, telefonos: telefonosArray, direccion: document.getElementById('cli-direccion').value.trim()||null, direcciones_entrega: gpsArray, pais: document.getElementById('cli-pais').value.trim()||null, estado_provincia: document.getElementById('cli-estado').value.trim()||null, ciudad: document.getElementById('cli-ciudad').value.trim()||null, tipo_cliente: document.getElementById('cli-tipo-cliente').value.trim()||null, segmento_mercado: document.getElementById('cli-segmento').value.trim()||null, canal_venta: document.getElementById('cli-canal').value.trim()||null, limite_credito: parseFloat(document.getElementById('cli-limite-credito').value)||null, moneda_credito_id: monCreditoId, dias_credito: parseInt(document.getElementById('cli-dias-credito').value)||null, vendedor_asignado_id: document.getElementById('cli-vendedor').value||null, lista_precios: parseJsonSeguro(document.getElementById('cli-lista-precios').value) };
+            const payload = {
+                empresa_id: currentUser.empresa_id,
+                tipo_documento: document.getElementById('cli-tipo-doc').value.trim()||null,
+                numero_documento: document.getElementById('cli-num-doc').value.trim()||null,
+                nombres: tipoPersona==='natural' ? document.getElementById('cli-nombres').value.trim() : null,
+                apellido_paterno: tipoPersona==='natural' ? document.getElementById('cli-ap').value.trim() : null,
+                apellido_materno: tipoPersona==='natural' ? document.getElementById('cli-am').value.trim() : null,
+                razon_social: tipoPersona==='juridica' ? document.getElementById('cli-razon-social').value.trim() : null,
+                nombre_comercial: document.getElementById('cli-nombre-comercial').value.trim()||null,
+                email: document.getElementById('cli-email').value.trim()||null,
+                telefonos: telefonosArray,
+                direccion: document.getElementById('cli-direccion').value.trim()||null,
+                direcciones_entrega: gpsArray,
+                pais: document.getElementById('cli-pais').value.trim()||null,
+                estado_provincia: document.getElementById('cli-estado').value.trim()||null,
+                ciudad: document.getElementById('cli-ciudad').value.trim()||null,
+                tipo_cliente: document.getElementById('cli-tipo-cliente').value||null,
+                segmento_mercado: document.getElementById('cli-segmento').value||null,
+                canal_venta: document.getElementById('cli-canal').value||null,
+                limite_credito: parseFloat(document.getElementById('cli-limite-credito').value)||null,
+                moneda_credito_id: monCreditoId,
+                dias_credito: parseInt(document.getElementById('cli-dias-credito').value)||null,
+                vendedor_asignado_id: document.getElementById('cli-vendedor').value||null,
+                lista_precios: parseJsonSeguro(document.getElementById('cli-lista-precios').value)
+            };
             try { const file = document.getElementById('file-cli-imagen').files[0]; if(file) payload.imagen = await uploadFile(file, 'clientes'); } catch {}
-            try { if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); } else await apiFetch('clientes', 'POST', payload); cerrarModalCliente(); aplicarFiltrosClientes(); showNotification(id?'Cliente actualizado':'Cliente creado'); } catch(err) { showNotification('Error: '+err.message, 'error'); }
+            try {
+                if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); }
+                else await apiFetch('clientes', 'POST', payload);
+                cerrarModalCliente(); aplicarFiltrosClientes(); showNotification(id?'Cliente actualizado':'Cliente creado');
+            } catch(err) { showNotification('Error: '+err.message, 'error'); }
         });
         function parseJsonSeguro(valor) { if(!valor||!valor.trim()) return null; try { return JSON.parse(valor); } catch(e) { return null; } }
 
-        // ==================== PANEL DE METAS (REDISEÑO TABLA) ====================
+        // ==================== PANEL DE METAS (TABLA EDITABLE) ====================
         async function cargarPanelMetas() {
             const empId = currentUser.empresa_id;
             const now = new Date();
@@ -1237,30 +1451,27 @@
             const anioActual = now.getFullYear();
             let html = `
             <div class="card">
-                <div class="card-header"><h2>Gestión de Objetivos por Empleado</h2></div>
-                <div class="info-banner"><i class="fas fa-info-circle"></i> Seleccione un empleado, mes y año para visualizar y editar sus metas. Modifique los valores y presione <strong>Guardar Metas</strong>.</div>
+                <div class="card-header"><h2>Objetivos Comerciales por Empleado</h2></div>
+                <div class="info-banner"><i class="fas fa-bullseye"></i> Configure los objetivos mensuales para cada empleado. Edite los valores directamente en la tabla y presione <strong>Guardar Cambios</strong>. Las celdas vacías no se considerarán como objetivo.</div>
                 <div class="filtros">
-                    <div class="filtro-group"><label>Empleado:</label><select id="meta-empleado" onchange="cargarMetasExistentes()"><option value="">Seleccione...</option></select></div>
-                    <div class="filtro-group"><label>Mes:</label><select id="meta-mes" onchange="cargarMetasExistentes()">`;
+                    <div class="filtro-group"><label>Empleado:</label><select id="meta-empleado" onchange="cargarTablaMetas()"><option value="">Seleccione...</option></select></div>
+                    <div class="filtro-group"><label>Mes:</label><select id="meta-mes" onchange="cargarTablaMetas()">`;
             for (let m = 1; m <= 12; m++) {
                 html += `<option value="${m}" ${m === mesActual ? 'selected' : ''}>${new Date(2024, m-1, 1).toLocaleString('es', { month: 'long' })}</option>`;
             }
             html += `</select></div>
-                    <div class="filtro-group"><label>Año:</label><input type="number" id="meta-anio" value="${anioActual}" min="2020" max="2100" style="width:90px;" onchange="cargarMetasExistentes()"></div>
+                    <div class="filtro-group"><label>Año:</label><input type="number" id="meta-anio" value="${anioActual}" min="2020" max="2100" style="width:90px;" onchange="cargarTablaMetas()"></div>
                 </div>
-                <div class="table-wrapper">
-                    <table class="meta-edit-table" id="meta-editor-table">
-                        <thead><tr><th>Indicador Clave de Rendimiento (KPI)</th><th style="width:200px;">Objetivo Mensual</th><th style="width:250px;">Parámetro Adicional</th></tr></thead>
-                        <tbody id="meta-tbody"></tbody>
-                    </table>
+                <div id="meta-tabla-container">
+                    <p style="color:#64748b; font-size:0.9rem;">Seleccione un empleado para configurar sus objetivos.</p>
                 </div>
-                <div style="margin-top:20px; display:flex; justify-content:flex-end;">
-                    <button class="btn-solid" onclick="guardarMeta()"><i class="fas fa-save"></i> Guardar Metas</button>
+                <div style="margin-top:16px;" id="meta-guardar-area" hidden>
+                    <button class="btn-solid" onclick="guardarMetasTabla()"><i class="fas fa-save"></i> Guardar Cambios</button>
                 </div>
             </div>
             <div class="card">
-                <div class="card-header"><h2>Historial de Metas</h2></div>
-                <div class="table-wrapper" id="meta-tabla-container">
+                <div class="card-header"><h2>Historial de Objetivos</h2></div>
+                <div class="table-wrapper" id="meta-historial-container">
                     <p style="color:#64748b; font-size:0.9rem;">Seleccione un empleado para ver su historial.</p>
                 </div>
             </div>`;
@@ -1268,128 +1479,161 @@
 
             const empleados = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
             const sel = document.getElementById('meta-empleado');
-            empleados.forEach(emp => { const opt = document.createElement('option'); opt.value = emp.id; opt.textContent = `${emp.nombres} ${emp.apellido_paterno}`; sel.appendChild(opt); });
+            empleados.forEach(emp => {
+                const opt = document.createElement('option');
+                opt.value = emp.id;
+                opt.textContent = `${emp.nombres} ${emp.apellido_paterno}`;
+                sel.appendChild(opt);
+            });
             initTooltips();
         }
 
-        async function cargarMetasExistentes() {
+        async function cargarTablaMetas() {
             const empId = document.getElementById('meta-empleado')?.value;
             const mes = parseInt(document.getElementById('meta-mes')?.value);
             const anio = parseInt(document.getElementById('meta-anio')?.value);
             if (!empId || !mes || !anio) return;
 
+            // Buscar meta existente
             const metas = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&activo=eq.true&select=*&limit=1`);
             let metaExistente = metas.length > 0 ? metas[0] : {};
 
-            let tbodyHtml = '';
-            META_CAMPOS.forEach(meta => {
-                const valor = metaExistente[meta.key] !== undefined && metaExistente[meta.key] !== null ? metaExistente[meta.key] : '';
-                let extraHtml = '';
-                if (meta.tipo === 'dinero') {
-                    extraHtml = `<input list="monedas-global-list-meta" id="meta-moneda-${meta.key}" value="${metaExistente[meta.moneda] ? await obtenerCodigoMoneda(metaExistente[meta.moneda]) : monedaPorDefecto()}"><datalist id="monedas-global-list-meta"></datalist>`;
-                } else if (meta.tipo === 'cantidad') {
-                    extraHtml = `<input list="unidad-list-meta" id="meta-unidad-${meta.key}" value="${metaExistente[meta.unidad] ? await obtenerNombreUnidad(metaExistente[meta.unidad]) : ''}"><datalist id="unidad-list-meta"></datalist>`;
+            let tablaHtml = `<table><thead><tr><th>Indicador</th><th>Objetivo</th><th>Moneda / Unidad</th><th style="width:50px;"></th></tr></thead><tbody>`;
+            METAS_CONFIG.forEach(meta => {
+                const val = metaExistente[meta.key] !== null && metaExistente[meta.key] !== undefined ? metaExistente[meta.key] : '';
+                let unidadHtml = '';
+                if (meta.tipo === 'dinero' && meta.moneda) {
+                    unidadHtml = `<input list="monedas-global-list-meta" class="meta-moneda-input" id="meta-moneda-${meta.key}" value="${metaExistente[meta.moneda] ? await obtenerCodigoMoneda(metaExistente[meta.moneda]) : monedaPorDefecto()}" placeholder="Moneda">`;
+                } else if (meta.tipo === 'cantidad' && meta.unidad) {
+                    unidadHtml = `<input list="unidad-list-meta" class="meta-moneda-input" id="meta-unidad-${meta.key}" value="${metaExistente[meta.unidad] ? await obtenerNombreUnidad(metaExistente[meta.unidad]) : ''}" placeholder="Unidad">`;
                 }
-                tbodyHtml += `<tr data-key="${meta.key}">
-                    <td style="font-weight:500;">${meta.label}</td>
-                    <td><input type="number" step="${meta.tipo === 'entero' ? '1' : '0.01'}" min="0" id="meta-val-${meta.key}" value="${valor}" style="width:100%;"></td>
-                    <td>${extraHtml}</td>
+                tablaHtml += `<tr>
+                    <td><strong>${meta.label}</strong> <span class="tooltip-trigger" data-tooltip="${meta.tooltip}">?</span></td>
+                    <td><input type="number" step="${meta.tipo === 'entero' ? '1' : '0.01'}" min="0" class="meta-edit-input" id="meta-val-${meta.key}" value="${val}" placeholder="Sin objetivo"></td>
+                    <td>${unidadHtml || '-'}</td>
+                    <td></td>
                 </tr>`;
             });
-            document.getElementById('meta-tbody').innerHTML = tbodyHtml;
+            tablaHtml += `<tr><td colspan="4" style="text-align:left; padding-top:12px;">
+                <div class="form-group"><label>Comentario</label><input type="text" id="meta-comentario" value="${metaExistente.comentario || ''}" placeholder="Notas adicionales..."></div>
+            </td></tr>`;
+            tablaHtml += `</tbody></table>`;
+            document.getElementById('meta-tabla-container').innerHTML = tablaHtml;
+            document.getElementById('meta-guardar-area').hidden = false;
 
-            const monDL = document.getElementById('monedas-global-list-meta'); if (monDL) { monDL.innerHTML = ''; todasLasMonedas.forEach(m => { const o = document.createElement('option'); o.value = `${m.codigo} - ${m.nombre}`; monDL.appendChild(o); }); }
-            const unDL = document.getElementById('unidad-list-meta'); if (unDL) { unDL.innerHTML = ''; const unidades = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón']; unidades.forEach(u => { const o = document.createElement('option'); o.value = u; unDL.appendChild(o); }); }
+            // Poblar datalists
+            const monDL = document.getElementById('monedas-global-list-meta');
+            if (monDL) {
+                monDL.innerHTML = '';
+                todasLasMonedas.forEach(m => { const o = document.createElement('option'); o.value = `${m.codigo} - ${m.nombre}`; monDL.appendChild(o); });
+            }
+            const unDL = document.getElementById('unidad-list-meta');
+            if (unDL) {
+                unDL.innerHTML = '';
+                const unidades = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón'];
+                unidades.forEach(u => { const o = document.createElement('option'); o.value = u; unDL.appendChild(o); });
+            }
 
+            // Cargar historial
             const historial = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&select=*&order=anio.desc,mes.desc&limit=50`);
-            let tablaHtml = '';
+            let histHtml = '';
             if (historial.length) {
-                tablaHtml = `<table><thead><tr><th>Año</th><th>Mes</th><th>Monto</th><th>Cantidad</th><th>Nuevos Clientes</th><th>Variedad</th><th>Peso</th><th>Volumen</th><th>Visitas</th><th>Comentario</th><th>Acción</th></tr></thead><tbody>`;
+                histHtml = `<table><thead><tr><th>Año</th><th>Mes</th><th>Volumen Ventas</th><th>Unidades</th><th>Mix Prod.</th><th>Peso (kg)</th><th>Volumen (m³)</th><th>Clientes Nuevos</th><th>Visitas</th><th>Comentario</th></tr></thead><tbody>`;
                 historial.forEach(h => {
                     const mesNombre = new Date(2024, h.mes-1, 1).toLocaleString('es', { month: 'short' });
-                    tablaHtml += `<tr>
+                    histHtml += `<tr>
                         <td>${h.anio}</td><td>${mesNombre}</td>
                         <td>${h.monto_objetivo ? '$'+parseFloat(h.monto_objetivo).toFixed(2) : '-'}</td>
                         <td>${h.cantidad_objetivo || '-'}</td>
-                        <td>${h.clientes_nuevos_objetivo || '-'}</td>
                         <td>${h.variedad_objetivo || '-'}</td>
                         <td>${h.peso_objetivo || '-'}</td>
                         <td>${h.volumen_objetivo || '-'}</td>
+                        <td>${h.clientes_nuevos_objetivo || '-'}</td>
                         <td>${h.visitas_objetivo || '-'}</td>
                         <td>${h.comentario || '-'}</td>
-                        <td><button class="btn-sm btn-edit" onclick="editarMetaExistente('${h.id}')"><i class="fas fa-edit"></i></button> <button class="btn-sm btn-delete" onclick="eliminarMeta('${h.id}')"><i class="fas fa-trash-alt"></i></button></td>
                     </tr>`;
                 });
-                tablaHtml += `</tbody></table>`;
+                histHtml += `</tbody></table>`;
             } else {
-                tablaHtml = `<p style="color:#64748b; font-size:0.9rem;">No hay metas registradas para este empleado.</p>`;
+                histHtml = `<p style="color:#64748b; font-size:0.9rem;">No hay objetivos registrados para este empleado.</p>`;
             }
-            document.getElementById('meta-tabla-container').innerHTML = tablaHtml;
+            document.getElementById('meta-historial-container').innerHTML = histHtml;
             initTooltips();
         }
 
-        async function guardarMeta() {
+        async function obtenerCodigoMoneda(monedaId) {
+            try {
+                const mon = await apiFetch(`monedas?id=eq.${monedaId}&select=codigo,nombre`);
+                if (mon.length) return `${mon[0].codigo} - ${mon[0].nombre}`;
+            } catch(e) {}
+            return monedaPorDefecto();
+        }
+
+        async function obtenerNombreUnidad(unidadId) {
+            try {
+                const um = await apiFetch(`unidades_medida?id=eq.${unidadId}&select=nombre`);
+                if (um.length) return um[0].nombre;
+            } catch(e) {}
+            return '';
+        }
+
+        async function guardarMetasTabla() {
             const empId = document.getElementById('meta-empleado')?.value;
             const mes = parseInt(document.getElementById('meta-mes')?.value);
             const anio = parseInt(document.getElementById('meta-anio')?.value);
             if (!empId || !mes || !anio) { showNotification('Seleccione empleado, mes y año', 'error'); return; }
 
-            const payload = { empleado_id: empId, mes: mes, anio: anio, activo: true, creado_por: currentUser.id, asignado_por: currentUser.id, comentario: document.getElementById('meta-comentario')?.value || null };
+            const payload = {
+                empleado_id: empId,
+                mes: mes,
+                anio: anio,
+                activo: true,
+                creado_por: currentUser.id,
+                asignado_por: currentUser.id,
+                comentario: document.getElementById('meta-comentario')?.value || null
+            };
 
-            META_CAMPOS.forEach(meta => {
-                const val = document.getElementById(`meta-val-${meta.key}`)?.value;
-                if (val !== undefined && val !== '') {
-                    payload[meta.key] = meta.tipo === 'entero' ? parseInt(val) : parseFloat(val);
-                } else {
-                    payload[meta.key] = null;
+            for (const meta of METAS_CONFIG) {
+                const valEl = document.getElementById(`meta-val-${meta.key}`);
+                if (valEl) {
+                    const val = valEl.value.trim();
+                    if (val !== '') {
+                        payload[meta.key] = meta.tipo === 'entero' ? parseInt(val) : parseFloat(val);
+                    } else {
+                        payload[meta.key] = null;
+                    }
                 }
                 if (meta.moneda) {
-                    const monInput = document.getElementById(`meta-moneda-${meta.key}`)?.value;
-                    payload[meta.moneda] = monInput ? await ensureCurrency(monInput) : null;
+                    const monEl = document.getElementById(`meta-moneda-${meta.key}`);
+                    if (monEl && monEl.value.trim()) {
+                        payload[meta.moneda] = await ensureCurrency(monEl.value.trim());
+                    } else {
+                        payload[meta.moneda] = null;
+                    }
                 }
                 if (meta.unidad) {
-                    const unInput = document.getElementById(`meta-unidad-${meta.key}`)?.value;
-                    payload[meta.unidad] = unInput ? await ensureUnidadMedida(unInput) : null;
+                    const unEl = document.getElementById(`meta-unidad-${meta.key}`);
+                    if (unEl && unEl.value.trim()) {
+                        payload[meta.unidad] = await ensureUnidadMedida(unEl.value.trim());
+                    } else {
+                        payload[meta.unidad] = null;
+                    }
                 }
-            });
+            }
 
             try {
                 const existente = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&select=id&limit=1`);
                 if (existente.length > 0) {
                     await apiFetch(`objetivos_empleado?id=eq.${existente[0].id}`, 'PATCH', payload);
-                    showNotification('Meta actualizada correctamente');
+                    showNotification('Objetivos actualizados correctamente');
                 } else {
                     await apiFetch('objetivos_empleado', 'POST', payload);
-                    showNotification('Meta creada correctamente');
+                    showNotification('Objetivos creados correctamente');
                 }
-                cargarMetasExistentes();
-            } catch (err) { showNotification('Error: ' + err.message, 'error'); }
-        }
-
-        async function obtenerCodigoMoneda(monedaId) {
-            try { const mon = await apiFetch(`monedas?id=eq.${monedaId}&select=codigo,nombre`); if (mon.length) return `${mon[0].codigo} - ${mon[0].nombre}`; } catch(e) {}
-            return monedaPorDefecto();
-        }
-        async function obtenerNombreUnidad(unidadId) {
-            try { const um = await apiFetch(`unidades_medida?id=eq.${unidadId}&select=nombre`); if (um.length) return um[0].nombre; } catch(e) {}
-            return '';
-        }
-        function editarMetaExistente(id) {
-            apiFetch(`objetivos_empleado?id=eq.${id}&select=*`).then(metas => {
-                if (!metas.length) return;
-                const m = metas[0];
-                document.getElementById('meta-empleado').value = m.empleado_id;
-                document.getElementById('meta-mes').value = m.mes;
-                document.getElementById('meta-anio').value = m.anio;
-                cargarMetasExistentes();
-            });
-        }
-        function eliminarMeta(id) {
-            mostrarConfirmacion('¿Eliminar esta meta? Se desactivará.', 'Eliminar Meta', async () => {
-                await apiFetch(`objetivos_empleado?id=eq.${id}`, 'PATCH', { activo: false });
-                cargarMetasExistentes();
-                showNotification('Meta eliminada (desactivada)');
-            });
+                cargarTablaMetas();
+            } catch (err) {
+                showNotification('Error: ' + err.message, 'error');
+            }
         }
 
         function prevenirSubmitEnter(e) {
@@ -1409,7 +1653,11 @@
             document.querySelector(`.sidebar-menu a[data-panel="${panel}"]`)?.classList.add('active');
             document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
             document.getElementById(`panel-${panel}`)?.classList.add('active');
-            if(panel==='inicio') cargarInicio(); else if(panel==='productos') cargarProductos(); else if(panel==='equipo') cargarEquipo('comercial'); else if(panel==='clientes') cargarClientes(); else if(panel==='metas') cargarPanelMetas();
+            if(panel==='inicio') cargarInicio();
+            else if(panel==='productos') cargarProductos();
+            else if(panel==='equipo') cargarEquipo('comercial');
+            else if(panel==='clientes') cargarClientes();
+            else if(panel==='metas') cargarPanelMetas();
         }
         document.querySelectorAll('.sidebar-menu a[data-panel]').forEach(a => a.addEventListener('click', function(e) { e.preventDefault(); navegarA(this.dataset.panel); }));
         function recargarTodo() { const panelActivo = document.querySelector('.section-panel.active')?.id?.replace('panel-',''); if(panelActivo) navegarA(panelActivo); showNotification('Datos actualizados'); }
