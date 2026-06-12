@@ -410,6 +410,30 @@
         const unidadPesoMap = { 'Kilogramo':'kg', 'Gramo':'g', 'Tonelada':'ton', 'Libra':'lb', 'Onza':'oz' };
         const unidadVolumenMap = { 'Litro':'litro', 'Mililitro':'ml', 'Metro cúbico':'m³', 'Centímetro cúbico':'cm³', 'Galón':'galón' };
 
+        // Datos estáticos de países como fallback (principales)
+        const PAISES_ESTATICOS = [
+            { name: { common: 'Bolivia' }, cca2: 'BO', idd: { root: '+591', suffixes: [''] }, currencies: { BOB: { name: 'Boliviano', symbol: 'Bs.' } } },
+            { name: { common: 'Argentina' }, cca2: 'AR', idd: { root: '+54', suffixes: [''] }, currencies: { ARS: { name: 'Peso argentino', symbol: '$' } } },
+            { name: { common: 'Perú' }, cca2: 'PE', idd: { root: '+51', suffixes: [''] }, currencies: { PEN: { name: 'Sol', symbol: 'S/.' } } },
+            { name: { common: 'Chile' }, cca2: 'CL', idd: { root: '+56', suffixes: [''] }, currencies: { CLP: { name: 'Peso chileno', symbol: '$' } } },
+            { name: { common: 'Colombia' }, cca2: 'CO', idd: { root: '+57', suffixes: [''] }, currencies: { COP: { name: 'Peso colombiano', symbol: '$' } } },
+            { name: { common: 'Ecuador' }, cca2: 'EC', idd: { root: '+593', suffixes: [''] }, currencies: { USD: { name: 'Dólar estadounidense', symbol: '$' } } },
+            { name: { common: 'Paraguay' }, cca2: 'PY', idd: { root: '+595', suffixes: [''] }, currencies: { PYG: { name: 'Guaraní', symbol: '₲' } } },
+            { name: { common: 'Uruguay' }, cca2: 'UY', idd: { root: '+598', suffixes: [''] }, currencies: { UYU: { name: 'Peso uruguayo', symbol: '$' } } },
+            { name: { common: 'México' }, cca2: 'MX', idd: { root: '+52', suffixes: [''] }, currencies: { MXN: { name: 'Peso mexicano', symbol: '$' } } },
+            { name: { common: 'España' }, cca2: 'ES', idd: { root: '+34', suffixes: [''] }, currencies: { EUR: { name: 'Euro', symbol: '€' } } },
+            { name: { common: 'Estados Unidos' }, cca2: 'US', idd: { root: '+1', suffixes: [''] }, currencies: { USD: { name: 'Dólar estadounidense', symbol: '$' } } },
+            { name: { common: 'Brasil' }, cca2: 'BR', idd: { root: '+55', suffixes: [''] }, currencies: { BRL: { name: 'Real brasileño', symbol: 'R$' } } },
+            { name: { common: 'Canadá' }, cca2: 'CA', idd: { root: '+1', suffixes: [''] }, currencies: { CAD: { name: 'Dólar canadiense', symbol: '$' } } },
+            { name: { common: 'Reino Unido' }, cca2: 'GB', idd: { root: '+44', suffixes: [''] }, currencies: { GBP: { name: 'Libra esterlina', symbol: '£' } } },
+            { name: { common: 'Francia' }, cca2: 'FR', idd: { root: '+33', suffixes: [''] }, currencies: { EUR: { name: 'Euro', symbol: '€' } } },
+            { name: { common: 'Italia' }, cca2: 'IT', idd: { root: '+39', suffixes: [''] }, currencies: { EUR: { name: 'Euro', symbol: '€' } } },
+            { name: { common: 'Alemania' }, cca2: 'DE', idd: { root: '+49', suffixes: [''] }, currencies: { EUR: { name: 'Euro', symbol: '€' } } },
+            { name: { common: 'China' }, cca2: 'CN', idd: { root: '+86', suffixes: [''] }, currencies: { CNY: { name: 'Yuan', symbol: '¥' } } },
+            { name: { common: 'Japón' }, cca2: 'JP', idd: { root: '+81', suffixes: [''] }, currencies: { JPY: { name: 'Yen', symbol: '¥' } } },
+            { name: { common: 'Corea del Sur' }, cca2: 'KR', idd: { root: '+82', suffixes: [''] }, currencies: { KRW: { name: 'Won', symbol: '₩' } } }
+        ];
+
         // Opciones configurables de metas con sus campos en la tabla objetivos_empleado
         const META_CAMPOS = {
             monto: { label: 'Monto de venta (Dinero)', campo: 'monto_objetivo', moneda: 'moneda_objetivo_id', tipo: 'dinero' },
@@ -625,23 +649,60 @@
         }
 
         async function cargarDatosIniciales() {
-            const resp = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2,idd,currencies');
-            paisesData = await resp.json();
+            let fallback = false;
+            try {
+                // Intentar API principal con manejo de CORS
+                const resp = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2,idd,currencies', { mode: 'cors' });
+                if (resp.ok) {
+                    paisesData = await resp.json();
+                } else {
+                    throw new Error('Error en API principal');
+                }
+            } catch (e) {
+                console.warn('API principal falló, intentando proxy...');
+                try {
+                    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://restcountries.com/v3.1/all?fields=name,cca2,idd,currencies');
+                    const resp = await fetch(proxyUrl);
+                    if (resp.ok) {
+                        paisesData = await resp.json();
+                    } else {
+                        throw new Error('Proxy falló');
+                    }
+                } catch (e2) {
+                    console.warn('Proxy falló, usando datos estáticos.');
+                    paisesData = PAISES_ESTATICOS;
+                    fallback = true;
+                }
+            }
+
+            if (fallback) {
+                showNotification('Usando lista de países local (modo sin conexión)', 'error');
+            }
+
+            // Poblar datalists de países
             ['usr-paises-list','cli-paises-list'].forEach(id => {
                 const dl = document.getElementById(id); if (!dl) return; dl.innerHTML = '';
                 paisesData.forEach(p => { const o = document.createElement('option'); o.value = p.name.common; dl.appendChild(o); });
             });
+
+            // Extraer monedas de los datos
             const monSet = new Map();
             paisesData.forEach(p => { if (p.currencies) Object.entries(p.currencies).forEach(([c,i]) => { if (!monSet.has(c)) monSet.set(c, { name:i.name, symbol:i.symbol||'' }); }); });
             todasLasMonedas = Array.from(monSet, ([c,d]) => ({ codigo:c, nombre:d.name, simbolo:d.symbol }));
+
+            // Agregar monedas de la base de datos si existen
             try {
                 const bdMonedas = await apiFetch('monedas?select=codigo,nombre,simbolo');
                 bdMonedas.forEach(m => { if (!todasLasMonedas.find(t => t.codigo === m.codigo)) todasLasMonedas.push({ codigo:m.codigo, nombre:m.nombre, simbolo:m.simbolo||'' }); });
             } catch(e) {}
+
+            // Poblar datalists de monedas
             ['monedas-global-list-emp','monedas-global-list-prod','monedas-global-list-cli'].forEach(id => {
                 const dl = document.getElementById(id); if (!dl) return; dl.innerHTML = '';
                 todasLasMonedas.forEach(m => { const o = document.createElement('option'); o.value = `${m.codigo} - ${m.nombre}`; dl.appendChild(o); });
             });
+
+            // Obtener datos de la empresa actual
             if (currentUser && currentUser.empresa_id) {
                 const emp = await apiFetch(`empresas?id=eq.${currentUser.empresa_id}&select=moneda_principal_id,pais`);
                 if (emp.length > 0) {
@@ -649,6 +710,7 @@
                     empresaPais = emp[0].pais || '';
                 }
             }
+
             cargarDatalistsEstaticos();
             initTooltips();
         }
@@ -1451,7 +1513,6 @@
             </div>`;
             document.getElementById('panel-metas').innerHTML = html;
 
-            // Llenar select de empleados
             const empleados = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
             const sel = document.getElementById('meta-empleado');
             empleados.forEach(emp => {
@@ -1469,12 +1530,9 @@
             const anio = parseInt(document.getElementById('meta-anio')?.value);
             if (!empId || !mes || !anio) return;
 
-            // Buscar meta existente para ese empleado, mes y año
             const metas = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&activo=eq.true&select=*&limit=1`);
-
             let metaExistente = metas.length > 0 ? metas[0] : null;
 
-            // Construir formulario con checkboxes
             let formHtml = `<div class="meta-check-group">`;
             for (const [key, meta] of Object.entries(META_CAMPOS)) {
                 const checked = metaExistente && metaExistente[meta.campo] !== null && metaExistente[meta.campo] !== undefined;
@@ -1511,7 +1569,6 @@
             document.getElementById('meta-form-container').innerHTML = formHtml;
             document.getElementById('meta-guardar-area').hidden = false;
 
-            // Poblar datalists de monedas y unidades
             const monDL = document.getElementById('monedas-global-list-meta');
             if (monDL) {
                 monDL.innerHTML = '';
@@ -1524,7 +1581,6 @@
                 unidades.forEach(u => { const o = document.createElement('option'); o.value = u; unDL.appendChild(o); });
             }
 
-            // Cargar historial en tabla
             const historial = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&select=*&order=anio.desc,mes.desc&limit=50`);
             let tablaHtml = '';
             if (historial.length) {
@@ -1590,7 +1646,6 @@
                 comentario: document.getElementById('meta-comentario')?.value || null
             };
 
-            // Procesar cada meta chequeada
             for (const [key, meta] of Object.entries(META_CAMPOS)) {
                 const chk = document.querySelector(`.meta-check[data-key="${key}"]`);
                 if (chk && chk.checked) {
@@ -1618,7 +1673,6 @@
             }
 
             try {
-                // Verificar si ya existe una meta para ese empleado/mes/año
                 const existente = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&select=id&limit=1`);
                 if (existente.length > 0) {
                     await apiFetch(`objetivos_empleado?id=eq.${existente[0].id}`, 'PATCH', payload);
@@ -1634,7 +1688,6 @@
         }
 
         function editarMetaExistente(id) {
-            // Buscar la meta y llenar el formulario
             apiFetch(`objetivos_empleado?id=eq.${id}&select=*`).then(metas => {
                 if (!metas.length) return;
                 const m = metas[0];
