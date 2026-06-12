@@ -118,8 +118,12 @@
         .confirm-buttons { display:flex; gap:12px; justify-content:center; margin-top:24px; }
         .info-banner { background:#f0f9ff; border:1px solid #bae6fd; border-radius:16px; padding:14px 20px; margin-bottom:20px; font-size:0.85rem; color:#0369a1; display:flex; align-items:flex-start; gap:10px; }
         .info-banner i { font-size:1.2rem; margin-top:2px; flex-shrink:0; }
-        .checkbox-group { display:flex; flex-wrap:wrap; gap:12px; margin:16px 0; }
-        .checkbox-label { display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer; }
+        .meta-check-group { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+        .meta-check-item { display:flex; align-items:center; gap:6px; background:#f1f5f9; padding:6px 14px; border-radius:30px; font-size:0.84rem; font-weight:500; cursor:pointer; transition:0.2s; border:1px solid transparent; }
+        .meta-check-item:hover { background:#e2e8f0; }
+        .meta-check-item input[type="checkbox"] { width:auto; cursor:pointer; }
+        .meta-field-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:8px; align-items:flex-end; }
+        .meta-field-row .form-group { margin-bottom:0; }
         @media (max-width:900px) {
             .sidebar { width:100%; height:auto; position:relative; top:auto; bottom:auto; flex-direction:row; overflow-x:auto; padding:8px; border-right:none; border-bottom:1px solid #e2e8f0; }
             .sidebar-menu { display:flex; gap:4px; }
@@ -148,9 +152,9 @@
             <ul class="sidebar-menu">
                 <li><a href="#" data-panel="inicio" class="active"><i class="fas fa-home"></i> Inicio</a></li>
                 <li><a href="#" data-panel="equipo"><i class="fas fa-users"></i> Equipo</a></li>
+                <li><a href="#" data-panel="metas"><i class="fas fa-bullseye"></i> Metas</a></li>
                 <li><a href="#" data-panel="clientes"><i class="fas fa-building"></i> Clientes</a></li>
                 <li><a href="#" data-panel="productos"><i class="fas fa-box"></i> Productos</a></li>
-                <li><a href="#" data-panel="metas"><i class="fas fa-bullseye"></i> Metas</a></li>
                 <li><a href="asignacion_rutas.html" class="external-link"><i class="fas fa-route"></i> Asignación de rutas <i class="fas fa-external-link-alt"></i></a></li>
                 <li><a href="asignacion_carga.html" class="external-link"><i class="fas fa-truck-loading"></i> Asignación de carga <i class="fas fa-external-link-alt"></i></a></li>
             </ul>
@@ -158,9 +162,9 @@
         <main class="main-content">
             <section id="panel-inicio" class="section-panel active"></section>
             <section id="panel-equipo" class="section-panel"></section>
+            <section id="panel-metas" class="section-panel"></section>
             <section id="panel-clientes" class="section-panel"></section>
             <section id="panel-productos" class="section-panel"></section>
-            <section id="panel-metas" class="section-panel"></section>
         </main>
     </div>
 
@@ -379,63 +383,6 @@
         </div>
     </div>
 
-    <!-- Modal Objetivo (Metas) -->
-    <div class="modal-overlay" id="modal-objetivo">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 id="titulo-modal-objetivo">Nuevo Objetivo</h2>
-                <button class="close-modal" onclick="cerrarModalObjetivo()">&times;</button>
-            </div>
-            <form id="form-objetivo" autocomplete="off">
-                <input type="hidden" id="objetivo-id">
-                <div class="info-banner"><i class="fas fa-info-circle"></i> Configure las métricas visibles con las casillas de la sección de Metas. Sólo se guardarán los campos completados.</div>
-                <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Empleado *</label><select id="obj-empleado" required></select></div></div>
-                    <div class="form-col"><div class="form-group"><label>Mes *</label><select id="obj-mes" required>
-                        <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option><option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option><option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option><option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-                    </select></div></div>
-                    <div class="form-col"><div class="form-group"><label>Año *</label><input id="obj-anio" type="number" min="2020" step="1" required></div></div>
-                </div>
-                <div class="form-row" id="row-monto-objetivo">
-                    <div class="form-col"><div class="form-group"><label>Monto Objetivo</label><input id="obj-monto" type="number" step="0.01" min="0"></div></div>
-                    <div class="form-col"><div class="form-group"><label>Moneda</label><input id="obj-moneda" list="monedas-global-list-obj"><datalist id="monedas-global-list-obj"></datalist></div></div>
-                </div>
-                <div class="form-row" id="row-cantidad-objetivo">
-                    <div class="form-col"><div class="form-group"><label>Cantidad Objetivo (unidades)</label><input id="obj-cantidad" type="number" step="0.01" min="0"></div></div>
-                    <div class="form-col"><div class="form-group"><label>Unidad de Medida</label><input id="obj-unidad" list="obj-unidad-list"><datalist id="obj-unidad-list"></datalist></div></div>
-                </div>
-                <div class="form-row" id="row-variedad-objetivo">
-                    <div class="form-col"><div class="form-group"><label>Variedad de Productos (Mix)</label><input id="obj-variedad" type="number" step="1" min="0"></div></div>
-                </div>
-                <div class="form-row" id="row-peso-objetivo">
-                    <div class="form-col"><div class="form-group"><label>Peso Objetivo</label><input id="obj-peso" type="number" step="0.01" min="0"></div></div>
-                </div>
-                <div class="form-row" id="row-volumen-objetivo">
-                    <div class="form-col"><div class="form-group"><label>Volumen Objetivo</label><input id="obj-volumen" type="number" step="0.01" min="0"></div></div>
-                </div>
-                <div class="form-row" id="row-entregas-objetivo">
-                    <div class="form-col"><div class="form-group"><label>Entregas Objetivo</label><input id="obj-entregas" type="number" step="1" min="0"></div></div>
-                </div>
-                <div class="form-row" id="row-porcentaje-entregas-tiempo">
-                    <div class="form-col"><div class="form-group"><label>% Entregas a Tiempo</label><input id="obj-pct-tiempo" type="number" step="0.01" min="0" max="100"></div></div>
-                </div>
-                <div class="form-row" id="row-clientes-nuevos">
-                    <div class="form-col"><div class="form-group"><label>Clientes Nuevos Objetivo</label><input id="obj-clientes-nuevos" type="number" step="1" min="0"></div></div>
-                </div>
-                <div class="form-row" id="row-visitas-objetivo">
-                    <div class="form-col"><div class="form-group"><label>Visitas Objetivo</label><input id="obj-visitas" type="number" step="1" min="0"></div></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Comentario</label><textarea id="obj-comentario" rows="2"></textarea></div></div>
-                </div>
-                <div style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
-                    <button type="button" class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalObjetivo()">Cancelar</button>
-                    <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <div id="notification" class="notification"><i class="fas fa-circle-info"></i><span></span></div>
     <div id="tooltip-global"></div>
     <iframe id="whatsapp-iframe" style="display:none;width:0;height:0;border:0;"></iframe>
@@ -463,22 +410,16 @@
         const unidadPesoMap = { 'Kilogramo':'kg', 'Gramo':'g', 'Tonelada':'ton', 'Libra':'lb', 'Onza':'oz' };
         const unidadVolumenMap = { 'Litro':'litro', 'Mililitro':'ml', 'Metro cúbico':'m³', 'Centímetro cúbico':'cm³', 'Galón':'galón' };
 
-        // Persistencia de checkboxes de métricas en localStorage
-        const METAS_CHECKBOX_STORAGE_KEY = 'nexial_metas_visible_fields';
-        const defaultVisibleFields = {
-            monto: true, cantidad: true, variedad: true, peso: false, volumen: false,
-            entregas: false, pct_tiempo: false, clientes_nuevos: false, visitas: false
+        // Opciones configurables de metas con sus campos en la tabla objetivos_empleado
+        const META_CAMPOS = {
+            monto: { label: 'Monto de venta (Dinero)', campo: 'monto_objetivo', moneda: 'moneda_objetivo_id', tipo: 'dinero' },
+            cantidad: { label: 'Cantidad de producto (Unidades)', campo: 'cantidad_objetivo', unidad: 'unidad_objetivo_id', tipo: 'cantidad' },
+            variedad: { label: 'Mix de productos (Variedad)', campo: 'variedad_objetivo', tipo: 'entero' },
+            peso: { label: 'Peso total', campo: 'peso_objetivo', tipo: 'decimal' },
+            volumen: { label: 'Volumen total', campo: 'volumen_objetivo', tipo: 'decimal' },
+            clientes_nuevos: { label: 'Cobertura (Clientes nuevos)', campo: 'clientes_nuevos_objetivo', tipo: 'entero' },
+            visitas: { label: 'Visitas programadas', campo: 'visitas_objetivo', tipo: 'entero' }
         };
-
-        function getMetasVisibleFields() {
-            try {
-                const saved = localStorage.getItem(METAS_CHECKBOX_STORAGE_KEY);
-                return saved ? JSON.parse(saved) : { ...defaultVisibleFields };
-            } catch { return { ...defaultVisibleFields }; }
-        }
-        function setMetasVisibleFields(fields) {
-            localStorage.setItem(METAS_CHECKBOX_STORAGE_KEY, JSON.stringify(fields));
-        }
 
         function capitalizarInput(el) {
             let val = el.value;
@@ -697,7 +638,7 @@
                 const bdMonedas = await apiFetch('monedas?select=codigo,nombre,simbolo');
                 bdMonedas.forEach(m => { if (!todasLasMonedas.find(t => t.codigo === m.codigo)) todasLasMonedas.push({ codigo:m.codigo, nombre:m.nombre, simbolo:m.simbolo||'' }); });
             } catch(e) {}
-            ['monedas-global-list-emp','monedas-global-list-prod','monedas-global-list-cli','monedas-global-list-obj'].forEach(id => {
+            ['monedas-global-list-emp','monedas-global-list-prod','monedas-global-list-cli'].forEach(id => {
                 const dl = document.getElementById(id); if (!dl) return; dl.innerHTML = '';
                 todasLasMonedas.forEach(m => { const o = document.createElement('option'); o.value = `${m.codigo} - ${m.nombre}`; dl.appendChild(o); });
             });
@@ -1333,19 +1274,16 @@
             } catch(err) { showNotification('Error: '+err.message, 'error'); }
         });
 
-        // ==================== CLIENTES (con reactivación) ====================
-        async function cargarClientes(vendedorId='', filtroTipo='', filtroSegmento='', filtroCanal='', filtroNegocio='', estadoFiltro='activo') {
+        async function cargarClientes(vendedorId='', filtroTipo='', filtroSegmento='', filtroCanal='', filtroNegocio='', estadoFiltro='true') {
             const empId = currentUser.empresa_id;
             let query = `clientes?empresa_id=eq.${empId}&select=*&limit=1000`;
+            if (estadoFiltro === 'true') query += `&activo=eq.true`;
+            else if (estadoFiltro === 'false') query += `&activo=eq.false`;
             if(vendedorId) query += `&vendedor_asignado_id=eq.${vendedorId}`;
             if(filtroTipo) query += `&tipo_cliente=eq.${encodeURIComponent(filtroTipo)}`;
             if(filtroSegmento) query += `&segmento_mercado=eq.${encodeURIComponent(filtroSegmento)}`;
             if(filtroCanal) query += `&canal_venta=eq.${encodeURIComponent(filtroCanal)}`;
             if(filtroNegocio) query += `&tipo_negocio=eq.${encodeURIComponent(filtroNegocio)}`;
-            if(estadoFiltro === 'activo') query += `&activo=eq.true`;
-            else if(estadoFiltro === 'inactivo') query += `&activo=eq.false`;
-            // si 'todos' no añade filtro
-
             const clientes = await apiFetch(query);
             const vendedores = await apiFetch(`empleados?empresa_id=eq.${empId}&select=id,nombres,apellido_paterno&activo=eq.true&limit=1000`);
             const vendedorMap = {}; vendedores.forEach(v => vendedorMap[v.id] = v.nombres+' '+v.apellido_paterno);
@@ -1354,20 +1292,16 @@
                 const nombre = c.razon_social || (c.nombres||'')+' '+(c.apellido_paterno||'');
                 const gpsCount = Array.isArray(c.direcciones_entrega) ? c.direcciones_entrega.length : 0;
                 const estadoBadge = c.activo ? '<span class="badge badge-success">Activo</span>' : '<span class="badge badge-danger">Inactivo</span>';
-                let acciones = `<button class="btn-sm btn-edit" onclick="editarCliente('${c.id}')"><i class="fas fa-edit"></i></button>`;
-                if (c.activo) {
-                    acciones += `<button class="btn-sm btn-delete" onclick="eliminarCliente('${c.id}')"><i class="fas fa-ban"></i></button>`;
-                } else {
-                    acciones += `<button class="btn-sm btn-activate" onclick="reactivarCliente('${c.id}')"><i class="fas fa-check"></i></button>`;
-                }
-                acciones += `<button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button>`;
+                const acciones = c.activo
+                    ? `<button class="btn-sm btn-edit" onclick="editarCliente('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-delete" onclick="eliminarCliente('${c.id}')"><i class="fas fa-ban"></i></button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button>`
+                    : `<button class="btn-sm btn-activate" onclick="activarCliente('${c.id}')"><i class="fas fa-check"></i> Activar</button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button>`;
                 filas += `<tr><td>${nombre.trim()||'-'}</td><td>${c.email||'-'}</td><td>${c.ciudad||'-'}, ${c.pais||'-'}</td><td>${c.tipo_cliente||'-'}</td><td>${c.tipo_negocio||'-'}</td><td>${gpsCount > 0 ? `<i class="fas fa-map-marker-alt" style="color:#1a56db;" title="${gpsCount} punto(s) de entrega"></i> ${gpsCount}` : '-'}</td><td>${c.vendedor_asignado_id ? (vendedorMap[c.vendedor_asignado_id]||'Asignado') : 'Sin asignar'}</td><td>${estadoBadge}</td><td class="action-buttons">${acciones}</td></tr>`;
             });
             if(!filas) filas = '<tr><td colspan="9" style="text-align:center;">No se encontraron clientes.</td></tr>';
             document.getElementById('panel-clientes').innerHTML = `
             <div class="card"><div class="card-header"><h2>Clientes</h2><button class="btn-solid" onclick="abrirModalCliente()"><i class="fas fa-plus"></i> Nuevo Cliente</button></div>
-            <div class="filtros"><div class="filtro-group"><label>Estado:</label><select id="filtro-estado-cliente" onchange="aplicarFiltrosClientes()"><option value="activo" ${estadoFiltro==='activo'?'selected':''}>Activos</option><option value="inactivo" ${estadoFiltro==='inactivo'?'selected':''}>Inactivos</option><option value="todos" ${estadoFiltro==='todos'?'selected':''}>Todos</option></select></div>
-            <div class="filtro-group"><label>Vendedor:</label><select id="filtro-vendedor-clientes" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
+            <div class="filtros"><div class="filtro-group"><label>Vendedor:</label><select id="filtro-vendedor-clientes" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
+            <div class="filtro-group"><label>Estado:</label><select id="filtro-estado-clientes" onchange="aplicarFiltrosClientes()"><option value="true" ${estadoFiltro==='true'?'selected':''}>Activos</option><option value="false" ${estadoFiltro==='false'?'selected':''}>Inactivos</option><option value="all" ${estadoFiltro==='all'?'selected':''}>Todos</option></select></div>
             <div class="filtro-group"><label>Tipo:</label><select id="filtro-tipo-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
             <div class="filtro-group"><label>Segmento:</label><select id="filtro-segmento-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
             <div class="filtro-group"><label>Canal:</label><select id="filtro-canal-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div>
@@ -1385,27 +1319,14 @@
             initTooltips();
         }
         function aplicarFiltrosClientes() {
-            cargarClientes(
-                document.getElementById('filtro-vendedor-clientes')?.value||'',
-                document.getElementById('filtro-tipo-cliente')?.value||'',
-                document.getElementById('filtro-segmento-cliente')?.value||'',
-                document.getElementById('filtro-canal-cliente')?.value||'',
-                document.getElementById('filtro-negocio-cliente')?.value||'',
-                document.getElementById('filtro-estado-cliente')?.value||'activo'
-            );
+            const estado = document.getElementById('filtro-estado-clientes')?.value || 'true';
+            cargarClientes(document.getElementById('filtro-vendedor-clientes')?.value||'', document.getElementById('filtro-tipo-cliente')?.value||'', document.getElementById('filtro-segmento-cliente')?.value||'', document.getElementById('filtro-canal-cliente')?.value||'', document.getElementById('filtro-negocio-cliente')?.value||'', estado);
         }
-        async function reactivarCliente(id) {
-            mostrarConfirmacion('¿Reactivar este cliente?', 'Reactivar Cliente', async () => {
+        function activarCliente(id) {
+            mostrarConfirmacion('¿Activar cliente? Volverá a estar visible.', 'Activar Cliente', async () => {
                 await apiFetch(`clientes?id=eq.${id}`, 'PATCH', { activo: true });
-                showNotification('Cliente reactivado');
-                cargarClientes(
-                    document.getElementById('filtro-vendedor-clientes')?.value||'',
-                    document.getElementById('filtro-tipo-cliente')?.value||'',
-                    document.getElementById('filtro-segmento-cliente')?.value||'',
-                    document.getElementById('filtro-canal-cliente')?.value||'',
-                    document.getElementById('filtro-negocio-cliente')?.value||'',
-                    document.getElementById('filtro-estado-cliente')?.value||'activo'
-                );
+                aplicarFiltrosClientes();
+                showNotification('Cliente activado');
             });
         }
 
@@ -1452,8 +1373,8 @@
             document.getElementById('titulo-modal-cliente').textContent = 'Editar Cliente';
             document.getElementById('modal-cliente').classList.add('active'); initTooltips();
         }
-        function eliminarCliente(id) { mostrarConfirmacion('¿Desactivar cliente?','Desactivar Cliente', async ()=>{ await apiFetch(`clientes?id=eq.${id}`, 'PATCH', { activo:false }); cargarClientes(); showNotification('Cliente desactivado'); }); }
-        function eliminarDefinitivamenteCliente(id) { mostrarConfirmacion('¿Eliminar permanentemente este cliente? Se perderán sus datos asociados.','Eliminar Cliente', async ()=>{ await apiFetch(`clientes?id=eq.${id}`, 'DELETE'); cargarClientes(); showNotification('Cliente eliminado'); }); }
+        function eliminarCliente(id) { mostrarConfirmacion('¿Desactivar cliente?','Desactivar Cliente', async ()=>{ await apiFetch(`clientes?id=eq.${id}`, 'PATCH', { activo:false }); aplicarFiltrosClientes(); showNotification('Cliente desactivado'); }); }
+        function eliminarDefinitivamenteCliente(id) { mostrarConfirmacion('¿Eliminar permanentemente este cliente? Se perderán sus datos asociados.','Eliminar Cliente', async ()=>{ await apiFetch(`clientes?id=eq.${id}`, 'DELETE'); aplicarFiltrosClientes(); showNotification('Cliente eliminado'); }); }
 
         document.getElementById('form-cliente').addEventListener('submit', async function(e) {
             e.preventDefault(); const id = document.getElementById('cliente-id').value;
@@ -1491,215 +1412,246 @@
             try {
                 if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); }
                 else await apiFetch('clientes', 'POST', payload);
-                cerrarModalCliente(); cargarClientes(); showNotification(id?'Cliente actualizado':'Cliente creado');
+                cerrarModalCliente(); aplicarFiltrosClientes(); showNotification(id?'Cliente actualizado':'Cliente creado');
             } catch(err) { showNotification('Error: '+err.message, 'error'); }
         });
         function parseJsonSeguro(valor) { if(!valor||!valor.trim()) return null; try { return JSON.parse(valor); } catch(e) { return null; } }
 
-        // ==================== METAS ====================
-        async function cargarMetas() {
+        // ==================== PANEL DE METAS ====================
+        async function cargarPanelMetas() {
             const empId = currentUser.empresa_id;
-            const ahora = new Date();
-            const mesActual = ahora.getMonth()+1;
-            const anioActual = ahora.getFullYear();
-            const visibleFields = getMetasVisibleFields();
-            // Obtener empleados comerciales
-            const comerciales = await obtenerEmpleadosComerciales();
-            // Obtener todos los objetivos de la empresa
-            const objetivos = await apiFetch(`objetivos_empleado?empleado_id=in.(${comerciales.map(e=>e.id).join(',')||'00000000-0000-0000-0000-000000000000'})&select=*&order=anio.desc,mes.desc&limit=1000`);
-            // Construir tabla de objetivos
-            let filasObjetivos = '';
-            if (objetivos.length) {
-                const empleadoMap = {};
-                comerciales.forEach(e => empleadoMap[e.id] = e.nombre);
-                objetivos.forEach(o => {
-                    const nombreEmp = empleadoMap[o.empleado_id] || 'Desconocido';
-                    let detalle = [];
-                    if (o.monto_objetivo) detalle.push(`💲${o.monto_objetivo}`);
-                    if (o.cantidad_objetivo) detalle.push(`📦${o.cantidad_objetivo}`);
-                    if (o.variedad_objetivo) detalle.push(`🔢${o.variedad_objetivo}prod`);
-                    if (o.peso_objetivo) detalle.push(`⚖️${o.peso_objetivo}kg`);
-                    if (o.volumen_objetivo) detalle.push(`📐${o.volumen_objetivo}m³`);
-                    if (o.entregas_objetivo) detalle.push(`🚚${o.entregas_objetivo}`);
-                    if (o.porcentaje_entregas_a_tiempo) detalle.push(`⏱️${o.porcentaje_entregas_a_tiempo}%`);
-                    if (o.clientes_nuevos_objetivo) detalle.push(`🆕${o.clientes_nuevos_objetivo}`);
-                    if (o.visitas_objetivo) detalle.push(`👁️${o.visitas_objetivo}`);
-                    filasObjetivos += `<tr>
-                        <td>${nombreEmp}</td>
-                        <td>${o.mes}/${o.anio}</td>
-                        <td>${detalle.join(' ') || '—'}</td>
-                        <td>${o.comentario||''}</td>
-                        <td class="action-buttons">
-                            <button class="btn-sm btn-edit" onclick="editarObjetivo('${o.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-sm btn-remove-permanent" onclick="eliminarObjetivo('${o.id}')"><i class="fas fa-trash-alt"></i></button>
-                        </td>
-                    </tr>`;
-                });
-            } else {
-                filasObjetivos = '<tr><td colspan="5" style="text-align:center;">No hay objetivos registrados.</td></tr>';
-            }
-
-            document.getElementById('panel-metas').innerHTML = `
+            const now = new Date();
+            const mesActual = now.getMonth() + 1;
+            const anioActual = now.getFullYear();
+            let html = `
             <div class="card">
-                <div class="card-header"><h2>Preferencias de Métricas</h2></div>
-                <div class="checkbox-group" id="metricas-checkboxes">
-                    <label class="checkbox-label"><input type="checkbox" data-metric="monto" ${visibleFields.monto ? 'checked' : ''} onchange="toggleMetrica('monto', this.checked)"> Dinero (Monto)</label>
-                    <label class="checkbox-label"><input type="checkbox" data-metric="cantidad" ${visibleFields.cantidad ? 'checked' : ''} onchange="toggleMetrica('cantidad', this.checked)"> Cantidad / Unidades</label>
-                    <label class="checkbox-label"><input type="checkbox" data-metric="variedad" ${visibleFields.variedad ? 'checked' : ''} onchange="toggleMetrica('variedad', this.checked)"> Mix de Productos (Variedad)</label>
-                    <label class="checkbox-label"><input type="checkbox" data-metric="peso" ${visibleFields.peso ? 'checked' : ''} onchange="toggleMetrica('peso', this.checked)"> Peso</label>
-                    <label class="checkbox-label"><input type="checkbox" data-metric="volumen" ${visibleFields.volumen ? 'checked' : ''} onchange="toggleMetrica('volumen', this.checked)"> Volumen</label>
-                    <label class="checkbox-label"><input type="checkbox" data-metric="entregas" ${visibleFields.entregas ? 'checked' : ''} onchange="toggleMetrica('entregas', this.checked)"> Entregas</label>
-                    <label class="checkbox-label"><input type="checkbox" data-metric="pct_tiempo" ${visibleFields.pct_tiempo ? 'checked' : ''} onchange="toggleMetrica('pct_tiempo', this.checked)"> % Entregas a Tiempo</label>
-                    <label class="checkbox-label"><input type="checkbox" data-metric="clientes_nuevos" ${visibleFields.clientes_nuevos ? 'checked' : ''} onchange="toggleMetrica('clientes_nuevos', this.checked)"> Cobertura (Clientes Nuevos)</label>
-                    <label class="checkbox-label"><input type="checkbox" data-metric="visitas" ${visibleFields.visitas ? 'checked' : ''} onchange="toggleMetrica('visitas', this.checked)"> Visitas</label>
+                <div class="card-header"><h2>Metas por Empleado</h2></div>
+                <div class="info-banner"><i class="fas fa-bullseye"></i> Configure objetivos mensuales para sus empleados. Marque las casillas de las métricas que desea establecer.</div>
+                <div class="filtros">
+                    <div class="filtro-group"><label>Empleado:</label><select id="meta-empleado" onchange="cargarMetasExistentes()"><option value="">Seleccione...</option></select></div>
+                    <div class="filtro-group"><label>Mes:</label><select id="meta-mes" onchange="cargarMetasExistentes()">`;
+            for (let m = 1; m <= 12; m++) {
+                html += `<option value="${m}" ${m === mesActual ? 'selected' : ''}>${new Date(2024, m-1, 1).toLocaleString('es', { month: 'long' })}</option>`;
+            }
+            html += `</select></div>
+                    <div class="filtro-group"><label>Año:</label><input type="number" id="meta-anio" value="${anioActual}" min="2020" max="2100" style="width:90px;" onchange="cargarMetasExistentes()"></div>
+                </div>
+                <div id="meta-form-container">
+                    <p style="color:#64748b; font-size:0.9rem;">Seleccione un empleado para configurar sus metas.</p>
+                </div>
+                <div style="margin-top:16px;" id="meta-guardar-area" hidden>
+                    <button class="btn-solid" onclick="guardarMeta()"><i class="fas fa-save"></i> Guardar Metas</button>
                 </div>
             </div>
             <div class="card">
-                <div class="card-header"><h2>Objetivos de Vendedores</h2><button class="btn-solid" onclick="abrirModalObjetivo()"><i class="fas fa-plus"></i> Nuevo Objetivo</button></div>
-                <div class="filtros">
-                    <div class="filtro-group"><label>Mes:</label><select id="filtro-mes-metas" onchange="cargarMetas()">
-                        <option value="">Todos</option>
-                        ${Array.from({length:12}, (_,i)=>`<option value="${i+1}" ${i+1===mesActual?'selected':''}>${['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][i]}</option>`).join('')}
-                    </select></div>
-                    <div class="filtro-group"><label>Año:</label><input type="number" id="filtro-anio-metas" value="${anioActual}" min="2020" onchange="cargarMetas()"></div>
-                    <div class="filtro-group"><label>Empleado:</label><select id="filtro-empleado-metas" onchange="cargarMetas()"><option value="">Todos</option>${comerciales.map(e=>`<option value="${e.id}">${e.nombre}</option>`).join('')}</select></div>
+                <div class="card-header"><h2>Historial de Metas</h2></div>
+                <div class="table-wrapper" id="meta-tabla-container">
+                    <p style="color:#64748b; font-size:0.9rem;">Seleccione un empleado para ver su historial.</p>
                 </div>
-                <div class="table-wrapper"><table><thead><tr><th>Empleado</th><th>Período</th><th>Métricas</th><th>Comentario</th><th>Acciones</th></tr></thead><tbody>${filasObjetivos}</tbody></table></div>
             </div>`;
-            initTooltips();
-        }
+            document.getElementById('panel-metas').innerHTML = html;
 
-        function toggleMetrica(metric, enabled) {
-            const fields = getMetasVisibleFields();
-            fields[metric] = enabled;
-            setMetasVisibleFields(fields);
-            // Actualizar visibilidad de las filas del formulario si está abierto
-            if (document.getElementById('modal-objetivo').classList.contains('active')) {
-                aplicarVisibilidadCamposObjetivo();
-            }
-        }
-
-        function aplicarVisibilidadCamposObjetivo() {
-            const vis = getMetasVisibleFields();
-            document.getElementById('row-monto-objetivo').style.display = vis.monto ? 'flex' : 'none';
-            document.getElementById('row-cantidad-objetivo').style.display = vis.cantidad ? 'flex' : 'none';
-            document.getElementById('row-variedad-objetivo').style.display = vis.variedad ? 'flex' : 'none';
-            document.getElementById('row-peso-objetivo').style.display = vis.peso ? 'flex' : 'none';
-            document.getElementById('row-volumen-objetivo').style.display = vis.volumen ? 'flex' : 'none';
-            document.getElementById('row-entregas-objetivo').style.display = vis.entregas ? 'flex' : 'none';
-            document.getElementById('row-porcentaje-entregas-tiempo').style.display = vis.pct_tiempo ? 'flex' : 'none';
-            document.getElementById('row-clientes-nuevos').style.display = vis.clientes_nuevos ? 'flex' : 'none';
-            document.getElementById('row-visitas-objetivo').style.display = vis.visitas ? 'flex' : 'none';
-        }
-
-        async function obtenerEmpleadosComerciales() {
-            const empId = currentUser.empresa_id;
-            // Obtener usuarios con rol Ejecutivo Comercial
-            const usuarios = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent('Ejecutivo Comercial')}&select=email&limit=1000`);
-            const emails = usuarios.map(u => u.email.toLowerCase());
-            if (!emails.length) return [];
-            const empleados = await apiFetch(`empleados?empresa_id=eq.${empId}&select=id,nombres,apellido_paterno,email&limit=1000`);
-            return empleados.filter(e => emails.includes((e.email||'').toLowerCase())).map(e => ({ id: e.id, nombre: `${e.nombres} ${e.apellido_paterno}` }));
-        }
-
-        function abrirModalObjetivo(id = null) {
-            document.getElementById('modal-objetivo').classList.add('active');
-            document.getElementById('form-objetivo').reset();
-            document.getElementById('objetivo-id').value = '';
-            document.getElementById('titulo-modal-objetivo').textContent = 'Nuevo Objetivo';
-            document.getElementById('obj-moneda').value = monedaPorDefecto();
             // Llenar select de empleados
-            obtenerEmpleadosComerciales().then(emps => {
-                const sel = document.getElementById('obj-empleado');
-                sel.innerHTML = '';
-                emps.forEach(e => { const o = document.createElement('option'); o.value = e.id; o.text = e.nombre; sel.appendChild(o); });
+            const empleados = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
+            const sel = document.getElementById('meta-empleado');
+            empleados.forEach(emp => {
+                const opt = document.createElement('option');
+                opt.value = emp.id;
+                opt.textContent = `${emp.nombres} ${emp.apellido_paterno}`;
+                sel.appendChild(opt);
             });
-            // Mes actual por defecto
-            const ahora = new Date();
-            document.getElementById('obj-mes').value = ahora.getMonth()+1;
-            document.getElementById('obj-anio').value = ahora.getFullYear();
-            aplicarVisibilidadCamposObjetivo();
-            if (id) editarObjetivo(id);
-            initTooltips();
-        }
-        function cerrarModalObjetivo() { document.getElementById('modal-objetivo').classList.remove('active'); }
-
-        async function editarObjetivo(id) {
-            const obj = await apiFetch(`objetivos_empleado?id=eq.${id}&select=*`);
-            if (!obj.length) return;
-            const o = obj[0];
-            document.getElementById('objetivo-id').value = o.id;
-            document.getElementById('obj-empleado').value = o.empleado_id;
-            document.getElementById('obj-mes').value = o.mes;
-            document.getElementById('obj-anio').value = o.anio;
-            document.getElementById('obj-monto').value = o.monto_objetivo || '';
-            document.getElementById('obj-cantidad').value = o.cantidad_objetivo || '';
-            document.getElementById('obj-variedad').value = o.variedad_objetivo || '';
-            document.getElementById('obj-peso').value = o.peso_objetivo || '';
-            document.getElementById('obj-volumen').value = o.volumen_objetivo || '';
-            document.getElementById('obj-entregas').value = o.entregas_objetivo || '';
-            document.getElementById('obj-pct-tiempo').value = o.porcentaje_entregas_a_tiempo || '';
-            document.getElementById('obj-clientes-nuevos').value = o.clientes_nuevos_objetivo || '';
-            document.getElementById('obj-visitas').value = o.visitas_objetivo || '';
-            document.getElementById('obj-comentario').value = o.comentario || '';
-            if (o.moneda_objetivo_id) {
-                const mon = await apiFetch(`monedas?id=eq.${o.moneda_objetivo_id}&select=codigo,nombre`);
-                if (mon.length) document.getElementById('obj-moneda').value = `${mon[0].codigo} - ${mon[0].nombre}`;
-            }
-            if (o.unidad_objetivo_id) {
-                const um = await apiFetch(`unidades_medida?id=eq.${o.unidad_objetivo_id}&select=nombre`);
-                if (um.length) document.getElementById('obj-unidad').value = um[0].nombre;
-            }
-            document.getElementById('titulo-modal-objetivo').textContent = 'Editar Objetivo';
-            document.getElementById('modal-objetivo').classList.add('active');
-            aplicarVisibilidadCamposObjetivo();
             initTooltips();
         }
 
-        function eliminarObjetivo(id) {
-            mostrarConfirmacion('¿Eliminar este objetivo?', 'Eliminar Objetivo', async () => {
-                await apiFetch(`objetivos_empleado?id=eq.${id}`, 'DELETE');
-                cargarMetas();
-                showNotification('Objetivo eliminado');
-            });
+        async function cargarMetasExistentes() {
+            const empId = document.getElementById('meta-empleado')?.value;
+            const mes = parseInt(document.getElementById('meta-mes')?.value);
+            const anio = parseInt(document.getElementById('meta-anio')?.value);
+            if (!empId || !mes || !anio) return;
+
+            // Buscar meta existente para ese empleado, mes y año
+            const metas = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&activo=eq.true&select=*&limit=1`);
+
+            let metaExistente = metas.length > 0 ? metas[0] : null;
+
+            // Construir formulario con checkboxes
+            let formHtml = `<div class="meta-check-group">`;
+            for (const [key, meta] of Object.entries(META_CAMPOS)) {
+                const checked = metaExistente && metaExistente[meta.campo] !== null && metaExistente[meta.campo] !== undefined;
+                formHtml += `<label class="meta-check-item"><input type="checkbox" class="meta-check" data-key="${key}" onchange="toggleMetaField('${key}')" ${checked ? 'checked' : ''}> ${meta.label}</label>`;
+            }
+            formHtml += `</div><div id="meta-fields-container">`;
+
+            for (const [key, meta] of Object.entries(META_CAMPOS)) {
+                const valor = metaExistente ? (metaExistente[meta.campo] || '') : '';
+                let fieldHtml = '';
+                if (meta.tipo === 'dinero') {
+                    fieldHtml = `<div class="meta-field-row" id="meta-row-${key}" style="display:${metaExistente && metaExistente[meta.campo] !== null ? 'flex' : 'none'};">
+                        <div class="form-group"><label>${meta.label}</label><input type="number" step="0.01" min="0" id="meta-val-${key}" value="${valor}"></div>
+                        <div class="form-group"><label>Moneda</label><input list="monedas-global-list-meta" id="meta-moneda-${key}" value="${metaExistente && metaExistente.moneda_objetivo_id ? await obtenerCodigoMoneda(metaExistente.moneda_objetivo_id) : monedaPorDefecto()}"><datalist id="monedas-global-list-meta"></datalist></div>
+                    </div>`;
+                } else if (meta.tipo === 'cantidad') {
+                    fieldHtml = `<div class="meta-field-row" id="meta-row-${key}" style="display:${metaExistente && metaExistente[meta.campo] !== null ? 'flex' : 'none'};">
+                        <div class="form-group"><label>${meta.label}</label><input type="number" step="0.01" min="0" id="meta-val-${key}" value="${valor}"></div>
+                        <div class="form-group"><label>Unidad</label><input list="unidad-list-meta" id="meta-unidad-${key}" value="${metaExistente && metaExistente.unidad_objetivo_id ? await obtenerNombreUnidad(metaExistente.unidad_objetivo_id) : ''}"><datalist id="unidad-list-meta"></datalist></div>
+                    </div>`;
+                } else if (meta.tipo === 'decimal') {
+                    fieldHtml = `<div class="meta-field-row" id="meta-row-${key}" style="display:${metaExistente && metaExistente[meta.campo] !== null ? 'flex' : 'none'};">
+                        <div class="form-group"><label>${meta.label}</label><input type="number" step="0.01" min="0" id="meta-val-${key}" value="${valor}"></div>
+                    </div>`;
+                } else if (meta.tipo === 'entero') {
+                    fieldHtml = `<div class="meta-field-row" id="meta-row-${key}" style="display:${metaExistente && metaExistente[meta.campo] !== null ? 'flex' : 'none'};">
+                        <div class="form-group"><label>${meta.label}</label><input type="number" step="1" min="0" id="meta-val-${key}" value="${valor}"></div>
+                    </div>`;
+                }
+                formHtml += fieldHtml;
+            }
+            formHtml += `<div class="meta-field-row"><div class="form-group"><label>Comentario</label><input type="text" id="meta-comentario" value="${metaExistente ? (metaExistente.comentario || '') : ''}"></div></div>`;
+            formHtml += `</div>`;
+            document.getElementById('meta-form-container').innerHTML = formHtml;
+            document.getElementById('meta-guardar-area').hidden = false;
+
+            // Poblar datalists de monedas y unidades
+            const monDL = document.getElementById('monedas-global-list-meta');
+            if (monDL) {
+                monDL.innerHTML = '';
+                todasLasMonedas.forEach(m => { const o = document.createElement('option'); o.value = `${m.codigo} - ${m.nombre}`; monDL.appendChild(o); });
+            }
+            const unDL = document.getElementById('unidad-list-meta');
+            if (unDL) {
+                unDL.innerHTML = '';
+                const unidades = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón'];
+                unidades.forEach(u => { const o = document.createElement('option'); o.value = u; unDL.appendChild(o); });
+            }
+
+            // Cargar historial en tabla
+            const historial = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&select=*&order=anio.desc,mes.desc&limit=50`);
+            let tablaHtml = '';
+            if (historial.length) {
+                tablaHtml = `<table><thead><tr><th>Año</th><th>Mes</th><th>Monto</th><th>Cantidad</th><th>Variedad</th><th>Peso</th><th>Volumen</th><th>Clientes Nuevos</th><th>Visitas</th><th>Comentario</th><th>Acción</th></tr></thead><tbody>`;
+                historial.forEach(h => {
+                    const mesNombre = new Date(2024, h.mes-1, 1).toLocaleString('es', { month: 'short' });
+                    tablaHtml += `<tr>
+                        <td>${h.anio}</td><td>${mesNombre}</td>
+                        <td>${h.monto_objetivo ? '$'+parseFloat(h.monto_objetivo).toFixed(2) : '-'}</td>
+                        <td>${h.cantidad_objetivo || '-'}</td>
+                        <td>${h.variedad_objetivo || '-'}</td>
+                        <td>${h.peso_objetivo || '-'}</td>
+                        <td>${h.volumen_objetivo || '-'}</td>
+                        <td>${h.clientes_nuevos_objetivo || '-'}</td>
+                        <td>${h.visitas_objetivo || '-'}</td>
+                        <td>${h.comentario || '-'}</td>
+                        <td><button class="btn-sm btn-edit" onclick="editarMetaExistente('${h.id}')"><i class="fas fa-edit"></i></button> <button class="btn-sm btn-delete" onclick="eliminarMeta('${h.id}')"><i class="fas fa-trash-alt"></i></button></td>
+                    </tr>`;
+                });
+                tablaHtml += `</tbody></table>`;
+            } else {
+                tablaHtml = `<p style="color:#64748b; font-size:0.9rem;">No hay metas registradas para este empleado.</p>`;
+            }
+            document.getElementById('meta-tabla-container').innerHTML = tablaHtml;
+            initTooltips();
         }
 
-        document.getElementById('form-objetivo').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const id = document.getElementById('objetivo-id').value;
-            const monedaId = document.getElementById('obj-moneda').value.trim() ? await ensureCurrency(document.getElementById('obj-moneda').value.trim()) : null;
-            const unidadId = document.getElementById('obj-unidad').value.trim() ? await ensureUnidadMedida(document.getElementById('obj-unidad').value.trim()) : null;
-            const payload = {
-                empleado_id: document.getElementById('obj-empleado').value,
-                mes: parseInt(document.getElementById('obj-mes').value),
-                anio: parseInt(document.getElementById('obj-anio').value),
-                monto_objetivo: parseFloat(document.getElementById('obj-monto').value) || null,
-                moneda_objetivo_id: monedaId,
-                cantidad_objetivo: parseFloat(document.getElementById('obj-cantidad').value) || null,
-                unidad_objetivo_id: unidadId,
-                variedad_objetivo: parseInt(document.getElementById('obj-variedad').value) || null,
-                peso_objetivo: parseFloat(document.getElementById('obj-peso').value) || null,
-                volumen_objetivo: parseFloat(document.getElementById('obj-volumen').value) || null,
-                entregas_objetivo: parseInt(document.getElementById('obj-entregas').value) || null,
-                porcentaje_entregas_a_tiempo: parseFloat(document.getElementById('obj-pct-tiempo').value) || null,
-                clientes_nuevos_objetivo: parseInt(document.getElementById('obj-clientes-nuevos').value) || null,
-                visitas_objetivo: parseInt(document.getElementById('obj-visitas').value) || null,
-                comentario: document.getElementById('obj-comentario').value.trim() || null,
-                creado_por: currentUser?.id || null
-            };
+        function toggleMetaField(key) {
+            const row = document.getElementById(`meta-row-${key}`);
+            const chk = document.querySelector(`.meta-check[data-key="${key}"]`);
+            if (row) row.style.display = chk && chk.checked ? 'flex' : 'none';
+        }
+
+        async function obtenerCodigoMoneda(monedaId) {
             try {
-                if (id) {
-                    await apiFetch(`objetivos_empleado?id=eq.${id}`, 'PATCH', payload);
+                const mon = await apiFetch(`monedas?id=eq.${monedaId}&select=codigo,nombre`);
+                if (mon.length) return `${mon[0].codigo} - ${mon[0].nombre}`;
+            } catch(e) {}
+            return monedaPorDefecto();
+        }
+
+        async function obtenerNombreUnidad(unidadId) {
+            try {
+                const um = await apiFetch(`unidades_medida?id=eq.${unidadId}&select=nombre`);
+                if (um.length) return um[0].nombre;
+            } catch(e) {}
+            return '';
+        }
+
+        async function guardarMeta() {
+            const empId = document.getElementById('meta-empleado')?.value;
+            const mes = parseInt(document.getElementById('meta-mes')?.value);
+            const anio = parseInt(document.getElementById('meta-anio')?.value);
+            if (!empId || !mes || !anio) { showNotification('Seleccione empleado, mes y año', 'error'); return; }
+
+            const payload = {
+                empleado_id: empId,
+                mes: mes,
+                anio: anio,
+                activo: true,
+                creado_por: currentUser.id,
+                asignado_por: currentUser.id,
+                comentario: document.getElementById('meta-comentario')?.value || null
+            };
+
+            // Procesar cada meta chequeada
+            for (const [key, meta] of Object.entries(META_CAMPOS)) {
+                const chk = document.querySelector(`.meta-check[data-key="${key}"]`);
+                if (chk && chk.checked) {
+                    const val = document.getElementById(`meta-val-${key}`)?.value;
+                    if (val !== undefined && val !== '') {
+                        payload[meta.campo] = meta.tipo === 'entero' ? parseInt(val) : parseFloat(val);
+                    } else {
+                        payload[meta.campo] = null;
+                    }
+                    if (meta.moneda) {
+                        const monInput = document.getElementById(`meta-moneda-${key}`)?.value;
+                        if (monInput) payload[meta.moneda] = await ensureCurrency(monInput);
+                        else payload[meta.moneda] = null;
+                    }
+                    if (meta.unidad) {
+                        const unInput = document.getElementById(`meta-unidad-${key}`)?.value;
+                        if (unInput) payload[meta.unidad] = await ensureUnidadMedida(unInput);
+                        else payload[meta.unidad] = null;
+                    }
+                } else {
+                    payload[meta.campo] = null;
+                    if (meta.moneda) payload[meta.moneda] = null;
+                    if (meta.unidad) payload[meta.unidad] = null;
+                }
+            }
+
+            try {
+                // Verificar si ya existe una meta para ese empleado/mes/año
+                const existente = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&select=id&limit=1`);
+                if (existente.length > 0) {
+                    await apiFetch(`objetivos_empleado?id=eq.${existente[0].id}`, 'PATCH', payload);
+                    showNotification('Meta actualizada correctamente');
                 } else {
                     await apiFetch('objetivos_empleado', 'POST', payload);
+                    showNotification('Meta creada correctamente');
                 }
-                cerrarModalObjetivo();
-                cargarMetas();
-                showNotification(id ? 'Objetivo actualizado' : 'Objetivo creado');
+                cargarMetasExistentes();
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
             }
-        });
+        }
+
+        function editarMetaExistente(id) {
+            // Buscar la meta y llenar el formulario
+            apiFetch(`objetivos_empleado?id=eq.${id}&select=*`).then(metas => {
+                if (!metas.length) return;
+                const m = metas[0];
+                document.getElementById('meta-empleado').value = m.empleado_id;
+                document.getElementById('meta-mes').value = m.mes;
+                document.getElementById('meta-anio').value = m.anio;
+                cargarMetasExistentes();
+            });
+        }
+
+        function eliminarMeta(id) {
+            mostrarConfirmacion('¿Eliminar esta meta? Se desactivará.', 'Eliminar Meta', async () => {
+                await apiFetch(`objetivos_empleado?id=eq.${id}`, 'PATCH', { activo: false });
+                cargarMetasExistentes();
+                showNotification('Meta eliminada (desactivada)');
+            });
+        }
 
         function prevenirSubmitEnter(e) {
             if (e.key === 'Enter') {
@@ -1722,7 +1674,7 @@
             else if(panel==='productos') cargarProductos();
             else if(panel==='equipo') cargarEquipo('comercial');
             else if(panel==='clientes') cargarClientes();
-            else if(panel==='metas') cargarMetas();
+            else if(panel==='metas') cargarPanelMetas();
         }
         document.querySelectorAll('.sidebar-menu a[data-panel]').forEach(a => a.addEventListener('click', function(e) { e.preventDefault(); navegarA(this.dataset.panel); }));
         function recargarTodo() { const panelActivo = document.querySelector('.section-panel.active')?.id?.replace('panel-',''); if(panelActivo) navegarA(panelActivo); showNotification('Datos actualizados'); }
