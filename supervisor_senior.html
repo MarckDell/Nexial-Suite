@@ -410,7 +410,7 @@
         const unidadPesoMap = { 'Kilogramo':'kg', 'Gramo':'g', 'Tonelada':'ton', 'Libra':'lb', 'Onza':'oz' };
         const unidadVolumenMap = { 'Litro':'litro', 'Mililitro':'ml', 'Metro cúbico':'m³', 'Centímetro cúbico':'cm³', 'Galón':'galón' };
 
-        // Datos estáticos de países como fallback (principales)
+        // Datos de países estáticos (sin dependencia externa)
         const PAISES_ESTATICOS = [
             { name: { common: 'Bolivia' }, cca2: 'BO', idd: { root: '+591', suffixes: [''] }, currencies: { BOB: { name: 'Boliviano', symbol: 'Bs.' } } },
             { name: { common: 'Argentina' }, cca2: 'AR', idd: { root: '+54', suffixes: [''] }, currencies: { ARS: { name: 'Peso argentino', symbol: '$' } } },
@@ -649,35 +649,8 @@
         }
 
         async function cargarDatosIniciales() {
-            let fallback = false;
-            try {
-                // Intentar API principal con manejo de CORS
-                const resp = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2,idd,currencies', { mode: 'cors' });
-                if (resp.ok) {
-                    paisesData = await resp.json();
-                } else {
-                    throw new Error('Error en API principal');
-                }
-            } catch (e) {
-                console.warn('API principal falló, intentando proxy...');
-                try {
-                    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://restcountries.com/v3.1/all?fields=name,cca2,idd,currencies');
-                    const resp = await fetch(proxyUrl);
-                    if (resp.ok) {
-                        paisesData = await resp.json();
-                    } else {
-                        throw new Error('Proxy falló');
-                    }
-                } catch (e2) {
-                    console.warn('Proxy falló, usando datos estáticos.');
-                    paisesData = PAISES_ESTATICOS;
-                    fallback = true;
-                }
-            }
-
-            if (fallback) {
-                showNotification('Usando lista de países local (modo sin conexión)', 'error');
-            }
+            // Usar directamente datos estáticos para evitar error CORS
+            paisesData = PAISES_ESTATICOS;
 
             // Poblar datalists de países
             ['usr-paises-list','cli-paises-list'].forEach(id => {
@@ -685,7 +658,7 @@
                 paisesData.forEach(p => { const o = document.createElement('option'); o.value = p.name.common; dl.appendChild(o); });
             });
 
-            // Extraer monedas de los datos
+            // Extraer monedas de los datos estáticos
             const monSet = new Map();
             paisesData.forEach(p => { if (p.currencies) Object.entries(p.currencies).forEach(([c,i]) => { if (!monSet.has(c)) monSet.set(c, { name:i.name, symbol:i.symbol||'' }); }); });
             todasLasMonedas = Array.from(monSet, ([c,d]) => ({ codigo:c, nombre:d.name, simbolo:d.symbol }));
