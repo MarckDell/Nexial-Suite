@@ -353,8 +353,25 @@
             if (draggingMarker) { cancelarArrastreUbicacion(); return true; }
             if (tempLocationMarker) { cancelarSeleccionUbicacionTemporal(); return true; }
             if (accionesPanel.classList.contains('active')) { cerrarAccionesPanel(); return true; }
-            if (modalVenta.classList.contains('active')) { cancelarPedidoNuevoCliente(); return true; }
-            if (modalCliente.classList.contains('active')) { cancelarFlujoNuevoCliente(); return true; }
+            if (modalVenta.classList.contains('active')) { 
+                // Si hay flujo pendiente, eliminar temporales directamente
+                if (flujoNuevoClientePendiente && clienteTemporalId) {
+                    eliminarClienteYPedidoTemporal();
+                } else {
+                    cerrarModalVenta();
+                    limpiarEstadoFlujo();
+                }
+                return true; 
+            }
+            if (modalCliente.classList.contains('active')) { 
+                if (flujoNuevoClientePendiente && clienteTemporalId) {
+                    eliminarClienteYPedidoTemporal();
+                } else {
+                    cerrarModalCliente();
+                    limpiarEstadoFlujo();
+                }
+                return true; 
+            }
             return false;
         }
 
@@ -425,7 +442,6 @@
         }
 
         async function geocodificarInversa(lat, lng) {
-            // Intenta con Google Geocoder
             if (window.google && google.maps.Geocoder) {
                 try {
                     const result = await new Promise((resolve, reject) => {
@@ -451,7 +467,6 @@
                 }
             }
 
-            // Fallback a Nominatim (OpenStreetMap) gratuito
             try {
                 const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=es`;
                 const resp = await fetch(url, { headers: { 'User-Agent': 'NexialSuiteApp/1.0' } });
@@ -466,7 +481,6 @@
             } catch (e) {
                 console.warn('Nominatim falló', e);
             }
-            // Si todo falla, devolver vacío
             return { estado: '', ciudad: '', pais: '' };
         }
 
@@ -1116,8 +1130,13 @@
         }
 
         function moverUbicacionDesdeModal() {
+            // Si estamos en flujo de nuevo cliente (tenga o no id temporal), siempre usar el marcador temporal
+            if (flujoNuevoClientePendiente) {
+                seleccionarUbicacionParaNuevoCliente();
+                return;
+            }
             const id = document.getElementById('cliente-id').value;
-            if(!id) {
+            if (!id) {
                 seleccionarUbicacionParaNuevoCliente();
                 return;
             }
