@@ -111,17 +111,15 @@
         .tab-btn-compact.active { background:white; color:#1a56db; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
         .tooltip-trigger { position:relative; display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px; border-radius:50%; background:#cbd5e1; color:white; font-size:0.65rem; font-weight:700; cursor:help; transition:0.2s; flex-shrink:0; }
         .tooltip-trigger:hover { background:#1a56db; transform:scale(1.1); }
-        #tooltip-global { position:fixed; background:#0f172a; color:#f1f5f9; padding:12px 18px; border-radius:14px; font-size:0.78rem; font-weight:400; white-space:normal; width:320px; text-align:left; line-height:1.5; box-shadow:0 12px 28px rgba(0,0,0,0.25); z-index:5000; pointer-events:none; opacity:0; visibility:hidden; transition:opacity 0.2s ease, visibility 0.2s ease; }
+        #tooltip-global { position:fixed; background:#0f172a; color:#f1f5f9; padding:10px 16px; border-radius:12px; font-size:0.76rem; font-weight:400; white-space:normal; width:320px; max-width:90vw; text-align:left; line-height:1.5; box-shadow:0 12px 28px rgba(0,0,0,0.25); z-index:5000; pointer-events:none; opacity:0; visibility:hidden; transition:opacity 0.2s ease, visibility 0.2s ease; }
         #tooltip-global.visible { opacity:1; visibility:visible; }
         .chart-container { position:relative; height:400px; width:100%; margin-top:20px; }
         .orden-select { padding:8px 16px; border-radius:30px; border:1.5px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:500; background:white; color:#1e293b; cursor:pointer; min-width:200px; }
         .confirm-buttons { display:flex; gap:12px; justify-content:center; margin-top:24px; }
         .info-banner { background:#f0f9ff; border:1px solid #bae6fd; border-radius:16px; padding:14px 20px; margin-bottom:20px; font-size:0.85rem; color:#0369a1; display:flex; align-items:flex-start; gap:10px; }
         .info-banner i { font-size:1.2rem; margin-top:2px; flex-shrink:0; }
-        .meta-edit-input { width:100%; padding:6px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.82rem; font-family:'Inter',sans-serif; background:white; text-align:right; }
-        .meta-edit-input:focus { border-color:#1a56db; outline:none; box-shadow:0 0 0 2px rgba(26,86,219,0.1); }
-        .meta-moneda-input { width:100%; padding:6px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.8rem; font-family:'Inter',sans-serif; background:white; }
-        .meta-moneda-input:focus { border-color:#1a56db; outline:none; box-shadow:0 0 0 2px rgba(26,86,219,0.1); }
+        .meta-editable-table input { width:120px; padding:6px 10px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.85rem; }
+        .meta-editable-table select { padding:6px 10px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.85rem; width:150px; }
         @media (max-width:900px) {
             .sidebar { width:100%; height:auto; position:relative; top:auto; bottom:auto; flex-direction:row; overflow-x:auto; padding:8px; border-right:none; border-bottom:1px solid #e2e8f0; }
             .sidebar-menu { display:flex; gap:4px; }
@@ -319,7 +317,7 @@
             </div>
             <form id="form-cliente" autocomplete="off">
                 <input type="hidden" id="cliente-id">
-                <div class="info-banner"><i class="fas fa-info-circle"></i> Complete primero el <strong>País</strong> para configurar documentos y moneda. Use los desplegables para Tipo, Segmento y Canal.</div>
+                <div class="info-banner"><i class="fas fa-info-circle"></i> Complete primero el <strong>País</strong> para configurar documentos y moneda. Los campos Tipo, Segmento y Canal tienen opciones fijas estándar.</div>
                 <div class="form-row">
                     <div class="form-col"><div class="form-group"><label>País</label><input id="cli-pais" list="cli-paises-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="cli-paises-list"></datalist></div></div>
                     <div class="form-col"><div class="form-group"><label>Tipo Persona <span class="tooltip-trigger" data-tooltip="Natural: persona con nombre. Jurídica: empresa con razón social.">?</span></label><select id="cli-tipo-persona" onchange="toggleClientePersona()"><option value="natural">Persona Natural</option><option value="juridica">Persona Jurídica</option></select></div></div>
@@ -356,9 +354,40 @@
                     <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="cli-ciudad" list="cli-ciudades-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="cli-ciudades-list"></datalist></div></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Tipo Cliente <span class="tooltip-trigger" data-tooltip="ROL EN LA CADENA DE SUMINISTRO:&#10;• Distribuidor: Intermediario que compra para revender a minoristas. Suele tener exclusividad geográfica.&#10;• Mayorista: Compra grandes volúmenes y vende a otros negocios (no al público final).&#10;• Minorista: Punto de venta que llega al consumidor final.&#10;• Mayorista-Distribuidor: Opera ambos roles simultáneamente.&#10;• Cuenta Clave (Key Account): Cadena de retail estratégica con negociación centralizada (Walmart, Carrefour).&#10;• Institucional: Hospitales, escuelas, gobierno, comedores industriales.&#10;• HORECA: Hoteles, Restaurantes, Cafeterías.&#10;• Consumidor Final: Persona natural (venta directa B2C).&#10;• E-commerce (Marketplace): Plataformas digitales (Amazon, Mercado Libre).">?</span></label><select id="cli-tipo-cliente"><option value="">Seleccione...</option></select></div></div>
-                    <div class="form-col"><div class="form-group"><label>Segmento Mercado <span class="tooltip-trigger" data-tooltip="PERFIL DEL CLIENTE SEGÚN FORMATO COMERCIAL:&#10;• Moderno – Hipermercado: Grandes superficies (>2.500 m²), surtido completo.&#10;• Moderno – Supermercado: Medianas superficies (400-2.500 m²).&#10;• Moderno – Discount: Formato de bajo precio, surtido limitado (D1, Justo & Bueno).&#10;• Moderno – Conveniencia: Tiendas pequeñas, horarios extendidos (OXXO, 7-Eleven).&#10;• Tradicional – Tienda de barrio: Autoservicio pequeño, atención personalizada.&#10;• Tradicional – Canal Mayorista: Centrales de abasto o mercados mayoristas.&#10;• Industrial / B2B: Clientes que usan el producto como insumo.&#10;• Institucional: Organismos públicos, comedores, hospitales.&#10;• HORECA: Hoteles, Restaurantes, Cafeterías.&#10;• Digital: Clientes que operan exclusivamente en línea.">?</span></label><select id="cli-segmento"><option value="">Seleccione...</option></select></div></div>
-                    <div class="form-col"><div class="form-group"><label>Canal Venta <span class="tooltip-trigger" data-tooltip="CÓMO LLEGA TU EMPRESA A ESTE CLIENTE:&#10;• Venta Directa – Fuerza Propia: Vendedor empleado de la empresa visita al cliente.&#10;• Venta Directa – Preventa: Vendedor toma pedido y luego se entrega.&#10;• Venta Directa – Autoventa: Vendedor carga producto y entrega en el momento.&#10;• Distribuidor Exclusivo: La venta se hace a través de un distribuidor autorizado.&#10;• Televenta: Pedidos por teléfono (call center).&#10;• E-commerce B2B: Pedidos mediante portal web para clientes empresariales.&#10;• E-commerce B2C: Venta directa al consumidor final por web/app.&#10;• Mayorista / Cash & Carry: Cliente compra en tu centro de distribución mayorista.&#10;• Retail Moderno: Negociación centralizada con oficinas de compras de grandes cadenas.">?</span></label><select id="cli-canal"><option value="">Seleccione...</option></select></div></div>
+                    <div class="form-col"><div class="form-group"><label>Tipo Cliente <span class="tooltip-trigger" data-tooltip="Rol del cliente en la cadena de suministro:
+• Distribuidor: Intermediario que compra para revender a minoristas.
+• Mayorista: Compra grandes volúmenes para otros negocios.
+• Minorista: Punto de venta al consumidor final.
+• Mayorista-Distribuidor: Opera ambos roles.
+• Cuenta Clave (Key Account): Cadena estratégica con negociación centralizada.
+• Institucional: Hospitales, escuelas, gobierno.
+• HORECA: Hoteles, Restaurantes, Cafeterías.
+• Consumidor Final: Persona natural (venta directa).
+• E-commerce (Marketplace): Plataformas digitales.">?</span></label>
+                        <select id="cli-tipo-cliente"><option value="">Seleccione...</option></select></div></div>
+                    <div class="form-col"><div class="form-group"><label>Segmento Mercado <span class="tooltip-trigger" data-tooltip="Perfil del cliente según formato comercial:
+• Moderno – Hipermercado: Grandes superficies (>2.500 m²).
+• Moderno – Supermercado: Medianas superficies (400‑2.500 m²).
+• Moderno – Discount: Formato de bajo precio, surtido limitado.
+• Moderno – Conveniencia: Tiendas pequeñas, horarios extendidos.
+• Tradicional – Tienda de barrio: Autoservicio pequeño.
+• Tradicional – Canal Mayorista: Centrales de abasto.
+• Industrial / B2B: Insumos para otras industrias.
+• Institucional: Organismos públicos, comedores.
+• HORECA: Hoteles, Restaurantes, Cafeterías.
+• Digital: Operan exclusivamente en línea.">?</span></label>
+                        <select id="cli-segmento"><option value="">Seleccione...</option></select></div></div>
+                    <div class="form-col"><div class="form-group"><label>Canal Venta <span class="tooltip-trigger" data-tooltip="Cómo llega su empresa a este cliente:
+• Venta Directa – Fuerza Propia: Vendedor empleado de la empresa.
+• Venta Directa – Preventa: Vendedor toma pedido, luego se entrega.
+• Venta Directa – Autoventa: Vendedor carga y entrega en el momento.
+• Distribuidor Exclusivo: A través de un distribuidor autorizado.
+• Televenta: Pedidos por teléfono (call center).
+• E-commerce B2B: Portal web para clientes empresariales.
+• E-commerce B2C: Venta directa al consumidor final web/app.
+• Mayorista / Cash & Carry: Cliente compra en centro de distribución mayorista.
+• Retail Moderno: Negociación centralizada con oficinas de compras.">?</span></label>
+                        <select id="cli-canal"><option value="">Seleccione...</option></select></div></div>
                 </div>
                 <div class="form-row">
                     <div class="form-col"><div class="form-group"><label>Límite Crédito <span class="tooltip-trigger" data-tooltip="Monto máximo de deuda permitido.">?</span></label><input id="cli-limite-credito" type="number" step="0.01" min="0"></div></div>
@@ -407,6 +436,11 @@
         const unidadPesoMap = { 'Kilogramo':'kg', 'Gramo':'g', 'Tonelada':'ton', 'Libra':'lb', 'Onza':'oz' };
         const unidadVolumenMap = { 'Litro':'litro', 'Mililitro':'ml', 'Metro cúbico':'m³', 'Centímetro cúbico':'cm³', 'Galón':'galón' };
 
+        // Opciones fijas para desplegables de cliente
+        const TIPOS_CLIENTE = ['Distribuidor','Mayorista','Minorista','Mayorista-Distribuidor','Cuenta Clave (Key Account)','Institucional','HORECA','Consumidor Final','E-commerce (Marketplace)'];
+        const SEGMENTOS_MERCADO = ['Moderno – Hipermercado','Moderno – Supermercado','Moderno – Discount','Moderno – Conveniencia','Tradicional – Tienda de barrio','Tradicional – Canal Mayorista','Industrial / B2B','Institucional','HORECA','Digital'];
+        const CANALES_VENTA = ['Venta Directa – Fuerza Propia','Venta Directa – Preventa','Venta Directa – Autoventa','Distribuidor Exclusivo','Televenta','E-commerce B2B','E-commerce B2C','Mayorista / Cash & Carry','Retail Moderno'];
+
         // Países estáticos
         const PAISES_ESTATICOS = [
             { name: { common: 'Bolivia' }, cca2: 'BO', idd: { root: '+591', suffixes: [''] }, currencies: { BOB: { name: 'Boliviano', symbol: 'Bs.' } } },
@@ -431,20 +465,15 @@
             { name: { common: 'Corea del Sur' }, cca2: 'KR', idd: { root: '+82', suffixes: [''] }, currencies: { KRW: { name: 'Won', symbol: '₩' } } }
         ];
 
-        // Opciones fijas para desplegables de clientes
-        const TIPOS_CLIENTE = ['Distribuidor','Mayorista','Minorista','Mayorista-Distribuidor','Cuenta Clave (Key Account)','Institucional','HORECA','Consumidor Final','E-commerce (Marketplace)'];
-        const SEGMENTOS_MERCADO = ['Moderno – Hipermercado','Moderno – Supermercado','Moderno – Discount','Moderno – Conveniencia','Tradicional – Tienda de barrio','Tradicional – Canal Mayorista','Industrial / B2B','Institucional','HORECA','Digital'];
-        const CANALES_VENTA = ['Venta Directa – Fuerza Propia','Venta Directa – Preventa','Venta Directa – Autoventa','Distribuidor Exclusivo','Televenta','E-commerce B2B','E-commerce B2C','Mayorista / Cash & Carry','Retail Moderno'];
-
-        // Metadatos de metas con nombres profesionales
-        const METAS_CONFIG = [
-            { key: 'monto_objetivo', label: 'Volumen de Ventas (Ingresos)', tipo: 'dinero', moneda: 'moneda_objetivo_id', tooltip: 'Ingresos brutos por ventas en el período. Representa el valor monetario total de las transacciones comerciales.' },
-            { key: 'cantidad_objetivo', label: 'Unidades Vendidas (Volumen Físico)', tipo: 'cantidad', unidad: 'unidad_objetivo_id', tooltip: 'Cantidad total de unidades de producto despachadas. Mide el volumen operativo sin importar el precio.' },
-            { key: 'variedad_objetivo', label: 'Diversidad de Portafolio (Mix de Productos)', tipo: 'entero', tooltip: 'Número de SKU o productos distintos vendidos. Indica penetración de catálogo y capacidad de venta cruzada.' },
-            { key: 'peso_objetivo', label: 'Tonelaje Distribuido (Peso Total)', tipo: 'decimal', tooltip: 'Peso total en kilogramos de los productos entregados. Relevante para logística y distribución.' },
-            { key: 'volumen_objetivo', label: 'Volumen Cúbico Despachado', tipo: 'decimal', tooltip: 'Volumen total en metros cúbicos de los productos entregados. Útil para planificación de carga y almacenamiento.' },
-            { key: 'clientes_nuevos_objetivo', label: 'Captación de Nuevos Clientes (Cobertura)', tipo: 'entero', tooltip: 'Número de clientes nuevos adquiridos en el período. Mide expansión de mercado y efectividad comercial.' },
-            { key: 'visitas_objetivo', label: 'Visitas Comerciales Programadas', tipo: 'entero', tooltip: 'Total de visitas o contactos comerciales planificados. Indicador de actividad y cobertura del territorio.' }
+        // Métricas de metas (nombres formales)
+        const METRICAS_META = [
+            { key: 'monto_objetivo', label: 'Volumen de venta (Monto)', tipo: 'dinero', moneda: 'moneda_objetivo_id', ayuda: 'Ingrese el monto total de ventas esperado en el período.' },
+            { key: 'cantidad_objetivo', label: 'Unidades vendidas (Cantidad)', tipo: 'cantidad', unidad: 'unidad_objetivo_id', ayuda: 'Cantidad total de unidades a vender.' },
+            { key: 'variedad_objetivo', label: 'Diversidad de portafolio (Variedad)', tipo: 'entero', ayuda: 'Número de productos distintos que debe vender.' },
+            { key: 'peso_objetivo', label: 'Peso total distribuido', tipo: 'decimal', ayuda: 'Peso total en kg a distribuir.' },
+            { key: 'volumen_objetivo', label: 'Volumen total distribuido', tipo: 'decimal', ayuda: 'Volumen total en m³ a distribuir.' },
+            { key: 'clientes_nuevos_objetivo', label: 'Captación de clientes (Cobertura)', tipo: 'entero', ayuda: 'Número de clientes nuevos que debe incorporar.' },
+            { key: 'visitas_objetivo', label: 'Visitas programadas', tipo: 'entero', ayuda: 'Total de visitas a clientes en el período.' }
         ];
 
         function capitalizarInput(el) {
@@ -667,18 +696,27 @@
                     empresaPais = emp[0].pais || '';
                 }
             }
+            poblarSelectsFijosCliente();
             cargarDatalistsEstaticos();
-            poblarSelectsFijosClientes();
             initTooltips();
         }
 
-        function poblarSelectsFijosClientes() {
+        function poblarSelectsFijosCliente() {
             const selTipo = document.getElementById('cli-tipo-cliente');
-            if (selTipo) { selTipo.innerHTML = '<option value="">Seleccione...</option>'; TIPOS_CLIENTE.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; selTipo.appendChild(o); }); }
+            if (selTipo) {
+                selTipo.innerHTML = '<option value="">Seleccione...</option>';
+                TIPOS_CLIENTE.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; selTipo.appendChild(opt); });
+            }
             const selSeg = document.getElementById('cli-segmento');
-            if (selSeg) { selSeg.innerHTML = '<option value="">Seleccione...</option>'; SEGMENTOS_MERCADO.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; selSeg.appendChild(o); }); }
-            const selCan = document.getElementById('cli-canal');
-            if (selCan) { selCan.innerHTML = '<option value="">Seleccione...</option>'; CANALES_VENTA.forEach(v => { const o = document.createElement('option'); o.value = v; o.text = v; selCan.appendChild(o); }); }
+            if (selSeg) {
+                selSeg.innerHTML = '<option value="">Seleccione...</option>';
+                SEGMENTOS_MERCADO.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; selSeg.appendChild(opt); });
+            }
+            const selCanal = document.getElementById('cli-canal');
+            if (selCanal) {
+                selCanal.innerHTML = '<option value="">Seleccione...</option>';
+                CANALES_VENTA.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; selCanal.appendChild(opt); });
+            }
         }
 
         function cargarDatalistsEstaticos() {
@@ -699,8 +737,7 @@
             document.querySelectorAll('.tooltip-trigger').forEach(trigger => {
                 trigger.addEventListener('mouseenter', function(e) {
                     const text = this.getAttribute('data-tooltip'); if (!text) return;
-                    tooltip.innerHTML = text.replace(/&#10;/g, '<br>');
-                    tooltip.classList.add('visible');
+                    tooltip.textContent = text; tooltip.classList.add('visible');
                 });
                 trigger.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
                 trigger.addEventListener('mousemove', function(e) {
@@ -905,7 +942,7 @@
             sel.innerHTML = '<option value="">Sin asignar</option>';
             try {
                 const todos = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
-                const comerciales = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent('Ejecutivo Comercial')}&select=email&limit=1000`);
+                const comerciales = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent('"Ejecutivo Comercial"')}&select=email&limit=1000`);
                 const emails = comerciales.map(u => u.email.toLowerCase());
                 let vendedores = todos.filter(e => emails.includes((e.email||'').toLowerCase()));
                 if (vendedores.length === 0) vendedores = todos;
@@ -916,25 +953,20 @@
             }
         }
 
-        // CORREGIDO: llenarSelectSupervisores ahora busca entre TODOS los empleados activos de la empresa,
-        // sin filtrar por email de usuario con rol Supervisor Senior, para asegurar que aparezcan.
         async function llenarSelectSupervisores(selectId, seleccionado = '') {
             const sel = document.getElementById(selectId); if (!sel) return;
             const empId = currentUser.empresa_id;
             sel.innerHTML = '<option value="">Sin supervisor</option>';
             try {
-                // Obtenemos todos los empleados activos de la empresa para usarlos como posibles supervisores
-                const todos = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno&limit=1000`);
-                todos.forEach(e => {
-                    const o = document.createElement('option');
-                    o.value = e.id;
-                    o.text = `${e.nombres} ${e.apellido_paterno}`;
-                    if (e.id === seleccionado) o.selected = true;
-                    sel.appendChild(o);
-                });
-            } catch(e) {
-                console.warn('Error al cargar supervisores:', e);
-            }
+                // Corregido: usar comillas dobles para el rol con espacio
+                const supervisorRole = '"Supervisor Senior"';
+                const supervisoresUsuarios = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent(supervisorRole)}&select=email&limit=1000`);
+                const emails = supervisoresUsuarios.map(u => u.email.toLowerCase());
+                if (emails.length === 0) return;
+                const emps = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
+                const filtrados = emps.filter(e => emails.includes((e.email||'').toLowerCase()));
+                filtrados.forEach(e => { const o = document.createElement('option'); o.value = e.id; o.text = `${e.nombres} ${e.apellido_paterno}`; if (e.id === seleccionado) o.selected = true; sel.appendChild(o); });
+            } catch(e) {}
         }
 
         async function cargarInicio(desde = null, hasta = null) {
@@ -1303,7 +1335,7 @@
             } catch(err) { showNotification('Error: '+err.message, 'error'); }
         });
 
-        // ===== CLIENTES ACTUALIZADO CON SELECTS FIJOS =====
+        // ===== CLIENTES =====
         async function cargarClientes(vendedorId='', filtroTipo='', filtroSegmento='', filtroCanal='', estadoFiltro='true') {
             const empId = currentUser.empresa_id;
             let query = `clientes?empresa_id=eq.${empId}&select=*&limit=1000`;
@@ -1336,13 +1368,13 @@
             <div class="filtro-group"><label>Canal:</label><select id="filtro-canal-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select></div></div>
             <div class="table-wrapper"><table><thead><tr><th>Razón Social / Nombre</th><th>Nombre Comercial</th><th>Email</th><th>Ubicación</th><th>Tipo</th><th>Segmento</th><th>Canal</th><th>GPS</th><th>Vendedor</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${filas}</tbody></table></div></div>`;
             const selVend = document.getElementById('filtro-vendedor-clientes'); vendedores.forEach(v => { const o = document.createElement('option'); o.value=v.id; o.text=v.nombres+' '+v.apellido_paterno; if(v.id===vendedorId) o.selected=true; selVend.appendChild(o); });
-            // Poblar filtros fijos
-            const selTipoF = document.getElementById('filtro-tipo-cliente');
-            TIPOS_CLIENTE.forEach(v => { const o = document.createElement('option'); o.value=v; o.text=v; if(v===filtroTipo) o.selected=true; selTipoF.appendChild(o); });
-            const selSegF = document.getElementById('filtro-segmento-cliente');
-            SEGMENTOS_MERCADO.forEach(v => { const o = document.createElement('option'); o.value=v; o.text=v; if(v===filtroSegmento) o.selected=true; selSegF.appendChild(o); });
-            const selCanF = document.getElementById('filtro-canal-cliente');
-            CANALES_VENTA.forEach(v => { const o = document.createElement('option'); o.value=v; o.text=v; if(v===filtroCanal) o.selected=true; selCanF.appendChild(o); });
+            const tipos = [...new Set(clientes.map(c=>c.tipo_cliente).filter(Boolean))].sort();
+            const segs = [...new Set(clientes.map(c=>c.segmento_mercado).filter(Boolean))].sort();
+            const canales = [...new Set(clientes.map(c=>c.canal_venta).filter(Boolean))].sort();
+            ['filtro-tipo-cliente','filtro-segmento-cliente','filtro-canal-cliente'].forEach((id,i) => {
+                const sel = document.getElementById(id), arr = [tipos,segs,canales][i], val = [filtroTipo,filtroSegmento,filtroCanal][i];
+                arr.forEach(v => { const o = document.createElement('option'); o.value=v; o.text=v; if(v===val) o.selected=true; sel.appendChild(o); });
+            });
             initTooltips();
         }
         function aplicarFiltrosClientes() {
@@ -1364,7 +1396,10 @@
             document.getElementById('cli-tipo-persona').value='natural'; document.getElementById('cli-moneda-credito').value=monedaPorDefecto();
             document.getElementById('cli-pais').value=empresaPais; document.getElementById('cli-lista-precios').value='';
             document.getElementById('cli-nombre-comercial').value='';
-            document.getElementById('cli-tipo-cliente').value=''; document.getElementById('cli-segmento').value=''; document.getElementById('cli-canal').value='';
+            // Restablecer selects fijos
+            document.getElementById('cli-tipo-cliente').value='';
+            document.getElementById('cli-segmento').value='';
+            document.getElementById('cli-canal').value='';
             if(empresaPais) { actualizarSelectTiposDocumento(empresaPais, 'cli-tipo-doc'); actualizarMonedaConPais(document.getElementById('cli-pais'), 'cli-moneda-credito'); cargarEstados(empresaPais, 'cli-estados-list'); }
             else actualizarSelectTiposDocumento('', 'cli-tipo-doc');
             llenarInputsTelefonoDesdeJson('#cli-telefonos-container', [{etiqueta:'', numero:''}]);
@@ -1386,7 +1421,9 @@
             document.getElementById('cli-nombre-comercial').value = cli.nombre_comercial||'';
             document.getElementById('cli-email').value = cli.email||''; document.getElementById('cli-direccion').value = cli.direccion||'';
             document.getElementById('cli-estado').value = cli.estado_provincia||''; document.getElementById('cli-ciudad').value = cli.ciudad||'';
-            document.getElementById('cli-tipo-cliente').value = cli.tipo_cliente||''; document.getElementById('cli-segmento').value = cli.segmento_mercado||''; document.getElementById('cli-canal').value = cli.canal_venta||'';
+            document.getElementById('cli-tipo-cliente').value = cli.tipo_cliente||'';
+            document.getElementById('cli-segmento').value = cli.segmento_mercado||'';
+            document.getElementById('cli-canal').value = cli.canal_venta||'';
             document.getElementById('cli-limite-credito').value = cli.limite_credito||''; document.getElementById('cli-dias-credito').value = cli.dias_credito||'';
             document.getElementById('cli-moneda-credito').value = monedaPorDefecto();
             document.getElementById('cli-lista-precios').value = cli.lista_precios ? JSON.stringify(cli.lista_precios, null, 2) : '';
@@ -1451,26 +1488,26 @@
             const anioActual = now.getFullYear();
             let html = `
             <div class="card">
-                <div class="card-header"><h2>Objetivos Comerciales por Empleado</h2></div>
-                <div class="info-banner"><i class="fas fa-bullseye"></i> Configure los objetivos mensuales para cada empleado. Edite los valores directamente en la tabla y presione <strong>Guardar Cambios</strong>. Las celdas vacías no se considerarán como objetivo.</div>
+                <div class="card-header"><h2>Definición de Objetivos por Empleado</h2></div>
+                <div class="info-banner"><i class="fas fa-bullseye"></i> Seleccione empleado, mes y año para visualizar y editar sus metas en la tabla inferior. Puede modificar directamente los valores y luego presionar <strong>Guardar Metas</strong>.</div>
                 <div class="filtros">
-                    <div class="filtro-group"><label>Empleado:</label><select id="meta-empleado" onchange="cargarTablaMetas()"><option value="">Seleccione...</option></select></div>
-                    <div class="filtro-group"><label>Mes:</label><select id="meta-mes" onchange="cargarTablaMetas()">`;
+                    <div class="filtro-group"><label>Empleado:</label><select id="meta-empleado" onchange="cargarMetasEditable()"><option value="">Seleccione...</option></select></div>
+                    <div class="filtro-group"><label>Mes:</label><select id="meta-mes" onchange="cargarMetasEditable()">`;
             for (let m = 1; m <= 12; m++) {
                 html += `<option value="${m}" ${m === mesActual ? 'selected' : ''}>${new Date(2024, m-1, 1).toLocaleString('es', { month: 'long' })}</option>`;
             }
             html += `</select></div>
-                    <div class="filtro-group"><label>Año:</label><input type="number" id="meta-anio" value="${anioActual}" min="2020" max="2100" style="width:90px;" onchange="cargarTablaMetas()"></div>
+                    <div class="filtro-group"><label>Año:</label><input type="number" id="meta-anio" value="${anioActual}" min="2020" max="2100" style="width:90px;" onchange="cargarMetasEditable()"></div>
                 </div>
-                <div id="meta-tabla-container">
-                    <p style="color:#64748b; font-size:0.9rem;">Seleccione un empleado para configurar sus objetivos.</p>
+                <div id="meta-tabla-editable-container" class="table-wrapper">
+                    <p style="color:#64748b; font-size:0.9rem;">Seleccione un empleado para ver y editar sus metas.</p>
                 </div>
                 <div style="margin-top:16px;" id="meta-guardar-area" hidden>
-                    <button class="btn-solid" onclick="guardarMetasTabla()"><i class="fas fa-save"></i> Guardar Cambios</button>
+                    <button class="btn-solid" onclick="guardarMetasDesdeTabla()"><i class="fas fa-save"></i> Guardar Metas</button>
                 </div>
             </div>
             <div class="card">
-                <div class="card-header"><h2>Historial de Objetivos</h2></div>
+                <div class="card-header"><h2>Historial de Metas por Empleado</h2></div>
                 <div class="table-wrapper" id="meta-historial-container">
                     <p style="color:#64748b; font-size:0.9rem;">Seleccione un empleado para ver su historial.</p>
                 </div>
@@ -1488,7 +1525,7 @@
             initTooltips();
         }
 
-        async function cargarTablaMetas() {
+        async function cargarMetasEditable() {
             const empId = document.getElementById('meta-empleado')?.value;
             const mes = parseInt(document.getElementById('meta-mes')?.value);
             const anio = parseInt(document.getElementById('meta-anio')?.value);
@@ -1496,49 +1533,47 @@
 
             // Buscar meta existente
             const metas = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&activo=eq.true&select=*&limit=1`);
-            let metaExistente = metas.length > 0 ? metas[0] : {};
+            let metaExistente = metas.length > 0 ? metas[0] : null;
 
-            let tablaHtml = `<table><thead><tr><th>Indicador</th><th>Objetivo</th><th>Moneda / Unidad</th><th style="width:50px;"></th></tr></thead><tbody>`;
-            METAS_CONFIG.forEach(meta => {
-                const val = metaExistente[meta.key] !== null && metaExistente[meta.key] !== undefined ? metaExistente[meta.key] : '';
+            // Construir tabla editable
+            let tablaHtml = `<table class="meta-editable-table"><thead><tr><th>Métrica</th><th>Valor Actual</th><th>Nuevo Valor</th><th>Moneda / Unidad</th></tr></thead><tbody>`;
+
+            for (const met of METRICAS_META) {
+                const valorActual = metaExistente ? (metaExistente[met.key] !== null && metaExistente[met.key] !== undefined ? metaExistente[met.key] : '') : '';
                 let unidadHtml = '';
-                if (meta.tipo === 'dinero' && meta.moneda) {
-                    unidadHtml = `<input list="monedas-global-list-meta" class="meta-moneda-input" id="meta-moneda-${meta.key}" value="${metaExistente[meta.moneda] ? await obtenerCodigoMoneda(metaExistente[meta.moneda]) : monedaPorDefecto()}" placeholder="Moneda">`;
-                } else if (meta.tipo === 'cantidad' && meta.unidad) {
-                    unidadHtml = `<input list="unidad-list-meta" class="meta-moneda-input" id="meta-unidad-${meta.key}" value="${metaExistente[meta.unidad] ? await obtenerNombreUnidad(metaExistente[meta.unidad]) : ''}" placeholder="Unidad">`;
+                if (met.tipo === 'dinero') {
+                    unidadHtml = `<select id="meta-moneda-${met.key}">`;
+                    todasLasMonedas.forEach(m => {
+                        const sel = (metaExistente && metaExistente[met.moneda] && await obtenerCodigoMoneda(metaExistente[met.moneda]) === `${m.codigo} - ${m.nombre}`) ? 'selected' : '';
+                        unidadHtml += `<option value="${m.codigo} - ${m.nombre}" ${sel}>${m.codigo} - ${m.nombre}</option>`;
+                    });
+                    unidadHtml += `</select>`;
+                } else if (met.tipo === 'cantidad') {
+                    unidadHtml = `<select id="meta-unidad-${met.key}">`;
+                    const unidades = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón'];
+                    unidades.forEach(u => {
+                        const sel = (metaExistente && metaExistente[met.unidad] && await obtenerNombreUnidad(metaExistente[met.unidad]) === u) ? 'selected' : '';
+                        unidadHtml += `<option value="${u}" ${sel}>${u}</option>`;
+                    });
+                    unidadHtml += `</select>`;
                 }
                 tablaHtml += `<tr>
-                    <td><strong>${meta.label}</strong> <span class="tooltip-trigger" data-tooltip="${meta.tooltip}">?</span></td>
-                    <td><input type="number" step="${meta.tipo === 'entero' ? '1' : '0.01'}" min="0" class="meta-edit-input" id="meta-val-${meta.key}" value="${val}" placeholder="Sin objetivo"></td>
-                    <td>${unidadHtml || '-'}</td>
-                    <td></td>
+                    <td><strong>${met.label}</strong><br><small style="color:#64748b;">${met.ayuda}</small></td>
+                    <td>${valorActual !== '' ? valorActual : '-'}</td>
+                    <td><input type="number" step="${met.tipo === 'entero' ? '1' : '0.01'}" min="0" id="meta-val-${met.key}" value="${valorActual}"></td>
+                    <td>${unidadHtml}</td>
                 </tr>`;
-            });
-            tablaHtml += `<tr><td colspan="4" style="text-align:left; padding-top:12px;">
-                <div class="form-group"><label>Comentario</label><input type="text" id="meta-comentario" value="${metaExistente.comentario || ''}" placeholder="Notas adicionales..."></div>
-            </td></tr>`;
+            }
+            tablaHtml += `<tr><td colspan="4"><label>Comentario:</label> <input type="text" id="meta-comentario" value="${metaExistente ? (metaExistente.comentario || '') : ''}" style="width:100%;"></td></tr>`;
             tablaHtml += `</tbody></table>`;
-            document.getElementById('meta-tabla-container').innerHTML = tablaHtml;
+            document.getElementById('meta-tabla-editable-container').innerHTML = tablaHtml;
             document.getElementById('meta-guardar-area').hidden = false;
-
-            // Poblar datalists
-            const monDL = document.getElementById('monedas-global-list-meta');
-            if (monDL) {
-                monDL.innerHTML = '';
-                todasLasMonedas.forEach(m => { const o = document.createElement('option'); o.value = `${m.codigo} - ${m.nombre}`; monDL.appendChild(o); });
-            }
-            const unDL = document.getElementById('unidad-list-meta');
-            if (unDL) {
-                unDL.innerHTML = '';
-                const unidades = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón'];
-                unidades.forEach(u => { const o = document.createElement('option'); o.value = u; unDL.appendChild(o); });
-            }
 
             // Cargar historial
             const historial = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&select=*&order=anio.desc,mes.desc&limit=50`);
             let histHtml = '';
             if (historial.length) {
-                histHtml = `<table><thead><tr><th>Año</th><th>Mes</th><th>Volumen Ventas</th><th>Unidades</th><th>Mix Prod.</th><th>Peso (kg)</th><th>Volumen (m³)</th><th>Clientes Nuevos</th><th>Visitas</th><th>Comentario</th></tr></thead><tbody>`;
+                histHtml = `<table><thead><tr><th>Año</th><th>Mes</th><th>Monto</th><th>Cantidad</th><th>Variedad</th><th>Peso</th><th>Volumen</th><th>Clientes Nuevos</th><th>Visitas</th><th>Comentario</th></tr></thead><tbody>`;
                 historial.forEach(h => {
                     const mesNombre = new Date(2024, h.mes-1, 1).toLocaleString('es', { month: 'short' });
                     histHtml += `<tr>
@@ -1555,10 +1590,60 @@
                 });
                 histHtml += `</tbody></table>`;
             } else {
-                histHtml = `<p style="color:#64748b; font-size:0.9rem;">No hay objetivos registrados para este empleado.</p>`;
+                histHtml = `<p style="color:#64748b; font-size:0.9rem;">No hay metas registradas para este empleado.</p>`;
             }
             document.getElementById('meta-historial-container').innerHTML = histHtml;
             initTooltips();
+        }
+
+        async function guardarMetasDesdeTabla() {
+            const empId = document.getElementById('meta-empleado')?.value;
+            const mes = parseInt(document.getElementById('meta-mes')?.value);
+            const anio = parseInt(document.getElementById('meta-anio')?.value);
+            if (!empId || !mes || !anio) { showNotification('Seleccione empleado, mes y año', 'error'); return; }
+
+            const payload = {
+                empleado_id: empId,
+                mes: mes,
+                anio: anio,
+                activo: true,
+                creado_por: currentUser.id,
+                asignado_por: currentUser.id,
+                comentario: document.getElementById('meta-comentario')?.value || null
+            };
+
+            for (const met of METRICAS_META) {
+                const val = document.getElementById(`meta-val-${met.key}`)?.value;
+                if (val !== undefined && val !== '') {
+                    payload[met.key] = met.tipo === 'entero' ? parseInt(val) : parseFloat(val);
+                } else {
+                    payload[met.key] = null;
+                }
+                if (met.moneda) {
+                    const monInput = document.getElementById(`meta-moneda-${met.key}`)?.value;
+                    if (monInput) payload[met.moneda] = await ensureCurrency(monInput);
+                    else payload[met.moneda] = null;
+                }
+                if (met.unidad) {
+                    const unInput = document.getElementById(`meta-unidad-${met.key}`)?.value;
+                    if (unInput) payload[met.unidad] = await ensureUnidadMedida(unInput);
+                    else payload[met.unidad] = null;
+                }
+            }
+
+            try {
+                const existente = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&select=id&limit=1`);
+                if (existente.length > 0) {
+                    await apiFetch(`objetivos_empleado?id=eq.${existente[0].id}`, 'PATCH', payload);
+                    showNotification('Metas actualizadas correctamente');
+                } else {
+                    await apiFetch('objetivos_empleado', 'POST', payload);
+                    showNotification('Metas creadas correctamente');
+                }
+                cargarMetasEditable();
+            } catch (err) {
+                showNotification('Error: ' + err.message, 'error');
+            }
         }
 
         async function obtenerCodigoMoneda(monedaId) {
@@ -1575,65 +1660,6 @@
                 if (um.length) return um[0].nombre;
             } catch(e) {}
             return '';
-        }
-
-        async function guardarMetasTabla() {
-            const empId = document.getElementById('meta-empleado')?.value;
-            const mes = parseInt(document.getElementById('meta-mes')?.value);
-            const anio = parseInt(document.getElementById('meta-anio')?.value);
-            if (!empId || !mes || !anio) { showNotification('Seleccione empleado, mes y año', 'error'); return; }
-
-            const payload = {
-                empleado_id: empId,
-                mes: mes,
-                anio: anio,
-                activo: true,
-                creado_por: currentUser.id,
-                asignado_por: currentUser.id,
-                comentario: document.getElementById('meta-comentario')?.value || null
-            };
-
-            for (const meta of METAS_CONFIG) {
-                const valEl = document.getElementById(`meta-val-${meta.key}`);
-                if (valEl) {
-                    const val = valEl.value.trim();
-                    if (val !== '') {
-                        payload[meta.key] = meta.tipo === 'entero' ? parseInt(val) : parseFloat(val);
-                    } else {
-                        payload[meta.key] = null;
-                    }
-                }
-                if (meta.moneda) {
-                    const monEl = document.getElementById(`meta-moneda-${meta.key}`);
-                    if (monEl && monEl.value.trim()) {
-                        payload[meta.moneda] = await ensureCurrency(monEl.value.trim());
-                    } else {
-                        payload[meta.moneda] = null;
-                    }
-                }
-                if (meta.unidad) {
-                    const unEl = document.getElementById(`meta-unidad-${meta.key}`);
-                    if (unEl && unEl.value.trim()) {
-                        payload[meta.unidad] = await ensureUnidadMedida(unEl.value.trim());
-                    } else {
-                        payload[meta.unidad] = null;
-                    }
-                }
-            }
-
-            try {
-                const existente = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&select=id&limit=1`);
-                if (existente.length > 0) {
-                    await apiFetch(`objetivos_empleado?id=eq.${existente[0].id}`, 'PATCH', payload);
-                    showNotification('Objetivos actualizados correctamente');
-                } else {
-                    await apiFetch('objetivos_empleado', 'POST', payload);
-                    showNotification('Objetivos creados correctamente');
-                }
-                cargarTablaMetas();
-            } catch (err) {
-                showNotification('Error: ' + err.message, 'error');
-            }
         }
 
         function prevenirSubmitEnter(e) {
