@@ -73,7 +73,7 @@
         .btn-phone-add { background:#e0f2fe; border:none; padding:8px; border-radius:20px; font-size:0.8rem; cursor:pointer; margin-top:6px; }
         .notification { position:fixed; top:16px; right:16px; background:#1a1f36; color:white; padding:12px 20px; border-radius:40px; font-weight:500; z-index:3000; font-size:0.85rem; display:none; align-items:center; gap:8px; }
         .notification.error { background:#c2412c; } .notification.success { background:#2c6e49; }
-        .acciones-panel { position:fixed; bottom:0; left:0; width:100%; background:white; border-radius:28px 28px 0 0; padding:20px; box-shadow:0 -8px 32px rgba(0,0,0,0.2); z-index:1500; display:none; flex-direction:column; gap:12px; }
+        .acciones-panel { position:fixed; bottom:0; left:0; width:100%; background:white; border-radius:28px 28px 0 0; padding:20px; box-shadow:0 -8px 32px rgba(0,0,0,0.2); z-index:1500; display:none; flex-direction:column; gap:12px; max-height:60vh; overflow-y:auto; }
         .acciones-panel.active { display:flex; }
         .acciones-panel button { width:100%; padding:14px; border-radius:16px; border:none; font-weight:600; display:flex; align-items:center; gap:12px; cursor:pointer; font-size:0.95rem; background:#f8fafc; color:#1e293b; }
         .acciones-panel .danger-btn { color:#991b1b; } .acciones-panel .cancel-btn { color:#1e293b; background:transparent; border:2px solid #cbd5e1; font-weight:700; }
@@ -91,16 +91,8 @@
         .btn-solid:hover { background:#1340a0; box-shadow:0 0 18px rgba(26,86,219,0.5); }
         .btn-solid.danger { background:#c2412c; }
         .btn-solid.danger:hover { background:#9b1b1b; }
-        .mi-ubicacion-marker {
-            width: 20px; height: 20px; background: #4285F4; border-radius: 50%;
-            border: 2px solid white; box-shadow: 0 0 0 2px #4285F4;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(66,133,244, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(66,133,244, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(66,133,244, 0); }
-        }
+        .mi-ubicacion-marker { width: 20px; height: 20px; background: #4285F4; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px #4285F4; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(66,133,244, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(66,133,244, 0); } 100% { box-shadow: 0 0 0 0 rgba(66,133,244, 0); } }
         .producto-busqueda-item { padding:10px 12px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
         .producto-busqueda-item:active { background:#e0f2fe; }
         .venta-header-compact { display:flex; align-items:center; gap:8px; }
@@ -112,6 +104,7 @@
     </style>
 </head>
 <body>
+    <!-- Confirmación general -->
     <div class="confirm-overlay" id="confirm-overlay">
         <div class="confirm-box">
             <h2 id="confirm-titulo" style="font-size:1.4rem; font-weight:700; color:#0f172a;">Confirmar acción</h2>
@@ -123,6 +116,7 @@
         </div>
     </div>
 
+    <!-- Header -->
     <header class="app-header">
         <div class="header-brand">
             <i class="fas fa-brain app-logo"></i>
@@ -130,6 +124,7 @@
         </div>
     </header>
 
+    <!-- Menú principal -->
     <div id="main-menu" class="main-menu">
         <div class="profile-card">
             <div class="user-fullname" id="nombre-completo"></div>
@@ -140,6 +135,7 @@
         <button class="big-btn logout" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
     </div>
 
+    <!-- Sección Clientes -->
     <div id="seccion-clientes" class="section">
         <div class="tabs">
             <button class="tab-btn active" onclick="cambiarTab('mapa')">🗺️ Mapa</button>
@@ -150,6 +146,17 @@
             <button class="sub-tab-btn" onclick="filtrarClientes('atendidos')">Atendidos</button>
             <button class="sub-tab-btn" onclick="filtrarClientes('sin_compras')">Sin compras</button>
             <button class="sub-tab-btn" onclick="filtrarClientes('todos')">Todos</button>
+            <!-- Filtro por día de visita -->
+            <select id="filtro-dia-visita" onchange="aplicarFiltroDia()" style="margin-left:8px; padding:6px 10px; border-radius:20px; border:1px solid #e2e8f0; font-size:0.75rem; background:white;">
+                <option value="">Día de visita</option>
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miércoles">Miércoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+                <option value="Sábado">Sábado</option>
+                <option value="Domingo">Domingo</option>
+            </select>
             <div class="filter-extras">
                 <label class="checkbox-label">
                     <input type="checkbox" id="chk-todos-dias" onchange="toggleTodosDias()"> Ver todos los días
@@ -159,26 +166,25 @@
         </div>
         <div id="mapa-tab" class="tab-content active" style="position:relative;">
             <div id="map-container"></div>
-            <button class="map-add-client-btn" onclick="iniciarFlujoNuevoCliente()" title="Agregar cliente">
-                <i class="fas fa-plus"></i>
-            </button>
-            <button class="map-location-btn" onclick="centrarEnMiUbicacion()" title="Mi ubicación">
-                <i class="fas fa-location-crosshairs"></i>
-            </button>
+            <button class="map-add-client-btn" onclick="iniciarFlujoNuevoCliente()" title="Agregar cliente"><i class="fas fa-plus"></i></button>
+            <button class="map-location-btn" onclick="centrarEnMiUbicacion()" title="Mi ubicación"><i class="fas fa-location-crosshairs"></i></button>
         </div>
         <div id="lista-tab" class="tab-content">
             <button class="btn-add" onclick="iniciarFlujoNuevoCliente()"><i class="fas fa-plus"></i> Nuevo cliente</button>
             <div id="clientes-lista"></div>
         </div>
+        <!-- Panel de acciones inferior -->
         <div class="acciones-panel" id="acciones-panel"></div>
     </div>
 
+    <!-- Sección Avance -->
     <div id="seccion-avance" class="section">
         <div style="padding:16px; overflow-y:auto; height:100%;">
             <div class="card" id="avance-card"></div>
         </div>
     </div>
 
+    <!-- Modal Cliente -->
     <div class="modal-overlay" id="modal-cliente">
         <div class="modal">
             <div class="modal-header">
@@ -201,8 +207,8 @@
                 </div>
                 <div class="form-group"><label>Tipo Documento</label><select id="cli-tipo-doc"></select></div>
                 <div class="form-group"><label>Número Documento</label><input id="cli-num-doc"></div>
-                <!-- NOMBRE COMERCIAL MOVIDO AQUÍ, SIN DATALIST -->
                 <div class="form-group"><label>Nombre Comercial</label><input id="cli-nombre-comercial" placeholder="Ej: Tienda, Farmacia..."></div>
+                <div class="form-group"><label>Día de Visita</label><select id="cli-dia-visita"><option value="">Seleccione día</option><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option><option value="Sábado">Sábado</option><option value="Domingo">Domingo</option></select></div>
                 <div class="form-group"><label>Email</label><input id="cli-email" type="email"></div>
                 <div class="form-group"><label>Teléfonos</label><div id="cli-telefonos-container"></div><button type="button" class="btn-phone-add" onclick="agregarTelefonoCliente()">+ Teléfono</button></div>
                 <div class="form-group"><label>Dirección</label><input id="cli-direccion" oninput="capitalizarInput(this)"></div>
@@ -222,6 +228,7 @@
         </div>
     </div>
 
+    <!-- Modal Venta -->
     <div class="modal-overlay" id="modal-venta">
         <div class="modal modal-venta-full">
             <div class="modal-header">
@@ -234,9 +241,7 @@
             </div>
             <div class="venta-header-compact" style="margin-bottom:8px;">
                 <label style="font-size:0.73rem; font-weight:700; text-transform:uppercase; color:#334155;">Productos</label>
-                <button type="button" id="btn-buscar-producto" style="background:#f1f5f9; border:none; border-radius:12px; padding:8px 12px; cursor:pointer; margin-left:auto;" onclick="toggleBuscadorProductos()">
-                    <i class="fas fa-search"></i>
-                </button>
+                <button type="button" id="btn-buscar-producto" style="background:#f1f5f9; border:none; border-radius:12px; padding:8px 12px; cursor:pointer; margin-left:auto;" onclick="toggleBuscadorProductos()"><i class="fas fa-search"></i></button>
             </div>
             <div id="panel-busqueda-producto" style="display:none; margin-bottom:8px; background:#f8fafc; border-radius:16px; padding:12px;">
                 <input type="text" id="busqueda-producto" placeholder="Buscar producto..." autocomplete="off" oninput="filtrarProductosBusqueda()" style="width:100%; margin-bottom:8px; padding:10px; border:1px solid #e2e8f0; border-radius:12px;">
@@ -249,15 +254,48 @@
         </div>
     </div>
 
+    <!-- Modal Gestión -->
+    <div class="modal-overlay" id="modal-gestion">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Registrar Gestión</h2>
+                <button class="close-modal" onclick="cerrarModalGestion()">&times;</button>
+            </div>
+            <form id="form-gestion" autocomplete="off">
+                <input type="hidden" id="gestion-cliente-id">
+                <div class="form-group">
+                    <label>Resultado</label>
+                    <select id="gestion-resultado" onchange="toggleMotivoGestion()">
+                        <option value="compra">Compra</option>
+                        <option value="no_compra">No compra</option>
+                        <option value="ausente">Ausente</option>
+                        <option value="rechazo">Rechazo</option>
+                        <option value="postergado">Postergado</option>
+                    </select>
+                </div>
+                <div class="form-group" id="motivo-no-compra-group" style="display:none;">
+                    <label>Motivo de no compra</label>
+                    <textarea id="gestion-motivo" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Comentarios</label>
+                    <textarea id="gestion-comentarios" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn-solid" style="width:100%; justify-content:center;">Guardar gestión</button>
+            </form>
+        </div>
+    </div>
+
     <div id="notification" class="notification"></div>
     <div class="floating-location-btns" id="floating-location-btns" style="display:none;">
         <button class="save-btn" id="btn-save-location"><i class="fas fa-save"></i> Guardar ubicación</button>
         <button class="cancel-btn" id="btn-cancel-location"><i class="fas fa-times"></i> Cancelar</button>
     </div>
 
+    <!-- Google Maps (solo para el mapa base, geocoding desactivado) -->
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTFh4VNHNHFT2uN1LShwJ5f6IeMCFMjHc&loading=async&callback=initMap&libraries=marker,places"></script>
     <script>
-        // Bloquear el pull-to-refresh en móviles
+        // Bloquear pull-to-refresh en móviles
         document.addEventListener('touchmove', function(e) {
             if (e.target === document.documentElement || e.target === document.body) {
                 e.preventDefault();
@@ -280,6 +318,7 @@
         let clienteTemporalId = null;
         let pedidoTemporalDoc = null;
         let flujoNuevoClientePendiente = false;
+        let diaVisitaSeleccionado = ''; // Nuevo: filtro por día de visita
 
         let draggingMarker = null;
         let dragStartCoords = null;
@@ -333,6 +372,7 @@
         function cerrarModalesYPaneles() {
             document.getElementById('modal-cliente').classList.remove('active');
             document.getElementById('modal-venta').classList.remove('active');
+            document.getElementById('modal-gestion').classList.remove('active');
             document.getElementById('acciones-panel').classList.remove('active');
             document.getElementById('confirm-overlay').classList.remove('active');
             if (draggingMarker) cancelarArrastreUbicacion();
@@ -355,15 +395,16 @@
         function manejarBotonAtras() {
             const modalCliente = document.getElementById('modal-cliente');
             const modalVenta = document.getElementById('modal-venta');
+            const modalGestion = document.getElementById('modal-gestion');
             const accionesPanel = document.getElementById('acciones-panel');
             const confirmOverlay = document.getElementById('confirm-overlay');
 
             if (confirmOverlay.classList.contains('active')) { cerrarConfirm(false); return true; }
             if (draggingMarker) { cancelarArrastreUbicacion(); return true; }
             if (tempLocationMarker) { cancelarSeleccionUbicacionTemporal(); return true; }
+            if (modalGestion.classList.contains('active')) { cerrarModalGestion(); return true; }
             if (accionesPanel.classList.contains('active')) { cerrarAccionesPanel(); return true; }
             if (modalVenta.classList.contains('active')) { 
-                // Si hay flujo pendiente, eliminar temporales directamente
                 if (flujoNuevoClientePendiente && clienteTemporalId) {
                     eliminarClienteYPedidoTemporal();
                 } else {
@@ -450,7 +491,7 @@
             });
         }
 
-        // Solo Nominatim, sin Google Geocoding (evita errores y no requiere pago)
+        // Geocodificación gratuita con Nominatim
         async function geocodificarInversa(lat, lng) {
             try {
                 const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=es`;
@@ -463,9 +504,7 @@
                     const ciudad = addr.city || addr.town || addr.village || addr.municipality || '';
                     return { estado, ciudad, pais };
                 }
-            } catch (e) {
-                console.warn('Nominatim falló', e);
-            }
+            } catch (e) { console.warn('Nominatim falló', e); }
             return { estado: '', ciudad: '', pais: '' };
         }
 
@@ -527,6 +566,11 @@
             else cargarClientesLista();
         }
 
+        function aplicarFiltroDia() {
+            diaVisitaSeleccionado = document.getElementById('filtro-dia-visita').value;
+            aplicarFiltroActual();
+        }
+
         function toggleTodosDias() {
             verTodosLosDias = document.getElementById('chk-todos-dias').checked;
             cargarDatosMapa();
@@ -542,7 +586,11 @@
 
         async function obtenerClientesFiltrados() {
             if(!currentEmployeeId) return [];
-            const clientes = await apiFetch(`clientes?vendedor_asignado_id=eq.${currentEmployeeId}&activo=eq.true&select=*&limit=1000`);
+            let clientes = await apiFetch(`clientes?vendedor_asignado_id=eq.${currentEmployeeId}&activo=eq.true&select=*&limit=1000`);
+            // Aplicar filtro de día de visita si hay uno seleccionado y no está en modo "todos los días" (el checkbox de zonas)
+            if (diaVisitaSeleccionado && !verTodosLosDias) {
+                clientes = clientes.filter(c => c.dia_visita === diaVisitaSeleccionado);
+            }
             if(currentFilter === 'todos') return clientes;
             const hoy = new Date().toISOString().slice(0,10);
             if(!clientes.length) return [];
@@ -695,7 +743,7 @@
             });
         }
 
-        function abrirAccionesPanel(clienteId, nombreCliente) {
+        async function abrirAccionesPanel(clienteId, nombreCliente) {
             if(!clienteId) return;
             clienteSeleccionadoParaAccion = clienteId;
             const panel = document.getElementById('acciones-panel');
@@ -703,6 +751,20 @@
             html += `<button onclick="accionPanel('vender')"><i class="fas fa-shopping-cart"></i> Registrar Venta</button>`;
             html += `<button onclick="accionPanel('editar_pedido')"><i class="fas fa-pencil-alt"></i> Editar Pedido</button>`;
             html += `<button onclick="accionPanel('editar_cliente')"><i class="fas fa-edit"></i> Editar Datos del Cliente</button>`;
+            html += `<button onclick="accionPanel('registrar_gestion')"><i class="fas fa-clipboard-check"></i> Registrar Gestión</button>`;
+            // Mostrar últimas gestiones
+            try {
+                const gestiones = await apiFetch(`gestiones_cliente?cliente_id=eq.${clienteId}&order=fecha_gestion.desc&limit=3&select=*`);
+                if(gestiones.length) {
+                    html += `<div style="margin-top:12px; font-size:0.8rem; color:#475569;"><strong>Últimas gestiones:</strong></div>`;
+                    gestiones.forEach(g => {
+                        const fecha = new Date(g.fecha_gestion).toLocaleDateString();
+                        html += `<div style="background:#f8fafc; padding:8px; border-radius:8px; margin-top:4px; font-size:0.75rem;">
+                            ${fecha} - <strong>${g.tipo_resultado}</strong> ${g.motivo_no_compra ? '- ' + g.motivo_no_compra : ''}
+                        </div>`;
+                    });
+                }
+            } catch(e) { console.warn('Error cargando gestiones', e); }
             html += `<button onclick="cerrarAccionesPanel()" class="cancel-btn">Cancelar</button>`;
             panel.innerHTML = html; panel.classList.add('active'); pushModalState();
         }
@@ -723,6 +785,8 @@
                 if(pedidosDelClienteActual.length === 0) { showNotification('Este cliente no tiene pedidos aún', 'error'); return; }
                 if(pedidosDelClienteActual.length === 1) editarPedidoExistente(pedidosDelClienteActual[0].documento_venta);
                 else mostrarSelectorPedidos();
+            } else if(accion === 'registrar_gestion') {
+                abrirModalGestion(id);
             }
         }
 
@@ -761,17 +825,10 @@
             try {
                 if (pedidoTemporalDoc) await apiFetch(`ventas?documento_venta=eq.${pedidoTemporalDoc}`, 'DELETE');
                 if (clienteTemporalId) await apiFetch(`clientes?id=eq.${clienteTemporalId}`, 'DELETE');
-                if (tempLocationMarker) {
-                    tempLocationMarker.setMap(null);
-                    tempLocationMarker = null;
-                }
+                if (tempLocationMarker) { tempLocationMarker.setMap(null); tempLocationMarker = null; }
             } catch(e) { console.warn('Error al eliminar temporales:', e); }
-            clienteTemporalId = null;
-            pedidoTemporalDoc = null;
-            flujoNuevoClientePendiente = false;
-            cerrarModalVenta();
-            cerrarModalCliente();
-            ocultarBotonesFlotantes();
+            clienteTemporalId = null; pedidoTemporalDoc = null; flujoNuevoClientePendiente = false;
+            cerrarModalVenta(); cerrarModalCliente(); ocultarBotonesFlotantes();
             showNotification('Pedido cancelado y cliente temporal eliminado');
         }
 
@@ -916,9 +973,7 @@
                     tempLocationMarker = new google.maps.marker.AdvancedMarkerElement({
                         position: posicion, map, title: 'Arrastra para ajustar ubicación', content: pinElement, gmpDraggable: true
                     });
-                    map.setCenter(posicion);
-                    map.setZoom(16);
-
+                    map.setCenter(posicion); map.setZoom(16);
                     cerrarModalVenta();
                     showNotification('Pedido registrado. Ahora complete los datos del cliente.');
                     flujoNuevoClientePendiente = true;
@@ -1076,8 +1131,8 @@
                 actualizarTipoDocPorPais();
                 document.getElementById('cli-tipo-doc').value = cli.tipo_documento || '';
                 document.getElementById('cli-num-doc').value = cli.numero_documento || '';
-                // Nombre Comercial ahora se carga correctamente
                 document.getElementById('cli-nombre-comercial').value = cli.nombre_comercial || '';
+                document.getElementById('cli-dia-visita').value = cli.dia_visita || '';
                 document.getElementById('cli-email').value = cli.email || '';
                 document.getElementById('cli-direccion').value = cli.direccion || '';
                 document.getElementById('cli-telefonos-container').innerHTML = '';
@@ -1116,7 +1171,6 @@
         }
 
         function moverUbicacionDesdeModal() {
-            // Si estamos en flujo de nuevo cliente (tenga o no id temporal), siempre usar el marcador temporal
             if (flujoNuevoClientePendiente) {
                 seleccionarUbicacionParaNuevoCliente();
                 return;
@@ -1130,6 +1184,46 @@
             activarArrastreUbicacion(id, true);
         }
 
+        // --- Funciones para modal de gestión ---
+        function abrirModalGestion(clienteId) {
+            document.getElementById('modal-gestion').classList.add('active');
+            document.getElementById('gestion-cliente-id').value = clienteId;
+            document.getElementById('gestion-resultado').value = 'compra';
+            document.getElementById('gestion-motivo').value = '';
+            document.getElementById('gestion-comentarios').value = '';
+            document.getElementById('motivo-no-compra-group').style.display = 'none';
+            pushModalState();
+        }
+        function cerrarModalGestion() {
+            document.getElementById('modal-gestion').classList.remove('active');
+        }
+        function toggleMotivoGestion() {
+            const tipo = document.getElementById('gestion-resultado').value;
+            document.getElementById('motivo-no-compra-group').style.display = tipo === 'no_compra' ? 'block' : 'none';
+        }
+
+        document.getElementById('form-gestion').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const clienteId = document.getElementById('gestion-cliente-id').value;
+            const resultado = document.getElementById('gestion-resultado').value;
+            const motivo = resultado === 'no_compra' ? document.getElementById('gestion-motivo').value.trim() : null;
+            const comentarios = document.getElementById('gestion-comentarios').value.trim();
+            try {
+                await apiFetch('gestiones_cliente', 'POST', {
+                    empresa_id: empresaId,
+                    cliente_id: clienteId,
+                    empleado_id: currentEmployeeId,
+                    fecha_gestion: new Date().toISOString().slice(0,10),
+                    tipo_resultado: resultado,
+                    motivo_no_compra: motivo || null,
+                    comentarios: comentarios || null
+                });
+                cerrarModalGestion();
+                showNotification('Gestión registrada correctamente');
+            } catch(err) { showNotification('Error: '+err.message, 'error'); }
+        });
+
+        // --- Funciones de arrastre y ubicación temporal (se mantienen igual) ---
         function mostrarBotonesFlotantes(saveCallback, cancelCallback) {
             currentLocationConfirmCallback = { save: saveCallback, cancel: cancelCallback };
             document.getElementById('floating-location-btns').style.display = 'flex';
@@ -1262,6 +1356,7 @@
             ocultarBotonesFlotantes();
         }
 
+        // Envío del formulario de cliente (incluye dia_visita)
         document.getElementById('form-cliente').addEventListener('submit', async function(e) {
             e.preventDefault();
             const id = document.getElementById('cliente-id').value;
@@ -1270,8 +1365,8 @@
                 empresa_id: empresaId, vendedor_asignado_id: currentEmployeeId,
                 tipo_documento: document.getElementById('cli-tipo-doc').value||null,
                 numero_documento: document.getElementById('cli-num-doc').value||null,
-                // Nombre Comercial se envía desde el campo correspondiente
                 nombre_comercial: document.getElementById('cli-nombre-comercial').value.trim()||null,
+                dia_visita: document.getElementById('cli-dia-visita').value || null,
                 nombres: tipo==='natural'? document.getElementById('cli-nombres').value.trim():null,
                 apellido_paterno: tipo==='natural'? document.getElementById('cli-ap').value.trim():null,
                 apellido_materno: tipo==='natural'? document.getElementById('cli-am').value.trim():null,
@@ -1291,10 +1386,7 @@
                 if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); }
                 else await apiFetch('clientes', 'POST', payload);
                 limpiarEstadoFlujo();
-                if (tempLocationMarker) {
-                    tempLocationMarker.setMap(null);
-                    tempLocationMarker = null;
-                }
+                if (tempLocationMarker) { tempLocationMarker.setMap(null); tempLocationMarker = null; }
                 ocultarBotonesFlotantes();
                 cerrarModalCliente(); cargarClientesLista(); aplicarFiltroActual();
                 showNotification('Cliente guardado');
