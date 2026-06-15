@@ -208,6 +208,54 @@
                 <div class="form-group"><label>Tipo Documento</label><select id="cli-tipo-doc"></select></div>
                 <div class="form-group"><label>Número Documento</label><input id="cli-num-doc"></div>
                 <div class="form-group"><label>Nombre Comercial</label><input id="cli-nombre-comercial" placeholder="Ej: Tienda, Farmacia..."></div>
+                <!-- NUEVOS CAMPOS DE CLASIFICACIÓN COMERCIAL -->
+                <div class="form-group">
+                    <label>Tipo Cliente</label>
+                    <select id="cli-tipo-cliente">
+                        <option value="">Seleccione...</option>
+                        <option>Distribuidor</option>
+                        <option>Mayorista</option>
+                        <option>Minorista</option>
+                        <option>Mayorista-Distribuidor</option>
+                        <option>Cuenta Clave (Key Account)</option>
+                        <option>Institucional</option>
+                        <option>HORECA</option>
+                        <option>Consumidor Final</option>
+                        <option>E-commerce (Marketplace)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Segmento Mercado</label>
+                    <select id="cli-segmento">
+                        <option value="">Seleccione...</option>
+                        <option>Moderno – Hipermercado</option>
+                        <option>Moderno – Supermercado</option>
+                        <option>Moderno – Discount</option>
+                        <option>Moderno – Conveniencia</option>
+                        <option>Tradicional – Tienda de barrio</option>
+                        <option>Tradicional – Canal Mayorista</option>
+                        <option>Industrial / B2B</option>
+                        <option>Institucional</option>
+                        <option>HORECA</option>
+                        <option>Digital</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Canal Venta</label>
+                    <select id="cli-canal">
+                        <option value="">Seleccione...</option>
+                        <option>Venta Directa – Fuerza Propia</option>
+                        <option>Venta Directa – Preventa</option>
+                        <option>Venta Directa – Autoventa</option>
+                        <option>Distribuidor Exclusivo</option>
+                        <option>Televenta</option>
+                        <option>E-commerce B2B</option>
+                        <option>E-commerce B2C</option>
+                        <option>Mayorista / Cash & Carry</option>
+                        <option>Retail Moderno</option>
+                    </select>
+                </div>
+                <!-- FIN NUEVOS CAMPOS -->
                 <div class="form-group"><label>Día de Visita</label><select id="cli-dia-visita"><option value="">Seleccione día</option><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option><option value="Sábado">Sábado</option><option value="Domingo">Domingo</option></select></div>
                 <div class="form-group"><label>Email</label><input id="cli-email" type="email"></div>
                 <div class="form-group"><label>Teléfonos</label><div id="cli-telefonos-container"></div><button type="button" class="btn-phone-add" onclick="agregarTelefonoCliente()">+ Teléfono</button></div>
@@ -248,7 +296,7 @@
                 <div id="resultados-busqueda" style="max-height:200px; overflow-y:auto;"></div>
             </div>
             <div class="venta-lista-scroll" id="lineas-pedido"></div>
-            <div style="text-align:right; margin:8px 0; font-weight:700; font-size:1.1rem;">Total: $<span id="total-pedido">0.00</span></div>
+            <div style="text-align:right; margin:8px 0; font-weight:700; font-size:1.1rem;">Total: <span id="currency-symbol-total"></span><span id="total-pedido">0.00</span></div>
             <button class="btn-solid" id="btn-enviar-pedido" onclick="enviarPedido()" style="width:100%; justify-content:center;">Registrar pedido</button>
             <button class="btn-solid danger" id="btn-eliminar-pedido-modal" style="width:100%; justify-content:center; margin-top:8px; display:none;" onclick="eliminarPedidoDesdeModal()"><i class="fas fa-trash-alt"></i> Eliminar pedido</button>
         </div>
@@ -319,7 +367,11 @@
         let pedidoTemporalDoc = null;
         let flujoNuevoClientePendiente = false;
         let diaVisitaSeleccionado = '';
-        let ultimaGestionMap = {}; // almacena la última gestión por cliente para colores
+        let ultimaGestionMap = {};
+
+        // Variables globales para la moneda de la empresa
+        let empresaCurrencySymbol = '$';
+        let empresaCurrencyCode = 'USD';
 
         let draggingMarker = null;
         let dragStartCoords = null;
@@ -342,7 +394,6 @@
             'Estados Unidos':['Pasaporte','SSN','Driver License']
         };
 
-        // Mapeo de motivos profesionales a tipo_resultado en BD
         const MOTIVO_TIPO_MAP = {
             'Sin capital disponible': 'no_compra',
             'Insatisfacción con producto': 'no_compra',
@@ -489,6 +540,23 @@
             return text ? JSON.parse(text) : null;
         }
 
+        async function cargarConfiguracionMoneda() {
+            try {
+                const empresa = await apiFetch(`empresas?id=eq.${empresaId}&select=moneda_principal_id`);
+                if (empresa && empresa.length > 0 && empresa[0].moneda_principal_id) {
+                    const moneda = await apiFetch(`monedas?id=eq.${empresa[0].moneda_principal_id}&select=codigo,simbolo`);
+                    if (moneda && moneda.length > 0) {
+                        empresaCurrencyCode = moneda[0].codigo;
+                        empresaCurrencySymbol = moneda[0].simbolo || moneda[0].codigo;
+                    }
+                }
+            } catch (e) {
+                console.warn('No se pudo cargar la moneda de la empresa, usando USD por defecto');
+            }
+            // Actualizar cualquier símbolo en la UI
+            document.getElementById('currency-symbol-total').textContent = empresaCurrencySymbol + ' ';
+        }
+
         function actualizarTipoDocPorPais() {
             const pais = document.getElementById('cli-pais-hidden').value.trim();
             const sel = document.getElementById('cli-tipo-doc');
@@ -537,6 +605,7 @@
             } catch(e) { console.warn('No se pudo obtener nombre completo del usuario', e); }
             const nombreCompleto = `${currentUser.nombres} ${currentUser.apellido_paterno} ${currentUser.apellido_materno || ''}`.trim();
             document.getElementById('nombre-completo').textContent = nombreCompleto;
+            await cargarConfiguracionMoneda();  // Obtener símbolo de moneda
             await obtenerEmpleadoId();
             if (document.getElementById('seccion-clientes').classList.contains('active') && map) {
                 cargarDatosMapa();
@@ -740,7 +809,6 @@
                     });
                 } catch(e) { console.warn('Error al cargar datos de ventas:', e); }
             }
-            // Cargar últimas gestiones para determinar color negro
             await cargarUltimasGestiones(ids);
             const ventasHoySet = new Set(ventasHoy.map(v => v.cliente_id));
             const ventasAlgunaVezSet = new Set(todasVentas.map(v => v.cliente_id));
@@ -755,7 +823,6 @@
                                 const nombre = c.razon_social || [c.nombres, c.apellido_paterno, c.apellido_materno].filter(Boolean).join(' ') || 'Sin nombre';
                                 const estado = obtenerEstadoCliente(c.id, ventasHoySet, ventasAlgunaVezSet);
                                 let color = colorFiltro || getPinColorPorEstado(estado);
-                                // Si existe una última gestión y no es 'compra', pintar de negro
                                 if (ultimaGestionMap[c.id] && ultimaGestionMap[c.id] !== 'compra') {
                                     color = '#000000';
                                 }
@@ -830,7 +897,7 @@
             let html = '<div style="font-weight:600; padding:8px 0;">Selecciona un pedido</div>';
             pedidosDelClienteActual.forEach(p => {
                 const fecha = new Date(p.fecha).toLocaleDateString();
-                html += `<button onclick="editarPedidoExistente('${p.documento_venta}'); cerrarAccionesPanel();">📄 ${fecha} - $${parseFloat(p.total_linea||0).toFixed(2)}</button>`;
+                html += `<button onclick="editarPedidoExistente('${p.documento_venta}'); cerrarAccionesPanel();">📄 ${fecha} - ${empresaCurrencySymbol}${parseFloat(p.total_linea||0).toFixed(2)}</button>`;
             });
             html += '<button onclick="cerrarAccionesPanel()" class="cancel-btn">Cancelar</button>';
             panel.innerHTML = html; panel.classList.add('active'); pushModalState();
@@ -904,6 +971,7 @@
             document.getElementById('panel-busqueda-producto').style.display = 'none';
             document.getElementById('resultados-busqueda').innerHTML = '';
             document.getElementById('lineas-pedido').innerHTML = '';
+            document.getElementById('currency-symbol-total').textContent = empresaCurrencySymbol + ' ';
             renderizarLineasPedido(); actualizarTotalPedido();
         }
 
@@ -925,7 +993,7 @@
             const filtrados = termino ? allProducts.filter(p => p.nombre.toLowerCase().includes(termino)) : allProducts;
             resultadosDiv.innerHTML = filtrados.map(p => `
                 <div class="producto-busqueda-item" onclick="seleccionarProducto('${p.id}')">
-                    <span>${p.nombre}</span><span style="color:#475569;">$${parseFloat(p.precio_venta_base).toFixed(2)}</span>
+                    <span>${p.nombre}</span><span style="color:#475569;">${empresaCurrencySymbol}${parseFloat(p.precio_venta_base).toFixed(2)}</span>
                 </div>`).join('');
         }
 
@@ -953,9 +1021,9 @@
             const container = document.getElementById('lineas-pedido');
             container.innerHTML = pedidoLineas.map((l, i) => `
                 <div class="order-line">
-                    <span>${l.nombre}</span><span>$${l.precio.toFixed(2)}</span>
+                    <span>${l.nombre}</span><span>${empresaCurrencySymbol}${l.precio.toFixed(2)}</span>
                     <input class="qty" type="number" value="${l.cantidad}" min="1" onchange="actualizarCantidad(${i}, this.value)">
-                    <span>$${(l.precio * l.cantidad).toFixed(2)}</span>
+                    <span>${empresaCurrencySymbol}${(l.precio * l.cantidad).toFixed(2)}</span>
                     <button class="btn-sm danger" onclick="pedidoLineas.splice(${i},1); renderizarLineasPedido();"><i class="fas fa-trash"></i></button>
                 </div>`).join('');
             actualizarTotalPedido();
@@ -965,6 +1033,7 @@
         function actualizarTotalPedido() {
             const total = pedidoLineas.reduce((sum, l) => sum + (l.precio * l.cantidad), 0);
             document.getElementById('total-pedido').textContent = total.toFixed(2);
+            document.getElementById('currency-symbol-total').textContent = empresaCurrencySymbol + ' ';
         }
 
         async function enviarPedido() {
@@ -1090,9 +1159,11 @@
             document.getElementById('cli-pais-hidden').value = '';
             document.getElementById('cli-estado-hidden').value = '';
             document.getElementById('cli-ciudad-hidden').value = '';
+            document.getElementById('cli-tipo-cliente').value = '';
+            document.getElementById('cli-segmento').value = '';
+            document.getElementById('cli-canal').value = '';
             agregarTelefonoCliente(); agregarPuntoGPS();
             actualizarTipoDocPorPais();
-            // Predeterminar día de visita al día actual si es nuevo cliente
             if(!id) {
                 document.getElementById('cli-dia-visita').value = getCurrentDayName();
                 actualizarUbicacionDesdeGPS();
@@ -1168,6 +1239,10 @@
                 document.getElementById('cli-dia-visita').value = cli.dia_visita || '';
                 document.getElementById('cli-email').value = cli.email || '';
                 document.getElementById('cli-direccion').value = cli.direccion || '';
+                // Nuevos campos de clasificación
+                document.getElementById('cli-tipo-cliente').value = cli.tipo_cliente || '';
+                document.getElementById('cli-segmento').value = cli.segmento_mercado || '';
+                document.getElementById('cli-canal').value = cli.canal_venta || '';
                 document.getElementById('cli-telefonos-container').innerHTML = '';
                 (cli.telefonos?.length ? cli.telefonos : [{etiqueta:'',numero:''}]).forEach(t => {
                     const row = document.createElement('div'); row.className='phone-input-row';
@@ -1257,7 +1332,6 @@
                 });
                 cerrarModalResultado();
                 showNotification('Resultado reportado correctamente');
-                // Actualizar mapa inmediatamente para reflejar color negro
                 await aplicarFiltroActual();
             } catch(err) { showNotification('Error: '+err.message, 'error'); }
         });
@@ -1395,7 +1469,7 @@
             ocultarBotonesFlotantes();
         }
 
-        // Envío del formulario de cliente (incluye dia_visita)
+        // Envío del formulario de cliente (incluye los nuevos campos)
         document.getElementById('form-cliente').addEventListener('submit', async function(e) {
             e.preventDefault();
             const id = document.getElementById('cliente-id').value;
@@ -1406,6 +1480,9 @@
                 numero_documento: document.getElementById('cli-num-doc').value||null,
                 nombre_comercial: document.getElementById('cli-nombre-comercial').value.trim()||null,
                 dia_visita: document.getElementById('cli-dia-visita').value || null,
+                tipo_cliente: document.getElementById('cli-tipo-cliente').value || null,
+                segmento_mercado: document.getElementById('cli-segmento').value || null,
+                canal_venta: document.getElementById('cli-canal').value || null,
                 nombres: tipo==='natural'? document.getElementById('cli-nombres').value.trim():null,
                 apellido_paterno: tipo==='natural'? document.getElementById('cli-ap').value.trim():null,
                 apellido_materno: tipo==='natural'? document.getElementById('cli-am').value.trim():null,
@@ -1452,7 +1529,7 @@
                 <h3>Mi Progreso - ${mes}/${anio}</h3>
                 <div style="display:flex; flex-direction:column; align-items:center;">
                     <div style="width:150px; height:150px;"><canvas id="grafico-avance"></canvas></div>
-                    <p style="margin-top:16px;">Ventas: $${total.toFixed(2)} / $${objetivo.toFixed(2)}</p>
+                    <p style="margin-top:16px;">Ventas: ${empresaCurrencySymbol}${total.toFixed(2)} / ${empresaCurrencySymbol}${objetivo.toFixed(2)}</p>
                 </div>`;
             if(avanceChart) avanceChart.destroy();
             const ctx = document.getElementById('grafico-avance')?.getContext('2d');
