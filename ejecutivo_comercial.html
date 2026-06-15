@@ -254,34 +254,34 @@
         </div>
     </div>
 
-    <!-- Modal Gestión -->
-    <div class="modal-overlay" id="modal-gestion">
+    <!-- Modal Reportar Resultado (antes Gestión) -->
+    <div class="modal-overlay" id="modal-resultado">
         <div class="modal">
             <div class="modal-header">
-                <h2>Registrar Gestión</h2>
-                <button class="close-modal" onclick="cerrarModalGestion()">&times;</button>
+                <h2>Reportar Resultado de Visita</h2>
+                <button class="close-modal" onclick="cerrarModalResultado()">&times;</button>
             </div>
-            <form id="form-gestion" autocomplete="off">
-                <input type="hidden" id="gestion-cliente-id">
+            <form id="form-resultado" autocomplete="off">
+                <input type="hidden" id="resultado-cliente-id">
                 <div class="form-group">
-                    <label>Resultado</label>
-                    <select id="gestion-resultado" onchange="toggleMotivoGestion()">
-                        <option value="compra">Compra</option>
-                        <option value="no_compra">No compra</option>
-                        <option value="ausente">Ausente</option>
-                        <option value="rechazo">Rechazo</option>
-                        <option value="postergado">Postergado</option>
+                    <label>Motivo de No Compra / Situación</label>
+                    <select id="resultado-motivo" required>
+                        <option value="">Seleccione un motivo</option>
+                        <option value="Sin capital disponible">Sin capital disponible</option>
+                        <option value="Insatisfacción con producto">Insatisfacción con producto</option>
+                        <option value="Insatisfacción con atención">Insatisfacción con atención</option>
+                        <option value="Cliente ausente">Cliente ausente</option>
+                        <option value="Exceso de inventario">Exceso de inventario</option>
+                        <option value="Indisponibilidad para recepción">Indisponibilidad para recepción</option>
+                        <option value="Encargado ausente">Encargado ausente</option>
+                        <option value="Otros motivos">Otros motivos</option>
                     </select>
                 </div>
-                <div class="form-group" id="motivo-no-compra-group" style="display:none;">
-                    <label>Motivo de no compra</label>
-                    <textarea id="gestion-motivo" rows="2"></textarea>
+                <div class="form-group" id="motivo-otros-group" style="display:none;">
+                    <label>Especifique el motivo</label>
+                    <textarea id="resultado-otros-texto" rows="2"></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Comentarios</label>
-                    <textarea id="gestion-comentarios" rows="2"></textarea>
-                </div>
-                <button type="submit" class="btn-solid" style="width:100%; justify-content:center;">Guardar gestión</button>
+                <button type="submit" class="btn-solid" style="width:100%; justify-content:center;">Guardar resultado</button>
             </form>
         </div>
     </div>
@@ -318,7 +318,8 @@
         let clienteTemporalId = null;
         let pedidoTemporalDoc = null;
         let flujoNuevoClientePendiente = false;
-        let diaVisitaSeleccionado = ''; // Nuevo: filtro por día de visita
+        let diaVisitaSeleccionado = '';
+        let ultimaGestionMap = {}; // almacena la última gestión por cliente para colores
 
         let draggingMarker = null;
         let dragStartCoords = null;
@@ -339,6 +340,18 @@
             'Paraguay':['CI','Pasaporte','RUC'], 'Uruguay':['CI','Pasaporte','RUT'],
             'México':['INE','Pasaporte','RFC'], 'España':['DNI','Pasaporte','NIE'],
             'Estados Unidos':['Pasaporte','SSN','Driver License']
+        };
+
+        // Mapeo de motivos profesionales a tipo_resultado en BD
+        const MOTIVO_TIPO_MAP = {
+            'Sin capital disponible': 'no_compra',
+            'Insatisfacción con producto': 'no_compra',
+            'Insatisfacción con atención': 'no_compra',
+            'Cliente ausente': 'ausente',
+            'Exceso de inventario': 'no_compra',
+            'Indisponibilidad para recepción': 'postergado',
+            'Encargado ausente': 'ausente',
+            'Otros motivos': 'no_compra'
         };
 
         function getCurrentDayName() {
@@ -372,7 +385,7 @@
         function cerrarModalesYPaneles() {
             document.getElementById('modal-cliente').classList.remove('active');
             document.getElementById('modal-venta').classList.remove('active');
-            document.getElementById('modal-gestion').classList.remove('active');
+            document.getElementById('modal-resultado').classList.remove('active');
             document.getElementById('acciones-panel').classList.remove('active');
             document.getElementById('confirm-overlay').classList.remove('active');
             if (draggingMarker) cancelarArrastreUbicacion();
@@ -395,14 +408,14 @@
         function manejarBotonAtras() {
             const modalCliente = document.getElementById('modal-cliente');
             const modalVenta = document.getElementById('modal-venta');
-            const modalGestion = document.getElementById('modal-gestion');
+            const modalResultado = document.getElementById('modal-resultado');
             const accionesPanel = document.getElementById('acciones-panel');
             const confirmOverlay = document.getElementById('confirm-overlay');
 
             if (confirmOverlay.classList.contains('active')) { cerrarConfirm(false); return true; }
             if (draggingMarker) { cancelarArrastreUbicacion(); return true; }
             if (tempLocationMarker) { cancelarSeleccionUbicacionTemporal(); return true; }
-            if (modalGestion.classList.contains('active')) { cerrarModalGestion(); return true; }
+            if (modalResultado.classList.contains('active')) { cerrarModalResultado(); return true; }
             if (accionesPanel.classList.contains('active')) { cerrarAccionesPanel(); return true; }
             if (modalVenta.classList.contains('active')) { 
                 if (flujoNuevoClientePendiente && clienteTemporalId) {
@@ -587,7 +600,6 @@
         async function obtenerClientesFiltrados() {
             if(!currentEmployeeId) return [];
             let clientes = await apiFetch(`clientes?vendedor_asignado_id=eq.${currentEmployeeId}&activo=eq.true&select=*&limit=1000`);
-            // Aplicar filtro de día de visita si hay uno seleccionado y no está en modo "todos los días" (el checkbox de zonas)
             if (diaVisitaSeleccionado && !verTodosLosDias) {
                 clientes = clientes.filter(c => c.dia_visita === diaVisitaSeleccionado);
             }
@@ -607,6 +619,19 @@
                 return clientes.filter(c => !clientesConVentas.has(c.id));
             }
             return clientes;
+        }
+
+        async function cargarUltimasGestiones(ids) {
+            ultimaGestionMap = {};
+            if (!ids.length) return;
+            try {
+                const gestiones = await apiFetch(`gestiones_cliente?cliente_id=in.(${ids})&order=fecha_gestion.desc&limit=1000&select=cliente_id,tipo_resultado`);
+                gestiones.forEach(g => {
+                    if (!ultimaGestionMap[g.cliente_id]) {
+                        ultimaGestionMap[g.cliente_id] = g.tipo_resultado;
+                    }
+                });
+            } catch(e) { console.warn('Error cargando gestiones para colores', e); }
         }
 
         function initMap() {
@@ -698,22 +723,25 @@
             clientMarkers.forEach(m => m.setMap(null));
             clientMarkers = [];
             if(clientes.length === 0) return;
-            const ids = clientes.map(c => c.id).join(',');
+            const ids = clientes.map(c => c.id);
+            const idsStr = ids.join(',');
             ultimoPedidoClienteMap = {};
             const hoy = new Date().toISOString().slice(0,10);
             let ventasHoy = [], todasVentas = [];
-            if(ids) {
+            if(idsStr) {
                 try {
                     [ventasHoy, todasVentas] = await Promise.all([
-                        apiFetch(`ventas?cliente_id=in.(${ids})&fecha=gte.${hoy}T00:00:00&fecha=lte.${hoy}T23:59:59&select=cliente_id`),
-                        apiFetch(`ventas?cliente_id=in.(${ids})&select=cliente_id`)
+                        apiFetch(`ventas?cliente_id=in.(${idsStr})&fecha=gte.${hoy}T00:00:00&fecha=lte.${hoy}T23:59:59&select=cliente_id`),
+                        apiFetch(`ventas?cliente_id=in.(${idsStr})&select=cliente_id`)
                     ]);
-                    const ultimasVentas = await apiFetch(`ventas?cliente_id=in.(${ids})&order=fecha.desc&limit=1000&select=cliente_id,documento_venta`);
+                    const ultimasVentas = await apiFetch(`ventas?cliente_id=in.(${idsStr})&order=fecha.desc&limit=1000&select=cliente_id,documento_venta`);
                     ultimasVentas.forEach(v => {
                         if (!ultimoPedidoClienteMap[v.cliente_id]) ultimoPedidoClienteMap[v.cliente_id] = v.documento_venta;
                     });
                 } catch(e) { console.warn('Error al cargar datos de ventas:', e); }
             }
+            // Cargar últimas gestiones para determinar color negro
+            await cargarUltimasGestiones(ids);
             const ventasHoySet = new Set(ventasHoy.map(v => v.cliente_id));
             const ventasAlgunaVezSet = new Set(todasVentas.map(v => v.cliente_id));
             const colorFiltro = getPinColorParaFiltro();
@@ -726,7 +754,11 @@
                             if(!isNaN(lat) && !isNaN(lng)) {
                                 const nombre = c.razon_social || [c.nombres, c.apellido_paterno, c.apellido_materno].filter(Boolean).join(' ') || 'Sin nombre';
                                 const estado = obtenerEstadoCliente(c.id, ventasHoySet, ventasAlgunaVezSet);
-                                const color = colorFiltro || getPinColorPorEstado(estado);
+                                let color = colorFiltro || getPinColorPorEstado(estado);
+                                // Si existe una última gestión y no es 'compra', pintar de negro
+                                if (ultimaGestionMap[c.id] && ultimaGestionMap[c.id] !== 'compra') {
+                                    color = '#000000';
+                                }
                                 const pinElement = new google.maps.marker.PinElement({
                                     background: color, borderColor: '#0f172a', glyphColor: '#fff', scale: 1.1
                                 });
@@ -749,14 +781,13 @@
             const panel = document.getElementById('acciones-panel');
             let html = `<div style="font-weight:600; padding:8px 0; font-size:1.1rem;">${nombreCliente || 'Cliente'}</div>`;
             html += `<button onclick="accionPanel('vender')"><i class="fas fa-shopping-cart"></i> Registrar Venta</button>`;
+            html += `<button onclick="accionPanel('reportar_resultado')"><i class="fas fa-clipboard-check"></i> Reportar Resultado</button>`;
             html += `<button onclick="accionPanel('editar_pedido')"><i class="fas fa-pencil-alt"></i> Editar Pedido</button>`;
             html += `<button onclick="accionPanel('editar_cliente')"><i class="fas fa-edit"></i> Editar Datos del Cliente</button>`;
-            html += `<button onclick="accionPanel('registrar_gestion')"><i class="fas fa-clipboard-check"></i> Registrar Gestión</button>`;
-            // Mostrar últimas gestiones
             try {
                 const gestiones = await apiFetch(`gestiones_cliente?cliente_id=eq.${clienteId}&order=fecha_gestion.desc&limit=3&select=*`);
                 if(gestiones.length) {
-                    html += `<div style="margin-top:12px; font-size:0.8rem; color:#475569;"><strong>Últimas gestiones:</strong></div>`;
+                    html += `<div style="margin-top:12px; font-size:0.8rem; color:#475569;"><strong>Últimos reportes:</strong></div>`;
                     gestiones.forEach(g => {
                         const fecha = new Date(g.fecha_gestion).toLocaleDateString();
                         html += `<div style="background:#f8fafc; padding:8px; border-radius:8px; margin-top:4px; font-size:0.75rem;">
@@ -785,8 +816,8 @@
                 if(pedidosDelClienteActual.length === 0) { showNotification('Este cliente no tiene pedidos aún', 'error'); return; }
                 if(pedidosDelClienteActual.length === 1) editarPedidoExistente(pedidosDelClienteActual[0].documento_venta);
                 else mostrarSelectorPedidos();
-            } else if(accion === 'registrar_gestion') {
-                abrirModalGestion(id);
+            } else if(accion === 'reportar_resultado') {
+                abrirModalResultado(id);
             }
         }
 
@@ -1061,7 +1092,9 @@
             document.getElementById('cli-ciudad-hidden').value = '';
             agregarTelefonoCliente(); agregarPuntoGPS();
             actualizarTipoDocPorPais();
+            // Predeterminar día de visita al día actual si es nuevo cliente
             if(!id) {
+                document.getElementById('cli-dia-visita').value = getCurrentDayName();
                 actualizarUbicacionDesdeGPS();
             } else {
                 editarCliente(id);
@@ -1184,46 +1217,52 @@
             activarArrastreUbicacion(id, true);
         }
 
-        // --- Funciones para modal de gestión ---
-        function abrirModalGestion(clienteId) {
-            document.getElementById('modal-gestion').classList.add('active');
-            document.getElementById('gestion-cliente-id').value = clienteId;
-            document.getElementById('gestion-resultado').value = 'compra';
-            document.getElementById('gestion-motivo').value = '';
-            document.getElementById('gestion-comentarios').value = '';
-            document.getElementById('motivo-no-compra-group').style.display = 'none';
+        // --- Modal de Reportar Resultado (mejorado) ---
+        function abrirModalResultado(clienteId) {
+            document.getElementById('modal-resultado').classList.add('active');
+            document.getElementById('resultado-cliente-id').value = clienteId;
+            document.getElementById('resultado-motivo').value = '';
+            document.getElementById('resultado-otros-texto').value = '';
+            document.getElementById('motivo-otros-group').style.display = 'none';
             pushModalState();
         }
-        function cerrarModalGestion() {
-            document.getElementById('modal-gestion').classList.remove('active');
+        function cerrarModalResultado() {
+            document.getElementById('modal-resultado').classList.remove('active');
         }
-        function toggleMotivoGestion() {
-            const tipo = document.getElementById('gestion-resultado').value;
-            document.getElementById('motivo-no-compra-group').style.display = tipo === 'no_compra' ? 'block' : 'none';
-        }
+        document.getElementById('resultado-motivo').addEventListener('change', function() {
+            const grupo = document.getElementById('motivo-otros-group');
+            grupo.style.display = this.value === 'Otros motivos' ? 'block' : 'none';
+        });
 
-        document.getElementById('form-gestion').addEventListener('submit', async function(e) {
+        document.getElementById('form-resultado').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const clienteId = document.getElementById('gestion-cliente-id').value;
-            const resultado = document.getElementById('gestion-resultado').value;
-            const motivo = resultado === 'no_compra' ? document.getElementById('gestion-motivo').value.trim() : null;
-            const comentarios = document.getElementById('gestion-comentarios').value.trim();
+            const clienteId = document.getElementById('resultado-cliente-id').value;
+            const motivoSeleccionado = document.getElementById('resultado-motivo').value;
+            if (!motivoSeleccionado) return showNotification('Seleccione un motivo', 'error');
+            const tipo = MOTIVO_TIPO_MAP[motivoSeleccionado] || 'no_compra';
+            let motivo = motivoSeleccionado;
+            if (motivoSeleccionado === 'Otros motivos') {
+                motivo = document.getElementById('resultado-otros-texto').value.trim();
+                if (!motivo) return showNotification('Especifique el motivo', 'error');
+            }
             try {
                 await apiFetch('gestiones_cliente', 'POST', {
                     empresa_id: empresaId,
                     cliente_id: clienteId,
                     empleado_id: currentEmployeeId,
                     fecha_gestion: new Date().toISOString().slice(0,10),
-                    tipo_resultado: resultado,
-                    motivo_no_compra: motivo || null,
-                    comentarios: comentarios || null
+                    tipo_resultado: tipo,
+                    motivo_no_compra: motivo,
+                    comentarios: null
                 });
-                cerrarModalGestion();
-                showNotification('Gestión registrada correctamente');
+                cerrarModalResultado();
+                showNotification('Resultado reportado correctamente');
+                // Actualizar mapa inmediatamente para reflejar color negro
+                await aplicarFiltroActual();
             } catch(err) { showNotification('Error: '+err.message, 'error'); }
         });
 
-        // --- Funciones de arrastre y ubicación temporal (se mantienen igual) ---
+        // --- Funciones de arrastre y ubicación temporal ---
         function mostrarBotonesFlotantes(saveCallback, cancelCallback) {
             currentLocationConfirmCallback = { save: saveCallback, cancel: cancelCallback };
             document.getElementById('floating-location-btns').style.display = 'flex';
