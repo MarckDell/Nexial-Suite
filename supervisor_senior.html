@@ -419,7 +419,7 @@
         const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
         const STORAGE_BUCKET = 'empresas';
         const GEO_API_BASE = 'https://city-state-country.vercel.app';
-        let currentUser = null, empresaMonedaCodigo = 'USD', empresaPais = '';
+        let currentUser = null, empresaMonedaCodigo = 'USD', empresaPais = '', monedaPrincipalSimbolo = '$';
         let paisesData = [], todasLasMonedas = [];
         let chartVentas = null, chartProductos = null;
         let ventasDataCache = [], productosMapCache = {};
@@ -437,12 +437,10 @@
         const unidadPesoMap = { 'Kilogramo':'kg', 'Gramo':'g', 'Tonelada':'ton', 'Libra':'lb', 'Onza':'oz' };
         const unidadVolumenMap = { 'Litro':'litro', 'Mililitro':'ml', 'Metro cúbico':'m³', 'Centímetro cúbico':'cm³', 'Galón':'galón' };
 
-        // Opciones fijas para desplegables de cliente
         const TIPOS_CLIENTE = ['Distribuidor','Mayorista','Minorista','Mayorista-Distribuidor','Cuenta Clave (Key Account)','Institucional','HORECA','Consumidor Final','E-commerce (Marketplace)'];
         const SEGMENTOS_MERCADO = ['Moderno – Hipermercado','Moderno – Supermercado','Moderno – Discount','Moderno – Conveniencia','Tradicional – Tienda de barrio','Tradicional – Canal Mayorista','Industrial / B2B','Institucional','HORECA','Digital'];
         const CANALES_VENTA = ['Venta Directa – Fuerza Propia','Venta Directa – Preventa','Venta Directa – Autoventa','Distribuidor Exclusivo','Televenta','E-commerce B2B','E-commerce B2C','Mayorista / Cash & Carry','Retail Moderno'];
 
-        // Países estáticos
         const PAISES_ESTATICOS = [
             { name: { common: 'Bolivia' }, cca2: 'BO', idd: { root: '+591', suffixes: [''] }, currencies: { BOB: { name: 'Boliviano', symbol: 'Bs.' } } },
             { name: { common: 'Argentina' }, cca2: 'AR', idd: { root: '+54', suffixes: [''] }, currencies: { ARS: { name: 'Peso argentino', symbol: '$' } } },
@@ -466,7 +464,6 @@
             { name: { common: 'Corea del Sur' }, cca2: 'KR', idd: { root: '+82', suffixes: [''] }, currencies: { KRW: { name: 'Won', symbol: '₩' } } }
         ];
 
-        // Métricas de metas (nombres formales)
         const METRICAS_META = [
             { key: 'monto_objetivo', label: 'Volumen de venta (Monto)', tipo: 'dinero', moneda: 'moneda_objetivo_id', ayuda: 'Monto total de ventas esperado.' },
             { key: 'cantidad_objetivo', label: 'Unidades vendidas (Cantidad)', tipo: 'cantidad', unidad: 'unidad_objetivo_id', ayuda: 'Cantidad total de unidades.' },
@@ -693,9 +690,20 @@
             if (currentUser && currentUser.empresa_id) {
                 const emp = await apiFetch(`empresas?id=eq.${currentUser.empresa_id}&select=moneda_principal_id,pais`);
                 if (emp.length > 0) {
-                    if (emp[0].moneda_principal_id) { const mon = await apiFetch(`monedas?id=eq.${emp[0].moneda_principal_id}&select=codigo`); if (mon.length > 0) empresaMonedaCodigo = mon[0].codigo; }
+                    if (emp[0].moneda_principal_id) {
+                        const mon = await apiFetch(`monedas?id=eq.${emp[0].moneda_principal_id}&select=codigo,simbolo`);
+                        if (mon.length > 0) {
+                            empresaMonedaCodigo = mon[0].codigo;
+                            monedaPrincipalSimbolo = mon[0].simbolo || (mon[0].codigo === 'USD' ? '$' : mon[0].codigo);
+                        }
+                    }
                     empresaPais = emp[0].pais || '';
                 }
+            }
+            // Asegurar símbolo por defecto si no se encontró
+            if (!monedaPrincipalSimbolo || monedaPrincipalSimbolo === '') {
+                const mon = todasLasMonedas.find(m => m.codigo === empresaMonedaCodigo);
+                monedaPrincipalSimbolo = mon ? (mon.simbolo || empresaMonedaCodigo) : '$';
             }
             poblarSelectsFijosCliente();
             cargarDatalistsEstaticos();
@@ -954,20 +962,31 @@
             }
         }
 
-        // Función corregida para cargar supervisores (sin comillas extras)
+        // CORREGIDO: asegura que los supervisores se carguen correctamente
         async function llenarSelectSupervisores(selectId, seleccionado = '') {
-            const sel = document.getElementById(selectId); if (!sel) return;
+            const sel = document.getElementById(selectId);
+            if (!sel) return;
             const empId = currentUser.empresa_id;
             sel.innerHTML = '<option value="">Sin supervisor</option>';
             try {
                 const supervisorRole = 'Supervisor Senior';
-                const supervisoresUsuarios = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent(supervisorRole)}&select=email&limit=1000`);
+                const url = `usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent(supervisorRole)}&select=email&limit=1000`;
+                const supervisoresUsuarios = await apiFetch(url);
                 const emails = supervisoresUsuarios.map(u => u.email.toLowerCase());
                 if (emails.length === 0) return;
-                const emps = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
+                const empsUrl = `empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`;
+                const emps = await apiFetch(empsUrl);
                 const filtrados = emps.filter(e => emails.includes((e.email||'').toLowerCase()));
-                filtrados.forEach(e => { const o = document.createElement('option'); o.value = e.id; o.text = `${e.nombres} ${e.apellido_paterno}`; if (e.id === seleccionado) o.selected = true; sel.appendChild(o); });
-            } catch(e) {}
+                filtrados.forEach(e => {
+                    const o = document.createElement('option');
+                    o.value = e.id;
+                    o.text = `${e.nombres} ${e.apellido_paterno}`;
+                    if (e.id === seleccionado) o.selected = true;
+                    sel.appendChild(o);
+                });
+            } catch(e) {
+                console.warn('Error cargando supervisores:', e);
+            }
         }
 
         async function cargarInicio(desde = null, hasta = null) {
@@ -1040,7 +1059,7 @@
                 if (chartVentas) chartVentas.destroy();
                 const ctx = document.getElementById('grafico-ventas')?.getContext('2d'); if (!ctx) return;
                 chartVentas = new Chart(ctx, { type:'bar', data:{ labels: vendors.map(v=>v.nombre), datasets:[
-                    { label:'Monto ($)', data: vendors.map(v=>v.monto), backgroundColor:'#2563eb', borderColor:'#1d4ed8', borderWidth:1, borderRadius:8 },
+                    { label:`Monto (${monedaPrincipalSimbolo})`, data: vendors.map(v=>v.monto), backgroundColor:'#2563eb', borderColor:'#1d4ed8', borderWidth:1, borderRadius:8 },
                     { label:'Carga Total', data: vendors.map(v=>v.carga), backgroundColor:'#f59e0b', borderColor:'#d97706', borderWidth:1, borderRadius:8 },
                     { label:'Variedad (productos)', data: vendors.map(v=>v.variedad), backgroundColor:'#10b981', borderColor:'#059669', borderWidth:1, borderRadius:8 }
                 ]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ usePointStyle:true, font:{ size:12 } } } } } });
@@ -1078,7 +1097,7 @@
             const categorias = [...new Set(todasCategorias.map(p=>p.categoria).filter(Boolean))].sort();
             let filas = '';
             productos.forEach(p => {
-                filas += `<tr><td>${p.sku}</td><td>${p.nombre}</td><td>${p.categoria||'-'}</td><td>${p.marca||'-'}</td><td>${p.modelo||'-'}</td><td>$${parseFloat(p.precio_venta_base||0).toFixed(2)}</td><td>${p.stock_minimo||0}</td><td>${p.stock_maximo||'-'}</td><td class="action-buttons"><button class="btn-sm btn-edit" onclick="editarProducto('${p.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-delete" onclick="eliminarProducto('${p.id}')"><i class="fas fa-ban"></i></button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteProducto('${p.id}')"><i class="fas fa-trash-alt"></i></button></td></tr>`;
+                filas += `<tr><td>${p.sku}</td><td>${p.nombre}</td><td>${p.categoria||'-'}</td><td>${p.marca||'-'}</td><td>${p.modelo||'-'}</td><td>${monedaPrincipalSimbolo}${parseFloat(p.precio_venta_base||0).toFixed(2)}</td><td>${p.stock_minimo||0}</td><td>${p.stock_maximo||'-'}</td><td class="action-buttons"><button class="btn-sm btn-edit" onclick="editarProducto('${p.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-delete" onclick="eliminarProducto('${p.id}')"><i class="fas fa-ban"></i></button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteProducto('${p.id}')"><i class="fas fa-trash-alt"></i></button></td></tr>`;
             });
             if (!filas) filas = '<tr><td colspan="9" style="text-align:center;">No hay productos.</td></tr>';
             if (!productosChartDesde) { const hoy = new Date(); productosChartDesde = new Date(hoy.getFullYear(), hoy.getMonth(),1).toISOString(); productosChartHasta = new Date(hoy.getFullYear(), hoy.getMonth()+1,0,23,59,59).toISOString(); }
@@ -1129,7 +1148,7 @@
                 if (chartProductos) chartProductos.destroy();
                 const ctx = document.getElementById('grafico-productos')?.getContext('2d'); if(!ctx) return;
                 chartProductos = new Chart(ctx, { type:'bar', data:{ labels:top.map(d=>d.nombre), datasets:[
-                    { label:'Monto ($)', data:top.map(d=>d.total), backgroundColor:'#2563eb', borderColor:'#1d4ed8', borderWidth:1, borderRadius:8 },
+                    { label:`Monto (${monedaPrincipalSimbolo})`, data:top.map(d=>d.total), backgroundColor:'#2563eb', borderColor:'#1d4ed8', borderWidth:1, borderRadius:8 },
                     { label:'Cantidad', data:top.map(d=>d.cantidad), backgroundColor:'#f59e0b', borderColor:'#d97706', borderWidth:1, borderRadius:8 },
                     { label:'Carga Total', data:top.map(d=>d.carga), backgroundColor:'#10b981', borderColor:'#059669', borderWidth:1, borderRadius:8 }
                 ]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ usePointStyle:true, font:{ size:12 } } } } } });
@@ -1240,7 +1259,9 @@
             if(empresaPais) actualizarDependenciasPaisEmpleado(empresaPais);
             else { actualizarSelectTiposDocumento('','usr-tipo-doc'); actualizarTiposContrato(''); }
             llenarInputsTelefonoDesdeJson('#telefonos-container', [{etiqueta:'', numero:''}]);
-            llenarRolesSelect(); await llenarSelectSupervisores('usr-supervisor'); cargarDatalistsEstaticos();
+            llenarRolesSelect();
+            await llenarSelectSupervisores('usr-supervisor'); // cargar supervisores
+            cargarDatalistsEstaticos();
             if(tab==='distribucion') { document.getElementById('usr-rol').value='Especialista Logístico'; document.getElementById('usr-rol').dispatchEvent(new Event('change')); }
             else if(tab==='comercial') { document.getElementById('usr-rol').value='Ejecutivo Comercial'; document.getElementById('usr-rol').dispatchEvent(new Event('change')); }
             if(id) editarUsuario(id); initTooltips();
@@ -1522,20 +1543,17 @@
                 return;
             }
 
-            // Obtener metas existentes para el período
             const empleadoIds = empleados.map(e => `"${e.id}"`).join(',');
             const metasExistentes = await apiFetch(`objetivos_empleado?empleado_id=in.(${encodeURIComponent(empleadoIds)})&mes=eq.${mes}&anio=eq.${anio}&activo=eq.true&select=*&limit=1000`);
             const metasMap = {};
             metasExistentes.forEach(m => { metasMap[m.empleado_id] = m; });
 
-            // Preparar lista de monedas y unidades para selects
             let monedasOptions = '';
             todasLasMonedas.forEach(m => { monedasOptions += `<option value="${m.codigo} - ${m.nombre}">${m.codigo} - ${m.nombre}</option>`; });
             let unidadesOptions = '';
             const unidadesList = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón'];
             unidadesList.forEach(u => { unidadesOptions += `<option value="${u}">${u}</option>`; });
 
-            // Construir tabla
             let tabla = `<table class="meta-editable-table"><thead><tr><th>Empleado</th>`;
             METRICAS_META.forEach(met => {
                 tabla += `<th>${met.label}<br><small style="font-weight:400;">${met.ayuda}</small></th>`;
@@ -1551,18 +1569,13 @@
                     let celda = `<td style="text-align:center;"><label style="display:flex; align-items:center; gap:4px; white-space:nowrap;"><input type="checkbox" class="meta-check-metric" data-key="${met.key}" ${checked}> `;
                     if (met.tipo === 'dinero') {
                         celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
-                        // moneda select
-                        let monedaActual = monedaPorDefecto();
-                        if (meta.moneda_objetivo_id) {
-                            // intentaremos setear más abajo
-                        }
                         celda += `<select class="meta-moneda-${met.key}" style="width:120px;">${monedasOptions}</select>`;
                     } else if (met.tipo === 'cantidad') {
                         celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
                         celda += `<select class="meta-unidad-${met.key}" style="width:100px;">${unidadesOptions}</select>`;
                     } else if (met.tipo === 'entero') {
                         celda += `<input type="number" step="1" min="0" class="meta-val-${met.key}" value="${val}" style="width:80px;">`;
-                    } else { // decimal
+                    } else {
                         celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
                     }
                     celda += `</label></td>`;
@@ -1571,11 +1584,10 @@
                 tabla += `<td><input type="text" class="meta-comentario" value="${meta.comentario || ''}" style="width:100%;"></td></tr>`;
             }
             tabla += `</tbody></table>`;
-
             document.getElementById('meta-tabla-global-container').innerHTML = tabla;
             document.getElementById('meta-guardar-area').hidden = false;
 
-            // Ahora establecer las monedas y unidades reales
+            // Asignar valores de moneda/unidad existentes
             for (const emp of empleados) {
                 const meta = metasMap[emp.id];
                 if (!meta) continue;
@@ -1620,7 +1632,6 @@
                     comentario: fila.querySelector('.meta-comentario')?.value || null
                 };
 
-                // Para cada métrica
                 for (const met of METRICAS_META) {
                     const chk = fila.querySelector(`.meta-check-metric[data-key="${met.key}"]`);
                     if (chk && chk.checked) {
@@ -1648,7 +1659,6 @@
                     }
                 }
 
-                // Verificar si existe meta previa
                 const existente = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&select=id&limit=1`);
                 if (existente.length > 0) {
                     operaciones.push(apiFetch(`objetivos_empleado?id=eq.${existente[0].id}`, 'PATCH', payload));
