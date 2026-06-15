@@ -210,7 +210,7 @@
                     <button type="button" class="btn-add" onclick="actualizarUbicacionDesdeGPS()" style="margin-bottom:6px;"><i class="fas fa-map-marker-alt"></i> Usar mi ubicación actual</button>
                     <button type="button" class="btn-add" id="btn-mover-mapa" style="display:inline-flex; background:#e67e22;" onclick="moverUbicacionDesdeModal()"><i class="fas fa-map-pin"></i> Mover en el mapa</button>
                 </div>
-                <div class="form-group"><label>Tipo de Negocio</label><input id="cli-tipo-negocio" list="tipos-negocio"><datalist id="tipos-negocio"><option>Tienda</option><option>Mecánica</option><option>Abarrotes</option><option>Carnicería</option><option>Farmacia</option><option>Ferretería</option><option>Panadería</option><option>Restaurante</option></datalist></div>
+                <div class="form-group"><label>Nombre Comercial</label><input id="cli-nombre-comercial" list="tipos-negocio"><datalist id="tipos-negocio"><option>Tienda</option><option>Mecánica</option><option>Abarrotes</option><option>Carnicería</option><option>Farmacia</option><option>Ferretería</option><option>Panadería</option><option>Restaurante</option></datalist></div>
                 <div class="form-group"><label>Fotografía</label><input type="file" id="file-cli-imagen" accept="image/*"></div>
                 <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
                     <button type="submit" class="btn-solid" style="width:100%; justify-content:center;">Guardar</button>
@@ -1093,7 +1093,7 @@
                 document.getElementById('cli-num-doc').value = cli.numero_documento || '';
                 document.getElementById('cli-email').value = cli.email || '';
                 document.getElementById('cli-direccion').value = cli.direccion || '';
-                document.getElementById('cli-tipo-negocio').value = cli.tipo_negocio || '';
+                document.getElementById('cli-nombre-comercial').value = cli.nombre_comercial || '';
                 document.getElementById('cli-telefonos-container').innerHTML = '';
                 (cli.telefonos?.length ? cli.telefonos : [{etiqueta:'',numero:''}]).forEach(t => {
                     const row = document.createElement('div'); row.className='phone-input-row';
@@ -1295,7 +1295,7 @@
                 estado_provincia: document.getElementById('cli-estado-hidden').value.trim()||null,
                 ciudad: document.getElementById('cli-ciudad-hidden').value.trim()||null,
                 direcciones_entrega: obtenerCoordenadas(),
-                tipo_negocio: document.getElementById('cli-tipo-negocio').value.trim()||null,
+                nombre_comercial: document.getElementById('cli-nombre-comercial').value.trim()||null,
                 activo: true
             };
             try {
