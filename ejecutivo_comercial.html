@@ -441,32 +441,9 @@
             });
         }
 
+        // ✅ MODIFICACIÓN: Ahora solo usa Nominatim, sin Google Geocoding.
+        // Así se evita el error "Geocoding Service not activated" y no requiere pago.
         async function geocodificarInversa(lat, lng) {
-            if (window.google && google.maps.Geocoder) {
-                try {
-                    const result = await new Promise((resolve, reject) => {
-                        const geocoder = new google.maps.Geocoder();
-                        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-                            if (status === 'OK' && results.length > 0) {
-                                let estado = '', ciudad = '', pais = '';
-                                for (const comp of results[0].address_components) {
-                                    if (comp.types.includes('administrative_area_level_1')) estado = comp.long_name;
-                                    if (comp.types.includes('locality') || comp.types.includes('postal_town')) ciudad = comp.long_name;
-                                    if (comp.types.includes('country')) pais = comp.long_name;
-                                    if (!ciudad && comp.types.includes('administrative_area_level_2')) ciudad = comp.long_name;
-                                }
-                                resolve({ estado, ciudad, pais });
-                            } else {
-                                reject(new Error('Geocoding failed'));
-                            }
-                        });
-                    });
-                    if (result) return result;
-                } catch (e) {
-                    console.warn('Google Geocoding falló, usando Nominatim', e);
-                }
-            }
-
             try {
                 const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=es`;
                 const resp = await fetch(url, { headers: { 'User-Agent': 'NexialSuiteApp/1.0' } });
