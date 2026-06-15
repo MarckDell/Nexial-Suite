@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="overscroll-behavior: none;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
@@ -10,7 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Inter',-apple-system,sans-serif; background:#f4f6fb; color:#1a1f36; touch-action:manipulation; -webkit-tap-highlight-color:transparent; overscroll-behavior: none; }
+        html { overscroll-behavior: none; }
+        body { font-family:'Inter',-apple-system,sans-serif; background:#f4f6fb; color:#1a1f36; touch-action:manipulation; -webkit-tap-highlight-color:transparent; overscroll-behavior: none; overflow-x: hidden; }
         .app-header { position:fixed; top:0; left:0; width:100%; height:80px; background:rgba(10,15,30,0.96); backdrop-filter:blur(14px); z-index:1000; display:flex; align-items:center; justify-content:center; padding:0 16px; border-bottom:1px solid rgba(255,255,255,0.08); }
         .header-brand { display:flex; align-items:center; gap:12px; }
         .app-logo { font-size:3rem; background:linear-gradient(135deg,#1a56db,#00a3ff); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 0 14px rgba(26,86,219,0.7)); }
@@ -200,6 +201,8 @@
                 </div>
                 <div class="form-group"><label>Tipo Documento</label><select id="cli-tipo-doc"></select></div>
                 <div class="form-group"><label>Número Documento</label><input id="cli-num-doc"></div>
+                <!-- NOMBRE COMERCIAL MOVIDO AQUÍ, SIN DATALIST -->
+                <div class="form-group"><label>Nombre Comercial</label><input id="cli-nombre-comercial" placeholder="Ej: Tienda, Farmacia..."></div>
                 <div class="form-group"><label>Email</label><input id="cli-email" type="email"></div>
                 <div class="form-group"><label>Teléfonos</label><div id="cli-telefonos-container"></div><button type="button" class="btn-phone-add" onclick="agregarTelefonoCliente()">+ Teléfono</button></div>
                 <div class="form-group"><label>Dirección</label><input id="cli-direccion" oninput="capitalizarInput(this)"></div>
@@ -210,7 +213,6 @@
                     <button type="button" class="btn-add" onclick="actualizarUbicacionDesdeGPS()" style="margin-bottom:6px;"><i class="fas fa-map-marker-alt"></i> Usar mi ubicación actual</button>
                     <button type="button" class="btn-add" id="btn-mover-mapa" style="display:inline-flex; background:#e67e22;" onclick="moverUbicacionDesdeModal()"><i class="fas fa-map-pin"></i> Mover en el mapa</button>
                 </div>
-                <div class="form-group"><label>Nombre Comercial</label><input id="cli-nombre-comercial" list="tipos-negocio"><datalist id="tipos-negocio"><option>Tienda</option><option>Mecánica</option><option>Abarrotes</option><option>Carnicería</option><option>Farmacia</option><option>Ferretería</option><option>Panadería</option><option>Restaurante</option></datalist></div>
                 <div class="form-group"><label>Fotografía</label><input type="file" id="file-cli-imagen" accept="image/*"></div>
                 <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
                     <button type="submit" class="btn-solid" style="width:100%; justify-content:center;">Guardar</button>
@@ -255,6 +257,13 @@
 
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTFh4VNHNHFT2uN1LShwJ5f6IeMCFMjHc&loading=async&callback=initMap&libraries=marker,places"></script>
     <script>
+        // Bloquear el pull-to-refresh en móviles
+        document.addEventListener('touchmove', function(e) {
+            if (e.target === document.documentElement || e.target === document.body) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
         const SUPABASE_URL = 'https://zgzwhyywkervutpvazqp.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
         let currentUser = null, currentEmployeeId = null, empresaId = null;
@@ -441,8 +450,7 @@
             });
         }
 
-        // ✅ MODIFICACIÓN: Ahora solo usa Nominatim, sin Google Geocoding.
-        // Así se evita el error "Geocoding Service not activated" y no requiere pago.
+        // Solo Nominatim, sin Google Geocoding (evita errores y no requiere pago)
         async function geocodificarInversa(lat, lng) {
             try {
                 const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=es`;
@@ -1068,9 +1076,10 @@
                 actualizarTipoDocPorPais();
                 document.getElementById('cli-tipo-doc').value = cli.tipo_documento || '';
                 document.getElementById('cli-num-doc').value = cli.numero_documento || '';
+                // Nombre Comercial ahora se carga correctamente
+                document.getElementById('cli-nombre-comercial').value = cli.nombre_comercial || '';
                 document.getElementById('cli-email').value = cli.email || '';
                 document.getElementById('cli-direccion').value = cli.direccion || '';
-                document.getElementById('cli-nombre-comercial').value = cli.nombre_comercial || '';
                 document.getElementById('cli-telefonos-container').innerHTML = '';
                 (cli.telefonos?.length ? cli.telefonos : [{etiqueta:'',numero:''}]).forEach(t => {
                     const row = document.createElement('div'); row.className='phone-input-row';
@@ -1261,6 +1270,8 @@
                 empresa_id: empresaId, vendedor_asignado_id: currentEmployeeId,
                 tipo_documento: document.getElementById('cli-tipo-doc').value||null,
                 numero_documento: document.getElementById('cli-num-doc').value||null,
+                // Nombre Comercial se envía desde el campo correspondiente
+                nombre_comercial: document.getElementById('cli-nombre-comercial').value.trim()||null,
                 nombres: tipo==='natural'? document.getElementById('cli-nombres').value.trim():null,
                 apellido_paterno: tipo==='natural'? document.getElementById('cli-ap').value.trim():null,
                 apellido_materno: tipo==='natural'? document.getElementById('cli-am').value.trim():null,
@@ -1272,7 +1283,6 @@
                 estado_provincia: document.getElementById('cli-estado-hidden').value.trim()||null,
                 ciudad: document.getElementById('cli-ciudad-hidden').value.trim()||null,
                 direcciones_entrega: obtenerCoordenadas(),
-                nombre_comercial: document.getElementById('cli-nombre-comercial').value.trim()||null,
                 activo: true
             };
             try {
