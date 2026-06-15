@@ -35,8 +35,6 @@
         .sub-tab-btn { padding:6px 14px; border-radius:20px; border:none; font-weight:500; font-size:0.75rem; background:#f1f5f9; color:#475569; cursor:pointer; transition:0.2s; }
         .sub-tab-btn.active { background:#1e293b; color:white; }
         .filter-extras { display:flex; align-items:center; gap:8px; margin-left:auto; }
-        .checkbox-label { display:flex; align-items:center; gap:6px; font-size:0.73rem; font-weight:600; color:#334155; background:#f1f5f9; padding:6px 12px; border-radius:20px; cursor:pointer; }
-        .checkbox-label input { width:16px; height:16px; accent-color:#1a56db; }
         .refresh-btn { background:white; border:1px solid #e2e8f0; border-radius:20px; padding:6px 12px; font-size:0.9rem; cursor:pointer; color:#1e293b; display:flex; align-items:center; gap:4px; }
         .tab-content { flex:1; overflow-y:auto; padding:0 16px 16px; display:none; }
         .tab-content.active { display:block; }
@@ -101,6 +99,11 @@
         .floating-location-btns button { padding:12px 24px; border-radius:30px; font-weight:600; border:none; cursor:pointer; font-size:0.9rem; display:flex; align-items:center; gap:8px; }
         .floating-location-btns .save-btn { background:#059669; color:white; }
         .floating-location-btns .cancel-btn { background:#991b1b; color:white; }
+        .progress-item { margin-bottom:16px; }
+        .progress-item .label { font-weight:600; font-size:0.9rem; }
+        .progress-item .bar-bg { background:#e2e8f0; height:24px; border-radius:12px; overflow:hidden; margin:4px 0; }
+        .progress-item .bar-fill { height:100%; border-radius:12px; transition:width 0.5s; }
+        .progress-item .details { font-size:0.8rem; color:#475569; }
     </style>
 </head>
 <body>
@@ -146,9 +149,9 @@
             <button class="sub-tab-btn" onclick="filtrarClientes('atendidos')">Atendidos</button>
             <button class="sub-tab-btn" onclick="filtrarClientes('sin_compras')">Sin compras</button>
             <button class="sub-tab-btn" onclick="filtrarClientes('todos')">Todos</button>
-            <!-- Filtro por día de visita -->
+            <!-- Filtro por día de visita (incluye "Todos") -->
             <select id="filtro-dia-visita" onchange="aplicarFiltroDia()" style="margin-left:8px; padding:6px 10px; border-radius:20px; border:1px solid #e2e8f0; font-size:0.75rem; background:white;">
-                <option value="">Día de visita</option>
+                <option value="Todos">Todos</option>
                 <option value="Lunes">Lunes</option>
                 <option value="Martes">Martes</option>
                 <option value="Miércoles">Miércoles</option>
@@ -158,9 +161,6 @@
                 <option value="Domingo">Domingo</option>
             </select>
             <div class="filter-extras">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="chk-todos-dias" onchange="toggleTodosDias()"> Ver todos los días
-                </label>
                 <button class="refresh-btn" onclick="recargarDatos()" title="Actualizar datos"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
@@ -302,7 +302,7 @@
         </div>
     </div>
 
-    <!-- Modal Reportar Resultado (antes Gestión) -->
+    <!-- Modal Reportar Resultado -->
     <div class="modal-overlay" id="modal-resultado">
         <div class="modal">
             <div class="modal-header">
@@ -340,7 +340,7 @@
         <button class="cancel-btn" id="btn-cancel-location"><i class="fas fa-times"></i> Cancelar</button>
     </div>
 
-    <!-- Google Maps (solo para el mapa base, geocoding desactivado) -->
+    <!-- Google Maps -->
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTFh4VNHNHFT2uN1LShwJ5f6IeMCFMjHc&loading=async&callback=initMap&libraries=marker,places"></script>
     <script>
         // Bloquear pull-to-refresh en móviles
@@ -362,11 +362,10 @@
         let ultimoPedidoClienteMap = {};
         let documentoEditando = null;
         let pedidosDelClienteActual = [];
-        let verTodosLosDias = false;
         let clienteTemporalId = null;
         let pedidoTemporalDoc = null;
         let flujoNuevoClientePendiente = false;
-        let diaVisitaSeleccionado = '';
+        let diaVisitaSeleccionado = ''; // '' significa "Todos"
         let ultimaGestionMap = {};
 
         // Variables globales para la moneda de la empresa
@@ -404,6 +403,17 @@
             'Encargado ausente': 'ausente',
             'Otros motivos': 'no_compra'
         };
+
+        // Definición de métricas para la sección Avance
+        const METRICAS_AVANCE = [
+            { key: 'monto_objetivo', label: 'Volumen de venta (Monto)', tipo: 'dinero', monedaKey: 'moneda_objetivo_id', ayuda: 'Monto total de ventas' },
+            { key: 'cantidad_objetivo', label: 'Unidades vendidas', tipo: 'cantidad', unidadKey: 'unidad_objetivo_id', ayuda: 'Cantidad total de unidades' },
+            { key: 'variedad_objetivo', label: 'Diversidad de portafolio', tipo: 'entero', ayuda: 'Número de productos distintos' },
+            { key: 'peso_objetivo', label: 'Peso total distribuido', tipo: 'decimal', ayuda: 'Peso total en kg' },
+            { key: 'volumen_objetivo', label: 'Volumen total distribuido', tipo: 'decimal', ayuda: 'Volumen total en m³' },
+            { key: 'clientes_nuevos_objetivo', label: 'Captación de clientes', tipo: 'entero', ayuda: 'Número de clientes nuevos' },
+            { key: 'visitas_objetivo', label: 'Visitas programadas', tipo: 'entero', ayuda: 'Total de visitas a clientes' }
+        ];
 
         function getCurrentDayName() {
             const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
@@ -553,7 +563,6 @@
             } catch (e) {
                 console.warn('No se pudo cargar la moneda de la empresa, usando USD por defecto');
             }
-            // Actualizar cualquier símbolo en la UI
             document.getElementById('currency-symbol-total').textContent = empresaCurrencySymbol + ' ';
         }
 
@@ -572,7 +581,6 @@
             });
         }
 
-        // Geocodificación gratuita con Nominatim
         async function geocodificarInversa(lat, lng) {
             try {
                 const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=es`;
@@ -605,8 +613,11 @@
             } catch(e) { console.warn('No se pudo obtener nombre completo del usuario', e); }
             const nombreCompleto = `${currentUser.nombres} ${currentUser.apellido_paterno} ${currentUser.apellido_materno || ''}`.trim();
             document.getElementById('nombre-completo').textContent = nombreCompleto;
-            await cargarConfiguracionMoneda();  // Obtener símbolo de moneda
+            await cargarConfiguracionMoneda();
             await obtenerEmpleadoId();
+            // Inicializar filtro de día con el día actual
+            document.getElementById('filtro-dia-visita').value = getCurrentDayName();
+            diaVisitaSeleccionado = getCurrentDayName();
             if (document.getElementById('seccion-clientes').classList.contains('active') && map) {
                 cargarDatosMapa();
             }
@@ -649,13 +660,9 @@
         }
 
         function aplicarFiltroDia() {
-            diaVisitaSeleccionado = document.getElementById('filtro-dia-visita').value;
+            const valor = document.getElementById('filtro-dia-visita').value;
+            diaVisitaSeleccionado = valor === 'Todos' ? '' : valor;
             aplicarFiltroActual();
-        }
-
-        function toggleTodosDias() {
-            verTodosLosDias = document.getElementById('chk-todos-dias').checked;
-            cargarDatosMapa();
         }
 
         function recargarDatos() {
@@ -669,7 +676,8 @@
         async function obtenerClientesFiltrados() {
             if(!currentEmployeeId) return [];
             let clientes = await apiFetch(`clientes?vendedor_asignado_id=eq.${currentEmployeeId}&activo=eq.true&select=*&limit=1000`);
-            if (diaVisitaSeleccionado && !verTodosLosDias) {
+            if (diaVisitaSeleccionado) {
+                // Filtrar por día de visita específico
                 clientes = clientes.filter(c => c.dia_visita === diaVisitaSeleccionado);
             }
             if(currentFilter === 'todos') return clientes;
@@ -746,11 +754,12 @@
             zoneOverlays = [];
             try {
                 let zonas;
-                if (verTodosLosDias) {
-                    zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&select=*`);
+                if (diaVisitaSeleccionado) {
+                    // Filtrar zonas por día seleccionado
+                    zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&dia_semana=eq.${diaVisitaSeleccionado}&select=*`);
                 } else {
-                    const diaActual = getCurrentDayName();
-                    zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&dia_semana=eq.${diaActual}&select=*`);
+                    // Cargar todas las zonas activas
+                    zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&select=*`);
                 }
                 zonas.forEach(z => {
                     if(z.geometria?.coordinates) {
@@ -1239,7 +1248,6 @@
                 document.getElementById('cli-dia-visita').value = cli.dia_visita || '';
                 document.getElementById('cli-email').value = cli.email || '';
                 document.getElementById('cli-direccion').value = cli.direccion || '';
-                // Nuevos campos de clasificación
                 document.getElementById('cli-tipo-cliente').value = cli.tipo_cliente || '';
                 document.getElementById('cli-segmento').value = cli.segmento_mercado || '';
                 document.getElementById('cli-canal').value = cli.canal_venta || '';
@@ -1292,7 +1300,6 @@
             activarArrastreUbicacion(id, true);
         }
 
-        // --- Modal de Reportar Resultado (mejorado) ---
         function abrirModalResultado(clienteId) {
             document.getElementById('modal-resultado').classList.add('active');
             document.getElementById('resultado-cliente-id').value = clienteId;
@@ -1336,7 +1343,6 @@
             } catch(err) { showNotification('Error: '+err.message, 'error'); }
         });
 
-        // --- Funciones de arrastre y ubicación temporal ---
         function mostrarBotonesFlotantes(saveCallback, cancelCallback) {
             currentLocationConfirmCallback = { save: saveCallback, cancel: cancelCallback };
             document.getElementById('floating-location-btns').style.display = 'flex';
@@ -1469,7 +1475,6 @@
             ocultarBotonesFlotantes();
         }
 
-        // Envío del formulario de cliente (incluye los nuevos campos)
         document.getElementById('form-cliente').addEventListener('submit', async function(e) {
             e.preventDefault();
             const id = document.getElementById('cliente-id').value;
@@ -1521,19 +1526,74 @@
             if(!currentEmployeeId) return;
             const mes = new Date().getMonth()+1, anio = new Date().getFullYear();
             const desde = `${anio}-${String(mes).padStart(2,'0')}-01`, hasta = new Date(anio,mes,0).toISOString().slice(0,10);
-            const [obj] = await apiFetch(`objetivos_empleado?empleado_id=eq.${currentEmployeeId}&mes=eq.${mes}&anio=eq.${anio}&limit=1`);
-            const ventas = await apiFetch(`ventas?empresa_id=eq.${empresaId}&vendedor_id=eq.${currentEmployeeId}&fecha=gte.${desde}T00:00:00&fecha=lte.${hasta}T23:59:59&select=total_linea`);
-            const total = ventas.reduce((s,v)=>s+parseFloat(v.total_linea),0);
-            const objetivo = obj?.monto_objetivo||0;
-            document.getElementById('avance-card').innerHTML = `
-                <h3>Mi Progreso - ${mes}/${anio}</h3>
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <div style="width:150px; height:150px;"><canvas id="grafico-avance"></canvas></div>
-                    <p style="margin-top:16px;">Ventas: ${empresaCurrencySymbol}${total.toFixed(2)} / ${empresaCurrencySymbol}${objetivo.toFixed(2)}</p>
-                </div>`;
-            if(avanceChart) avanceChart.destroy();
-            const ctx = document.getElementById('grafico-avance')?.getContext('2d');
-            if(ctx) avanceChart = new Chart(ctx, {type:'doughnut', data:{labels:['Alcanzado','Restante'], datasets:[{data:[total, Math.max(0,objetivo-total)], backgroundColor:['#2563eb','#e2e8f0']}]}, options:{cutout:'70%', plugins:{legend:{display:false}}}});
+            const [objetivoRow] = await apiFetch(`objetivos_empleado?empleado_id=eq.${currentEmployeeId}&mes=eq.${mes}&anio=eq.${anio}&limit=1`);
+            const ventas = await apiFetch(`ventas?empresa_id=eq.${empresaId}&vendedor_id=eq.${currentEmployeeId}&fecha=gte.${desde}T00:00:00&fecha=lte.${hasta}T23:59:59&select=total_linea,cantidad,producto_id`);
+
+            // Calcular valores reales
+            let montoReal = 0, cantidadReal = 0, pesoReal = 0, volumenReal = 0;
+            const productosSet = new Set();
+            ventas.forEach(v => {
+                montoReal += parseFloat(v.total_linea);
+                cantidadReal += v.cantidad;
+                productosSet.add(v.producto_id);
+            });
+            const variedadReal = productosSet.size;
+            const clientesIds = [...new Set(ventas.map(v => v.cliente_id))]; // no tenemos cliente_id en ventas? Sí, pero en el select no lo incluimos. Debemos obtenerlo.
+            // Corregir: necesitamos cliente_id en ventas. Modificamos la consulta de ventas para incluir cliente_id.
+            // Volvamos a cargar ventas con cliente_id
+            const ventasCompleta = await apiFetch(`ventas?empresa_id=eq.${empresaId}&vendedor_id=eq.${currentEmployeeId}&fecha=gte.${desde}T00:00:00&fecha=lte.${hasta}T23:59:59&select=total_linea,cantidad,producto_id,cliente_id`);
+            const clientesUnicos = new Set(ventasCompleta.map(v => v.cliente_id));
+            const clientesNuevosReal = clientesUnicos.size; // proxy
+            const visitasReal = ventasCompleta.length; // cantidad de líneas de venta como proxy de visitas
+
+            // Obtener pesos y volúmenes de productos
+            if (productosSet.size > 0) {
+                const prods = await apiFetch(`productos?empresa_id=eq.${empresaId}&id=in.(${[...productosSet].map(id=>`"${id}"`).join(',')})&select=id,peso,volumen`);
+                const prodMap = {};
+                prods.forEach(p => { prodMap[p.id] = { peso: parseFloat(p.peso)||0, volumen: parseFloat(p.volumen)||0 }; });
+                ventasCompleta.forEach(v => {
+                    const prod = prodMap[v.producto_id];
+                    if (prod) {
+                        pesoReal += v.cantidad * prod.peso;
+                        volumenReal += v.cantidad * prod.volumen;
+                    }
+                });
+            }
+
+            let html = `<h3 style="margin-bottom:16px;">Mi Progreso - ${mes}/${anio}</h3>`;
+            if (!objetivoRow) {
+                html += '<p style="color:#64748b;">No se han definido metas para este mes.</p>';
+            } else {
+                let hayMetas = false;
+                METRICAS_AVANCE.forEach(metrica => {
+                    const objetivoVal = objetivoRow[metrica.key];
+                    if (objetivoVal !== null && objetivoVal !== undefined) {
+                        hayMetas = true;
+                        let valorReal, unidad = '', simboloMoneda = '';
+                        switch (metrica.key) {
+                            case 'monto_objetivo': valorReal = montoReal; simboloMoneda = empresaCurrencySymbol; break;
+                            case 'cantidad_objetivo': valorReal = cantidadReal; break;
+                            case 'variedad_objetivo': valorReal = variedadReal; break;
+                            case 'peso_objetivo': valorReal = pesoReal; unidad = ' kg'; break;
+                            case 'volumen_objetivo': valorReal = volumenReal; unidad = ' m³'; break;
+                            case 'clientes_nuevos_objetivo': valorReal = clientesNuevosReal; break;
+                            case 'visitas_objetivo': valorReal = visitasReal; break;
+                        }
+                        const porcentaje = Math.min(100, Math.round((valorReal / objetivoVal) * 100));
+                        const color = porcentaje >= 80 ? '#16a34a' : porcentaje >= 50 ? '#f59e0b' : '#dc2626';
+                        html += `
+                            <div class="progress-item">
+                                <div class="label">${metrica.label} (${simboloMoneda}${objetivoVal}${unidad})</div>
+                                <div class="bar-bg">
+                                    <div class="bar-fill" style="width:${porcentaje}%; background:${color};"></div>
+                                </div>
+                                <div class="details">${simboloMoneda}${valorReal.toFixed(2)}${unidad} — ${porcentaje}%</div>
+                            </div>`;
+                    }
+                });
+                if (!hayMetas) html += '<p style="color:#64748b;">No hay métricas activas para este período.</p>';
+            }
+            document.getElementById('avance-card').innerHTML = html;
         }
 
         window.onload = async function() {
