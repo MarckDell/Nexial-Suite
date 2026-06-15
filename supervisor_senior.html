@@ -118,8 +118,9 @@
         .confirm-buttons { display:flex; gap:12px; justify-content:center; margin-top:24px; }
         .info-banner { background:#f0f9ff; border:1px solid #bae6fd; border-radius:16px; padding:14px 20px; margin-bottom:20px; font-size:0.85rem; color:#0369a1; display:flex; align-items:flex-start; gap:10px; }
         .info-banner i { font-size:1.2rem; margin-top:2px; flex-shrink:0; }
-        .meta-editable-table input { width:120px; padding:6px 10px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.85rem; }
-        .meta-editable-table select { padding:6px 10px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.85rem; width:150px; }
+        .meta-editable-table input { width:100px; padding:6px 8px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.82rem; }
+        .meta-editable-table select { padding:6px 8px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.82rem; width:120px; }
+        .meta-editable-table td { vertical-align:middle; }
         @media (max-width:900px) {
             .sidebar { width:100%; height:auto; position:relative; top:auto; bottom:auto; flex-direction:row; overflow-x:auto; padding:8px; border-right:none; border-bottom:1px solid #e2e8f0; }
             .sidebar-menu { display:flex; gap:4px; }
@@ -467,13 +468,13 @@
 
         // Métricas de metas (nombres formales)
         const METRICAS_META = [
-            { key: 'monto_objetivo', label: 'Volumen de venta (Monto)', tipo: 'dinero', moneda: 'moneda_objetivo_id', ayuda: 'Ingrese el monto total de ventas esperado en el período.' },
-            { key: 'cantidad_objetivo', label: 'Unidades vendidas (Cantidad)', tipo: 'cantidad', unidad: 'unidad_objetivo_id', ayuda: 'Cantidad total de unidades a vender.' },
-            { key: 'variedad_objetivo', label: 'Diversidad de portafolio (Variedad)', tipo: 'entero', ayuda: 'Número de productos distintos que debe vender.' },
+            { key: 'monto_objetivo', label: 'Volumen de venta (Monto)', tipo: 'dinero', moneda: 'moneda_objetivo_id', ayuda: 'Monto total de ventas esperado.' },
+            { key: 'cantidad_objetivo', label: 'Unidades vendidas (Cantidad)', tipo: 'cantidad', unidad: 'unidad_objetivo_id', ayuda: 'Cantidad total de unidades.' },
+            { key: 'variedad_objetivo', label: 'Diversidad de portafolio (Variedad)', tipo: 'entero', ayuda: 'Número de productos distintos.' },
             { key: 'peso_objetivo', label: 'Peso total distribuido', tipo: 'decimal', ayuda: 'Peso total en kg a distribuir.' },
             { key: 'volumen_objetivo', label: 'Volumen total distribuido', tipo: 'decimal', ayuda: 'Volumen total en m³ a distribuir.' },
-            { key: 'clientes_nuevos_objetivo', label: 'Captación de clientes (Cobertura)', tipo: 'entero', ayuda: 'Número de clientes nuevos que debe incorporar.' },
-            { key: 'visitas_objetivo', label: 'Visitas programadas', tipo: 'entero', ayuda: 'Total de visitas a clientes en el período.' }
+            { key: 'clientes_nuevos_objetivo', label: 'Captación de clientes (Cobertura)', tipo: 'entero', ayuda: 'Número de clientes nuevos.' },
+            { key: 'visitas_objetivo', label: 'Visitas programadas', tipo: 'entero', ayuda: 'Total de visitas a clientes.' }
         ];
 
         function capitalizarInput(el) {
@@ -953,12 +954,13 @@
             }
         }
 
+        // Función corregida para cargar supervisores (sin comillas extras)
         async function llenarSelectSupervisores(selectId, seleccionado = '') {
             const sel = document.getElementById(selectId); if (!sel) return;
             const empId = currentUser.empresa_id;
             sel.innerHTML = '<option value="">Sin supervisor</option>';
             try {
-                const supervisorRole = '"Supervisor Senior"';
+                const supervisorRole = 'Supervisor Senior';
                 const supervisoresUsuarios = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent(supervisorRole)}&select=email&limit=1000`);
                 const emails = supervisoresUsuarios.map(u => u.email.toLowerCase());
                 if (emails.length === 0) return;
@@ -1478,7 +1480,7 @@
         });
         function parseJsonSeguro(valor) { if(!valor||!valor.trim()) return null; try { return JSON.parse(valor); } catch(e) { return null; } }
 
-        // ==================== PANEL DE METAS (TABLA EDITABLE) ====================
+        // ==================== PANEL DE METAS (TABLA GLOBAL EDITABLE) ====================
         async function cargarPanelMetas() {
             const empId = currentUser.empresa_id;
             const now = new Date();
@@ -1487,173 +1489,180 @@
             let html = `
             <div class="card">
                 <div class="card-header"><h2>Definición de Objetivos por Empleado</h2></div>
-                <div class="info-banner"><i class="fas fa-bullseye"></i> Seleccione empleado, mes y año para visualizar y editar sus metas en la tabla inferior. Puede modificar directamente los valores y luego presionar <strong>Guardar Metas</strong>.</div>
+                <div class="info-banner"><i class="fas fa-bullseye"></i> Seleccione mes y año. La tabla muestra todos los empleados activos y sus métricas editables. Marque las casillas para habilitar cada objetivo y defina el valor. Presione <strong>Guardar Metas</strong> al finalizar.</div>
                 <div class="filtros">
-                    <div class="filtro-group"><label>Empleado:</label><select id="meta-empleado" onchange="cargarMetasEditable()"><option value="">Seleccione...</option></select></div>
-                    <div class="filtro-group"><label>Mes:</label><select id="meta-mes" onchange="cargarMetasEditable()">`;
+                    <div class="filtro-group"><label>Mes:</label><select id="meta-mes" onchange="cargarMetasTablaGlobal()">`;
             for (let m = 1; m <= 12; m++) {
                 html += `<option value="${m}" ${m === mesActual ? 'selected' : ''}>${new Date(2024, m-1, 1).toLocaleString('es', { month: 'long' })}</option>`;
             }
             html += `</select></div>
-                    <div class="filtro-group"><label>Año:</label><input type="number" id="meta-anio" value="${anioActual}" min="2020" max="2100" style="width:90px;" onchange="cargarMetasEditable()"></div>
+                    <div class="filtro-group"><label>Año:</label><input type="number" id="meta-anio" value="${anioActual}" min="2020" max="2100" style="width:90px;" onchange="cargarMetasTablaGlobal()"></div>
                 </div>
-                <div id="meta-tabla-editable-container" class="table-wrapper">
-                    <p style="color:#64748b; font-size:0.9rem;">Seleccione un empleado para ver y editar sus metas.</p>
+                <div id="meta-tabla-global-container" class="table-wrapper">
+                    <p style="color:#64748b; font-size:0.9rem;">Cargando empleados...</p>
                 </div>
                 <div style="margin-top:16px;" id="meta-guardar-area" hidden>
-                    <button class="btn-solid" onclick="guardarMetasDesdeTabla()"><i class="fas fa-save"></i> Guardar Metas</button>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header"><h2>Historial de Metas por Empleado</h2></div>
-                <div class="table-wrapper" id="meta-historial-container">
-                    <p style="color:#64748b; font-size:0.9rem;">Seleccione un empleado para ver su historial.</p>
+                    <button class="btn-solid" onclick="guardarMetasTablaGlobal()"><i class="fas fa-save"></i> Guardar Metas</button>
                 </div>
             </div>`;
             document.getElementById('panel-metas').innerHTML = html;
-
-            const empleados = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
-            const sel = document.getElementById('meta-empleado');
-            empleados.forEach(emp => {
-                const opt = document.createElement('option');
-                opt.value = emp.id;
-                opt.textContent = `${emp.nombres} ${emp.apellido_paterno}`;
-                sel.appendChild(opt);
-            });
+            await cargarMetasTablaGlobal();
             initTooltips();
         }
 
-        async function cargarMetasEditable() {
-            const empId = document.getElementById('meta-empleado')?.value;
+        async function cargarMetasTablaGlobal() {
             const mes = parseInt(document.getElementById('meta-mes')?.value);
             const anio = parseInt(document.getElementById('meta-anio')?.value);
-            if (!empId || !mes || !anio) return;
+            if (!mes || !anio) return;
 
-            // Buscar meta existente
-            const metas = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&activo=eq.true&select=*&limit=1`);
-            let metaExistente = metas.length > 0 ? metas[0] : null;
-
-            // Precalcular valores de moneda y unidad para evitar await en forEach
-            let defaultMonedaStr = monedaPorDefecto();
-            let defaultUnidadNombre = '';
-            if (metaExistente) {
-                if (metaExistente.moneda_objetivo_id) {
-                    defaultMonedaStr = await obtenerCodigoMoneda(metaExistente.moneda_objetivo_id);
-                }
-                if (metaExistente.unidad_objetivo_id) {
-                    defaultUnidadNombre = await obtenerNombreUnidad(metaExistente.unidad_objetivo_id);
-                }
+            const empId = currentUser.empresa_id;
+            const empleados = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&order=apellido_paterno&limit=1000`);
+            if (!empleados.length) {
+                document.getElementById('meta-tabla-global-container').innerHTML = '<p style="color:#64748b;">No hay empleados activos.</p>';
+                return;
             }
 
-            // Construir tabla editable
-            let tablaHtml = `<table class="meta-editable-table"><thead><tr><th>Métrica</th><th>Valor Actual</th><th>Nuevo Valor</th><th>Moneda / Unidad</th></tr></thead><tbody>`;
+            // Obtener metas existentes para el período
+            const empleadoIds = empleados.map(e => `"${e.id}"`).join(',');
+            const metasExistentes = await apiFetch(`objetivos_empleado?empleado_id=in.(${encodeURIComponent(empleadoIds)})&mes=eq.${mes}&anio=eq.${anio}&activo=eq.true&select=*&limit=1000`);
+            const metasMap = {};
+            metasExistentes.forEach(m => { metasMap[m.empleado_id] = m; });
 
-            for (const met of METRICAS_META) {
-                const valorActual = metaExistente ? (metaExistente[met.key] !== null && metaExistente[met.key] !== undefined ? metaExistente[met.key] : '') : '';
-                let unidadHtml = '';
-                if (met.tipo === 'dinero') {
-                    unidadHtml = `<select id="meta-moneda-${met.key}">`;
-                    todasLasMonedas.forEach(m => {
-                        const monedaStr = `${m.codigo} - ${m.nombre}`;
-                        const sel = (monedaStr === defaultMonedaStr) ? 'selected' : '';
-                        unidadHtml += `<option value="${monedaStr}" ${sel}>${monedaStr}</option>`;
-                    });
-                    unidadHtml += `</select>`;
-                } else if (met.tipo === 'cantidad') {
-                    unidadHtml = `<select id="meta-unidad-${met.key}">`;
-                    const unidades = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón'];
-                    unidades.forEach(u => {
-                        const sel = (u === defaultUnidadNombre) ? 'selected' : '';
-                        unidadHtml += `<option value="${u}" ${sel}>${u}</option>`;
-                    });
-                    unidadHtml += `</select>`;
-                }
-                tablaHtml += `<tr>
-                    <td><strong>${met.label}</strong><br><small style="color:#64748b;">${met.ayuda}</small></td>
-                    <td>${valorActual !== '' ? valorActual : '-'}</td>
-                    <td><input type="number" step="${met.tipo === 'entero' ? '1' : '0.01'}" min="0" id="meta-val-${met.key}" value="${valorActual}"></td>
-                    <td>${unidadHtml}</td>
-                </tr>`;
+            // Preparar lista de monedas y unidades para selects
+            let monedasOptions = '';
+            todasLasMonedas.forEach(m => { monedasOptions += `<option value="${m.codigo} - ${m.nombre}">${m.codigo} - ${m.nombre}</option>`; });
+            let unidadesOptions = '';
+            const unidadesList = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón'];
+            unidadesList.forEach(u => { unidadesOptions += `<option value="${u}">${u}</option>`; });
+
+            // Construir tabla
+            let tabla = `<table class="meta-editable-table"><thead><tr><th>Empleado</th>`;
+            METRICAS_META.forEach(met => {
+                tabla += `<th>${met.label}<br><small style="font-weight:400;">${met.ayuda}</small></th>`;
+            });
+            tabla += `<th>Comentario</th></tr></thead><tbody>`;
+
+            for (const emp of empleados) {
+                const meta = metasMap[emp.id] || {};
+                tabla += `<tr data-empleado-id="${emp.id}"><td>${emp.nombres} ${emp.apellido_paterno}</td>`;
+                METRICAS_META.forEach(met => {
+                    const val = meta[met.key] !== null && meta[met.key] !== undefined ? meta[met.key] : '';
+                    const checked = val !== '' ? 'checked' : '';
+                    let celda = `<td style="text-align:center;"><label style="display:flex; align-items:center; gap:4px; white-space:nowrap;"><input type="checkbox" class="meta-check-metric" data-key="${met.key}" ${checked}> `;
+                    if (met.tipo === 'dinero') {
+                        celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
+                        // moneda select
+                        let monedaActual = monedaPorDefecto();
+                        if (meta.moneda_objetivo_id) {
+                            // intentaremos setear más abajo
+                        }
+                        celda += `<select class="meta-moneda-${met.key}" style="width:120px;">${monedasOptions}</select>`;
+                    } else if (met.tipo === 'cantidad') {
+                        celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
+                        celda += `<select class="meta-unidad-${met.key}" style="width:100px;">${unidadesOptions}</select>`;
+                    } else if (met.tipo === 'entero') {
+                        celda += `<input type="number" step="1" min="0" class="meta-val-${met.key}" value="${val}" style="width:80px;">`;
+                    } else { // decimal
+                        celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
+                    }
+                    celda += `</label></td>`;
+                    tabla += celda;
+                });
+                tabla += `<td><input type="text" class="meta-comentario" value="${meta.comentario || ''}" style="width:100%;"></td></tr>`;
             }
-            tablaHtml += `<tr><td colspan="4"><label>Comentario:</label> <input type="text" id="meta-comentario" value="${metaExistente ? (metaExistente.comentario || '') : ''}" style="width:100%;"></td></tr>`;
-            tablaHtml += `</tbody></table>`;
-            document.getElementById('meta-tabla-editable-container').innerHTML = tablaHtml;
+            tabla += `</tbody></table>`;
+
+            document.getElementById('meta-tabla-global-container').innerHTML = tabla;
             document.getElementById('meta-guardar-area').hidden = false;
 
-            // Cargar historial
-            const historial = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&select=*&order=anio.desc,mes.desc&limit=50`);
-            let histHtml = '';
-            if (historial.length) {
-                histHtml = `<table><thead><tr><th>Año</th><th>Mes</th><th>Monto</th><th>Cantidad</th><th>Variedad</th><th>Peso</th><th>Volumen</th><th>Clientes Nuevos</th><th>Visitas</th><th>Comentario</th></tr></thead><tbody>`;
-                historial.forEach(h => {
-                    const mesNombre = new Date(2024, h.mes-1, 1).toLocaleString('es', { month: 'short' });
-                    histHtml += `<tr>
-                        <td>${h.anio}</td><td>${mesNombre}</td>
-                        <td>${h.monto_objetivo ? '$'+parseFloat(h.monto_objetivo).toFixed(2) : '-'}</td>
-                        <td>${h.cantidad_objetivo || '-'}</td>
-                        <td>${h.variedad_objetivo || '-'}</td>
-                        <td>${h.peso_objetivo || '-'}</td>
-                        <td>${h.volumen_objetivo || '-'}</td>
-                        <td>${h.clientes_nuevos_objetivo || '-'}</td>
-                        <td>${h.visitas_objetivo || '-'}</td>
-                        <td>${h.comentario || '-'}</td>
-                    </tr>`;
+            // Ahora establecer las monedas y unidades reales
+            for (const emp of empleados) {
+                const meta = metasMap[emp.id];
+                if (!meta) continue;
+                const row = document.querySelector(`tr[data-empleado-id="${emp.id}"]`);
+                if (!row) continue;
+                METRICAS_META.forEach(met => {
+                    if (met.tipo === 'dinero' && meta.moneda_objetivo_id) {
+                        obtenerCodigoMoneda(meta.moneda_objetivo_id).then(cod => {
+                            const sel = row.querySelector(`.meta-moneda-${met.key}`);
+                            if (sel) sel.value = cod;
+                        });
+                    } else if (met.tipo === 'cantidad' && meta.unidad_objetivo_id) {
+                        obtenerNombreUnidad(meta.unidad_objetivo_id).then(nombre => {
+                            const sel = row.querySelector(`.meta-unidad-${met.key}`);
+                            if (sel) sel.value = nombre;
+                        });
+                    }
                 });
-                histHtml += `</tbody></table>`;
-            } else {
-                histHtml = `<p style="color:#64748b; font-size:0.9rem;">No hay metas registradas para este empleado.</p>`;
             }
-            document.getElementById('meta-historial-container').innerHTML = histHtml;
+
             initTooltips();
         }
 
-        async function guardarMetasDesdeTabla() {
-            const empId = document.getElementById('meta-empleado')?.value;
+        async function guardarMetasTablaGlobal() {
             const mes = parseInt(document.getElementById('meta-mes')?.value);
             const anio = parseInt(document.getElementById('meta-anio')?.value);
-            if (!empId || !mes || !anio) { showNotification('Seleccione empleado, mes y año', 'error'); return; }
+            if (!mes || !anio) { showNotification('Seleccione mes y año', 'error'); return; }
 
-            const payload = {
-                empleado_id: empId,
-                mes: mes,
-                anio: anio,
-                activo: true,
-                creado_por: currentUser.id,
-                asignado_por: currentUser.id,
-                comentario: document.getElementById('meta-comentario')?.value || null
-            };
+            const filas = document.querySelectorAll('#meta-tabla-global-container tr[data-empleado-id]');
+            if (!filas.length) return;
 
-            for (const met of METRICAS_META) {
-                const val = document.getElementById(`meta-val-${met.key}`)?.value;
-                if (val !== undefined && val !== '') {
-                    payload[met.key] = met.tipo === 'entero' ? parseInt(val) : parseFloat(val);
+            const operaciones = [];
+            for (const fila of filas) {
+                const empId = fila.dataset.empleadoId;
+                const payload = {
+                    empleado_id: empId,
+                    mes: mes,
+                    anio: anio,
+                    activo: true,
+                    creado_por: currentUser.id,
+                    asignado_por: currentUser.id,
+                    comentario: fila.querySelector('.meta-comentario')?.value || null
+                };
+
+                // Para cada métrica
+                for (const met of METRICAS_META) {
+                    const chk = fila.querySelector(`.meta-check-metric[data-key="${met.key}"]`);
+                    if (chk && chk.checked) {
+                        const valInput = fila.querySelector(`.meta-val-${met.key}`);
+                        const val = valInput ? valInput.value : '';
+                        if (val !== '') {
+                            payload[met.key] = met.tipo === 'entero' ? parseInt(val) : parseFloat(val);
+                        } else {
+                            payload[met.key] = null;
+                        }
+                        if (met.moneda) {
+                            const selMon = fila.querySelector(`.meta-moneda-${met.key}`);
+                            if (selMon && selMon.value) payload[met.moneda] = await ensureCurrency(selMon.value);
+                            else payload[met.moneda] = null;
+                        }
+                        if (met.unidad) {
+                            const selUni = fila.querySelector(`.meta-unidad-${met.key}`);
+                            if (selUni && selUni.value) payload[met.unidad] = await ensureUnidadMedida(selUni.value);
+                            else payload[met.unidad] = null;
+                        }
+                    } else {
+                        payload[met.key] = null;
+                        if (met.moneda) payload[met.moneda] = null;
+                        if (met.unidad) payload[met.unidad] = null;
+                    }
+                }
+
+                // Verificar si existe meta previa
+                const existente = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&select=id&limit=1`);
+                if (existente.length > 0) {
+                    operaciones.push(apiFetch(`objetivos_empleado?id=eq.${existente[0].id}`, 'PATCH', payload));
                 } else {
-                    payload[met.key] = null;
-                }
-                if (met.moneda) {
-                    const monInput = document.getElementById(`meta-moneda-${met.key}`)?.value;
-                    if (monInput) payload[met.moneda] = await ensureCurrency(monInput);
-                    else payload[met.moneda] = null;
-                }
-                if (met.unidad) {
-                    const unInput = document.getElementById(`meta-unidad-${met.key}`)?.value;
-                    if (unInput) payload[met.unidad] = await ensureUnidadMedida(unInput);
-                    else payload[met.unidad] = null;
+                    operaciones.push(apiFetch('objetivos_empleado', 'POST', payload));
                 }
             }
 
             try {
-                const existente = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&select=id&limit=1`);
-                if (existente.length > 0) {
-                    await apiFetch(`objetivos_empleado?id=eq.${existente[0].id}`, 'PATCH', payload);
-                    showNotification('Metas actualizadas correctamente');
-                } else {
-                    await apiFetch('objetivos_empleado', 'POST', payload);
-                    showNotification('Metas creadas correctamente');
-                }
-                cargarMetasEditable();
+                await Promise.all(operaciones);
+                showNotification('Metas guardadas correctamente');
+                cargarMetasTablaGlobal();
             } catch (err) {
-                showNotification('Error: ' + err.message, 'error');
+                showNotification('Error al guardar: ' + err.message, 'error');
             }
         }
 
