@@ -104,6 +104,9 @@
         .progress-item .bar-bg { background:#e2e8f0; height:24px; border-radius:12px; overflow:hidden; margin:4px 0; }
         .progress-item .bar-fill { height:100%; border-radius:12px; transition:width 0.5s; }
         .progress-item .details { font-size:0.8rem; color:#475569; }
+        .day-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:16px; font-size:0.7rem; font-weight:600; cursor:pointer; border:1px solid #e2e8f0; background:white; color:#475569; }
+        .day-chip.active { background:#1a56db; color:white; border-color:#1a56db; }
+        .day-chips-container { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
     </style>
 </head>
 <body>
@@ -149,28 +152,29 @@
             <button class="sub-tab-btn" onclick="filtrarClientes('atendidos')">Atendidos</button>
             <button class="sub-tab-btn" onclick="filtrarClientes('sin_compras')">Sin compras</button>
             <button class="sub-tab-btn" onclick="filtrarClientes('todos')">Todos</button>
-            <!-- Filtro por día de visita (incluye "Todos") -->
-            <select id="filtro-dia-visita" onchange="aplicarFiltroDia()" style="margin-left:8px; padding:6px 10px; border-radius:20px; border:1px solid #e2e8f0; font-size:0.75rem; background:white;">
-                <option value="Todos">Todos</option>
-                <option value="Lunes">Lunes</option>
-                <option value="Martes">Martes</option>
-                <option value="Miércoles">Miércoles</option>
-                <option value="Jueves">Jueves</option>
-                <option value="Viernes">Viernes</option>
-                <option value="Sábado">Sábado</option>
-                <option value="Domingo">Domingo</option>
-            </select>
+            <!-- Filtro por días de visita (selección múltiple con chips) -->
+            <div class="day-chips-container" id="day-chips-container" style="margin-left:8px;">
+                <span style="font-size:0.7rem; color:#475569;">Días:</span>
+                <span class="day-chip active" data-day="" onclick="toggleDayChip(this)">Todos</span>
+                <span class="day-chip" data-day="Lunes" onclick="toggleDayChip(this)">Lun</span>
+                <span class="day-chip" data-day="Martes" onclick="toggleDayChip(this)">Mar</span>
+                <span class="day-chip" data-day="Miércoles" onclick="toggleDayChip(this)">Mié</span>
+                <span class="day-chip" data-day="Jueves" onclick="toggleDayChip(this)">Jue</span>
+                <span class="day-chip" data-day="Viernes" onclick="toggleDayChip(this)">Vie</span>
+                <span class="day-chip" data-day="Sábado" onclick="toggleDayChip(this)">Sáb</span>
+                <span class="day-chip" data-day="Domingo" onclick="toggleDayChip(this)">Dom</span>
+            </div>
             <div class="filter-extras">
                 <button class="refresh-btn" onclick="recargarDatos()" title="Actualizar datos"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
         <div id="mapa-tab" class="tab-content active" style="position:relative;">
             <div id="map-container"></div>
-            <button class="map-add-client-btn" onclick="iniciarFlujoNuevoCliente()" title="Agregar cliente"><i class="fas fa-plus"></i></button>
+            <button class="map-add-client-btn" onclick="iniciarFlujoNuevoClienteMapa()" title="Agregar cliente con pedido"><i class="fas fa-plus"></i></button>
             <button class="map-location-btn" onclick="centrarEnMiUbicacion()" title="Mi ubicación"><i class="fas fa-location-crosshairs"></i></button>
         </div>
         <div id="lista-tab" class="tab-content">
-            <button class="btn-add" onclick="iniciarFlujoNuevoCliente()"><i class="fas fa-plus"></i> Nuevo cliente</button>
+            <button class="btn-add" onclick="abrirModalCliente(null)"><i class="fas fa-plus"></i> Nuevo cliente</button>
             <div id="clientes-lista"></div>
         </div>
         <!-- Panel de acciones inferior -->
@@ -180,6 +184,10 @@
     <!-- Sección Avance -->
     <div id="seccion-avance" class="section">
         <div style="padding:16px; overflow-y:auto; height:100%;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                <h3 style="margin:0;">Mi Progreso</h3>
+                <button class="refresh-btn" onclick="cargarAvance()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+            </div>
             <div class="card" id="avance-card"></div>
         </div>
     </div>
@@ -208,7 +216,6 @@
                 <div class="form-group"><label>Tipo Documento</label><select id="cli-tipo-doc"></select></div>
                 <div class="form-group"><label>Número Documento</label><input id="cli-num-doc"></div>
                 <div class="form-group"><label>Nombre Comercial</label><input id="cli-nombre-comercial" placeholder="Ej: Tienda, Farmacia..."></div>
-                <!-- NUEVOS CAMPOS DE CLASIFICACIÓN COMERCIAL -->
                 <div class="form-group">
                     <label>Tipo Cliente</label>
                     <select id="cli-tipo-cliente">
@@ -255,7 +262,6 @@
                         <option>Retail Moderno</option>
                     </select>
                 </div>
-                <!-- FIN NUEVOS CAMPOS -->
                 <div class="form-group"><label>Día de Visita</label><select id="cli-dia-visita"><option value="">Seleccione día</option><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option><option value="Sábado">Sábado</option><option value="Domingo">Domingo</option></select></div>
                 <div class="form-group"><label>Email</label><input id="cli-email" type="email"></div>
                 <div class="form-group"><label>Teléfonos</label><div id="cli-telefonos-container"></div><button type="button" class="btn-phone-add" onclick="agregarTelefonoCliente()">+ Teléfono</button></div>
@@ -354,7 +360,6 @@
         const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
         let currentUser = null, currentEmployeeId = null, empresaId = null;
         let map, clientMarkers = [], zoneOverlays = [], miUbicacionMarker = null, locationWatcher = null;
-        let avanceChart = null;
         let currentTab = 'mapa';
         let currentFilter = 'no_atendidos';
         let allProducts = [], pedidoLineas = [];
@@ -365,7 +370,7 @@
         let clienteTemporalId = null;
         let pedidoTemporalDoc = null;
         let flujoNuevoClientePendiente = false;
-        let diaVisitaSeleccionado = ''; // '' significa "Todos"
+        let selectedDays = new Set(); // Set con los días seleccionados (strings). Vacío = todos.
         let ultimaGestionMap = {};
 
         // Variables globales para la moneda de la empresa
@@ -383,6 +388,8 @@
             'Lunes': '#e74c3c', 'Martes': '#e67e22', 'Miércoles': '#f1c40f',
             'Jueves': '#2ecc71', 'Viernes': '#3498db', 'Sábado': '#9b59b6', 'Domingo': '#e84393'
         };
+
+        const ALL_DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 
         const tiposDocPorPais = {
             'Bolivia':['CI','Pasaporte','NIT'], 'Argentina':['DNI','Pasaporte','CUIT'],
@@ -404,15 +411,15 @@
             'Otros motivos': 'no_compra'
         };
 
-        // Definición de métricas para la sección Avance
+        // Definición de métricas para la sección Avance (basado en supervisor_senior.html)
         const METRICAS_AVANCE = [
-            { key: 'monto_objetivo', label: 'Volumen de venta (Monto)', tipo: 'dinero', monedaKey: 'moneda_objetivo_id', ayuda: 'Monto total de ventas' },
-            { key: 'cantidad_objetivo', label: 'Unidades vendidas', tipo: 'cantidad', unidadKey: 'unidad_objetivo_id', ayuda: 'Cantidad total de unidades' },
-            { key: 'variedad_objetivo', label: 'Diversidad de portafolio', tipo: 'entero', ayuda: 'Número de productos distintos' },
-            { key: 'peso_objetivo', label: 'Peso total distribuido', tipo: 'decimal', ayuda: 'Peso total en kg' },
-            { key: 'volumen_objetivo', label: 'Volumen total distribuido', tipo: 'decimal', ayuda: 'Volumen total en m³' },
-            { key: 'clientes_nuevos_objetivo', label: 'Captación de clientes', tipo: 'entero', ayuda: 'Número de clientes nuevos' },
-            { key: 'visitas_objetivo', label: 'Visitas programadas', tipo: 'entero', ayuda: 'Total de visitas a clientes' }
+            { key: 'monto_objetivo', label: 'Volumen de venta (Monto)', tipo: 'dinero', monedaKey: 'moneda_objetivo_id', ayuda: 'Monto total de ventas esperado.' },
+            { key: 'cantidad_objetivo', label: 'Unidades vendidas (Cantidad)', tipo: 'cantidad', unidadKey: 'unidad_objetivo_id', ayuda: 'Cantidad total de unidades.' },
+            { key: 'variedad_objetivo', label: 'Diversidad de portafolio (Variedad)', tipo: 'entero', ayuda: 'Número de productos distintos.' },
+            { key: 'peso_objetivo', label: 'Peso total distribuido', tipo: 'decimal', ayuda: 'Peso total en kg a distribuir.' },
+            { key: 'volumen_objetivo', label: 'Volumen total distribuido', tipo: 'decimal', ayuda: 'Volumen total en m³ a distribuir.' },
+            { key: 'clientes_nuevos_objetivo', label: 'Captación de clientes (Cobertura)', tipo: 'entero', ayuda: 'Número de clientes nuevos.' },
+            { key: 'visitas_objetivo', label: 'Visitas programadas', tipo: 'entero', ayuda: 'Total de visitas a clientes.' }
         ];
 
         function getCurrentDayName() {
@@ -566,6 +573,34 @@
             document.getElementById('currency-symbol-total').textContent = empresaCurrencySymbol + ' ';
         }
 
+        // Manejo de chips de días
+        function toggleDayChip(chip) {
+            const day = chip.dataset.day;
+            if (day === '') {
+                // Seleccionó "Todos"
+                selectedDays.clear();
+                document.querySelectorAll('#day-chips-container .day-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+            } else {
+                // Quitar "Todos" si está activo
+                const todosChip = document.querySelector('#day-chips-container .day-chip[data-day=""]');
+                if (todosChip) todosChip.classList.remove('active');
+                
+                if (selectedDays.has(day)) {
+                    selectedDays.delete(day);
+                    chip.classList.remove('active');
+                } else {
+                    selectedDays.add(day);
+                    chip.classList.add('active');
+                }
+                // Si no hay días seleccionados, volver a "Todos"
+                if (selectedDays.size === 0) {
+                    if (todosChip) todosChip.classList.add('active');
+                }
+            }
+            aplicarFiltroActual();
+        }
+
         function actualizarTipoDocPorPais() {
             const pais = document.getElementById('cli-pais-hidden').value.trim();
             const sel = document.getElementById('cli-tipo-doc');
@@ -615,9 +650,16 @@
             document.getElementById('nombre-completo').textContent = nombreCompleto;
             await cargarConfiguracionMoneda();
             await obtenerEmpleadoId();
-            // Inicializar filtro de día con el día actual
-            document.getElementById('filtro-dia-visita').value = getCurrentDayName();
-            diaVisitaSeleccionado = getCurrentDayName();
+            // Inicializar días con el día actual
+            const today = getCurrentDayName();
+            selectedDays.clear();
+            selectedDays.add(today);
+            document.querySelectorAll('#day-chips-container .day-chip').forEach(c => {
+                c.classList.remove('active');
+                if (c.dataset.day === today) c.classList.add('active');
+            });
+            const todosChip = document.querySelector('#day-chips-container .day-chip[data-day=""]');
+            if (todosChip) todosChip.classList.remove('active');
             if (document.getElementById('seccion-clientes').classList.contains('active') && map) {
                 cargarDatosMapa();
             }
@@ -659,12 +701,6 @@
             else cargarClientesLista();
         }
 
-        function aplicarFiltroDia() {
-            const valor = document.getElementById('filtro-dia-visita').value;
-            diaVisitaSeleccionado = valor === 'Todos' ? '' : valor;
-            aplicarFiltroActual();
-        }
-
         function recargarDatos() {
             if(currentEmployeeId) {
                 cargarDatosMapa();
@@ -676,9 +712,9 @@
         async function obtenerClientesFiltrados() {
             if(!currentEmployeeId) return [];
             let clientes = await apiFetch(`clientes?vendedor_asignado_id=eq.${currentEmployeeId}&activo=eq.true&select=*&limit=1000`);
-            if (diaVisitaSeleccionado) {
-                // Filtrar por día de visita específico
-                clientes = clientes.filter(c => c.dia_visita === diaVisitaSeleccionado);
+            // Filtrar por días seleccionados
+            if (selectedDays.size > 0) {
+                clientes = clientes.filter(c => c.dia_visita && selectedDays.has(c.dia_visita));
             }
             if(currentFilter === 'todos') return clientes;
             const hoy = new Date().toISOString().slice(0,10);
@@ -753,14 +789,8 @@
             zoneOverlays.forEach(o => o.setMap(null));
             zoneOverlays = [];
             try {
-                let zonas;
-                if (diaVisitaSeleccionado) {
-                    // Filtrar zonas por día seleccionado
-                    zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&dia_semana=eq.${diaVisitaSeleccionado}&select=*`);
-                } else {
-                    // Cargar todas las zonas activas
-                    zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&select=*`);
-                }
+                // Cargar TODAS las zonas activas del empleado (sin filtrar por día)
+                const zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&select=*`);
                 zonas.forEach(z => {
                     if(z.geometria?.coordinates) {
                         const paths = z.geometria.coordinates[0].map(c => new google.maps.LatLng(c[1], c[0]));
@@ -831,7 +861,10 @@
                             if(!isNaN(lat) && !isNaN(lng)) {
                                 const nombre = c.razon_social || [c.nombres, c.apellido_paterno, c.apellido_materno].filter(Boolean).join(' ') || 'Sin nombre';
                                 const estado = obtenerEstadoCliente(c.id, ventasHoySet, ventasAlgunaVezSet);
-                                let color = colorFiltro || getPinColorPorEstado(estado);
+                                // Siempre usar el color de estado real, no el del filtro
+                                let color = getPinColorPorEstado(estado);
+                                // Si el filtro está activo, forzar el color del filtro
+                                if (colorFiltro) color = colorFiltro;
                                 if (ultimaGestionMap[c.id] && ultimaGestionMap[c.id] !== 'compra') {
                                     color = '#000000';
                                 }
@@ -912,7 +945,8 @@
             panel.innerHTML = html; panel.classList.add('active'); pushModalState();
         }
 
-        function iniciarFlujoNuevoCliente() {
+        function iniciarFlujoNuevoClienteMapa() {
+            // Desde el mapa, se crea cliente con pedido primero
             flujoNuevoClientePendiente = true;
             clienteTemporalId = null;
             pedidoTemporalDoc = null;
@@ -1523,77 +1557,97 @@
         }
 
         async function cargarAvance() {
-            if(!currentEmployeeId) return;
+            if(!currentEmployeeId) {
+                document.getElementById('avance-card').innerHTML = '<p style="color:#64748b;">No se pudo cargar el perfil de empleado.</p>';
+                return;
+            }
             const mes = new Date().getMonth()+1, anio = new Date().getFullYear();
             const desde = `${anio}-${String(mes).padStart(2,'0')}-01`, hasta = new Date(anio,mes,0).toISOString().slice(0,10);
-            const [objetivoRow] = await apiFetch(`objetivos_empleado?empleado_id=eq.${currentEmployeeId}&mes=eq.${mes}&anio=eq.${anio}&limit=1`);
-            const ventas = await apiFetch(`ventas?empresa_id=eq.${empresaId}&vendedor_id=eq.${currentEmployeeId}&fecha=gte.${desde}T00:00:00&fecha=lte.${hasta}T23:59:59&select=total_linea,cantidad,producto_id`);
+            
+            let html = '';
+            try {
+                const [objetivoRow] = await apiFetch(`objetivos_empleado?empleado_id=eq.${currentEmployeeId}&mes=eq.${mes}&anio=eq.${anio}&limit=1`);
+                const ventasCompleta = await apiFetch(`ventas?empresa_id=eq.${empresaId}&vendedor_id=eq.${currentEmployeeId}&fecha=gte.${desde}T00:00:00&fecha=lte.${hasta}T23:59:59&select=total_linea,cantidad,producto_id,cliente_id`);
 
-            // Calcular valores reales
-            let montoReal = 0, cantidadReal = 0, pesoReal = 0, volumenReal = 0;
-            const productosSet = new Set();
-            ventas.forEach(v => {
-                montoReal += parseFloat(v.total_linea);
-                cantidadReal += v.cantidad;
-                productosSet.add(v.producto_id);
-            });
-            const variedadReal = productosSet.size;
-            const clientesIds = [...new Set(ventas.map(v => v.cliente_id))]; // no tenemos cliente_id en ventas? Sí, pero en el select no lo incluimos. Debemos obtenerlo.
-            // Corregir: necesitamos cliente_id en ventas. Modificamos la consulta de ventas para incluir cliente_id.
-            // Volvamos a cargar ventas con cliente_id
-            const ventasCompleta = await apiFetch(`ventas?empresa_id=eq.${empresaId}&vendedor_id=eq.${currentEmployeeId}&fecha=gte.${desde}T00:00:00&fecha=lte.${hasta}T23:59:59&select=total_linea,cantidad,producto_id,cliente_id`);
-            const clientesUnicos = new Set(ventasCompleta.map(v => v.cliente_id));
-            const clientesNuevosReal = clientesUnicos.size; // proxy
-            const visitasReal = ventasCompleta.length; // cantidad de líneas de venta como proxy de visitas
-
-            // Obtener pesos y volúmenes de productos
-            if (productosSet.size > 0) {
-                const prods = await apiFetch(`productos?empresa_id=eq.${empresaId}&id=in.(${[...productosSet].map(id=>`"${id}"`).join(',')})&select=id,peso,volumen`);
-                const prodMap = {};
-                prods.forEach(p => { prodMap[p.id] = { peso: parseFloat(p.peso)||0, volumen: parseFloat(p.volumen)||0 }; });
+                // Calcular valores reales
+                let montoReal = 0, cantidadReal = 0, pesoReal = 0, volumenReal = 0;
+                const productosSet = new Set();
+                const clientesSet = new Set();
                 ventasCompleta.forEach(v => {
-                    const prod = prodMap[v.producto_id];
-                    if (prod) {
-                        pesoReal += v.cantidad * prod.peso;
-                        volumenReal += v.cantidad * prod.volumen;
-                    }
+                    montoReal += parseFloat(v.total_linea);
+                    cantidadReal += v.cantidad;
+                    productosSet.add(v.producto_id);
+                    if (v.cliente_id) clientesSet.add(v.cliente_id);
                 });
-            }
+                const variedadReal = productosSet.size;
+                const clientesNuevosReal = clientesSet.size; // proxy: clientes únicos con ventas este mes
+                const visitasReal = ventasCompleta.length; // proxy: líneas de venta como visitas
 
-            let html = `<h3 style="margin-bottom:16px;">Mi Progreso - ${mes}/${anio}</h3>`;
-            if (!objetivoRow) {
-                html += '<p style="color:#64748b;">No se han definido metas para este mes.</p>';
-            } else {
-                let hayMetas = false;
-                METRICAS_AVANCE.forEach(metrica => {
-                    const objetivoVal = objetivoRow[metrica.key];
-                    if (objetivoVal !== null && objetivoVal !== undefined) {
-                        hayMetas = true;
-                        let valorReal, unidad = '', simboloMoneda = '';
-                        switch (metrica.key) {
-                            case 'monto_objetivo': valorReal = montoReal; simboloMoneda = empresaCurrencySymbol; break;
-                            case 'cantidad_objetivo': valorReal = cantidadReal; break;
-                            case 'variedad_objetivo': valorReal = variedadReal; break;
-                            case 'peso_objetivo': valorReal = pesoReal; unidad = ' kg'; break;
-                            case 'volumen_objetivo': valorReal = volumenReal; unidad = ' m³'; break;
-                            case 'clientes_nuevos_objetivo': valorReal = clientesNuevosReal; break;
-                            case 'visitas_objetivo': valorReal = visitasReal; break;
+                // Obtener pesos y volúmenes de productos
+                if (productosSet.size > 0) {
+                    try {
+                        const prods = await apiFetch(`productos?empresa_id=eq.${empresaId}&id=in.(${[...productosSet].map(id=>`"${id}"`).join(',')})&select=id,peso,volumen`);
+                        const prodMap = {};
+                        prods.forEach(p => { prodMap[p.id] = { peso: parseFloat(p.peso)||0, volumen: parseFloat(p.volumen)||0 }; });
+                        ventasCompleta.forEach(v => {
+                            const prod = prodMap[v.producto_id];
+                            if (prod) {
+                                pesoReal += v.cantidad * prod.peso;
+                                volumenReal += v.cantidad * prod.volumen;
+                            }
+                        });
+                    } catch(e) { console.warn('Error al obtener pesos/volúmenes', e); }
+                }
+
+                if (!objetivoRow) {
+                    html = '<p style="color:#64748b;">No se han definido metas para este mes.</p>';
+                } else {
+                    let hayMetas = false;
+                    METRICAS_AVANCE.forEach(metrica => {
+                        const objetivoVal = objetivoRow[metrica.key];
+                        if (objetivoVal !== null && objetivoVal !== undefined && objetivoVal > 0) {
+                            hayMetas = true;
+                            let valorReal, unidad = '', simboloMoneda = '';
+                            switch (metrica.key) {
+                                case 'monto_objetivo': valorReal = montoReal; simboloMoneda = empresaCurrencySymbol; unidad = ''; break;
+                                case 'cantidad_objetivo': valorReal = cantidadReal; unidad = ' unidades'; break;
+                                case 'variedad_objetivo': valorReal = variedadReal; unidad = ' productos'; break;
+                                case 'peso_objetivo': valorReal = pesoReal; unidad = ' kg'; break;
+                                case 'volumen_objetivo': valorReal = volumenReal; unidad = ' m³'; break;
+                                case 'clientes_nuevos_objetivo': valorReal = clientesNuevosReal; unidad = ' clientes'; break;
+                                case 'visitas_objetivo': valorReal = visitasReal; unidad = ' visitas'; break;
+                            }
+                            const porcentaje = Math.min(100, Math.round((valorReal / objetivoVal) * 100));
+                            const faltante = Math.max(0, objetivoVal - valorReal);
+                            const color = porcentaje >= 80 ? '#16a34a' : porcentaje >= 50 ? '#f59e0b' : '#dc2626';
+                            let mensajeFaltante = '';
+                            if (faltante > 0) {
+                                if (metrica.tipo === 'dinero') mensajeFaltante = `Te falta vender ${simboloMoneda}${faltante.toFixed(2)} para alcanzar la meta.`;
+                                else if (metrica.tipo === 'entero') mensajeFaltante = `Te falta${unidad ? '' : 'n'} ${Math.round(faltante)}${unidad} para alcanzar la meta.`;
+                                else mensajeFaltante = `Te falta${unidad ? '' : 'n'} ${faltante.toFixed(2)}${unidad} para alcanzar la meta.`;
+                            } else {
+                                mensajeFaltante = '¡Meta alcanzada!';
+                            }
+                            html += `
+                                <div class="progress-item">
+                                    <div class="label">${metrica.label}</div>
+                                    <div class="bar-bg">
+                                        <div class="bar-fill" style="width:${porcentaje}%; background:${color};"></div>
+                                    </div>
+                                    <div class="details">
+                                        ${simboloMoneda}${valorReal.toFixed(2)}${unidad} de ${simboloMoneda}${parseFloat(objetivoVal).toFixed(2)}${unidad} — ${porcentaje}%<br>
+                                        ${mensajeFaltante}
+                                    </div>
+                                </div>`;
                         }
-                        const porcentaje = Math.min(100, Math.round((valorReal / objetivoVal) * 100));
-                        const color = porcentaje >= 80 ? '#16a34a' : porcentaje >= 50 ? '#f59e0b' : '#dc2626';
-                        html += `
-                            <div class="progress-item">
-                                <div class="label">${metrica.label} (${simboloMoneda}${objetivoVal}${unidad})</div>
-                                <div class="bar-bg">
-                                    <div class="bar-fill" style="width:${porcentaje}%; background:${color};"></div>
-                                </div>
-                                <div class="details">${simboloMoneda}${valorReal.toFixed(2)}${unidad} — ${porcentaje}%</div>
-                            </div>`;
-                    }
-                });
-                if (!hayMetas) html += '<p style="color:#64748b;">No hay métricas activas para este período.</p>';
+                    });
+                    if (!hayMetas) html = '<p style="color:#64748b;">No hay métricas activas para este período.</p>';
+                }
+            } catch(e) {
+                console.error('Error en cargarAvance:', e);
+                html = '<p style="color:#dc2626;">Error al cargar el progreso. Intente de nuevo.</p>';
             }
-            document.getElementById('avance-card').innerHTML = html;
+            document.getElementById('avance-card').innerHTML = html || '<p style="color:#64748b;">No hay datos disponibles.</p>';
         }
 
         window.onload = async function() {
