@@ -31,9 +31,9 @@
         .tabs { display:flex; gap:4px; padding:12px 16px; background:#f4f6fb; }
         .tab-btn { flex:1; padding:10px; border-radius:16px; border:none; font-weight:600; font-size:0.9rem; background:white; color:#64748b; box-shadow:0 1px 3px rgba(0,0,0,0.04); transition:0.2s; cursor:pointer; }
         .tab-btn.active { background:#1a56db; color:white; }
-        .sub-tabs { display:flex; gap:4px; padding:0 16px 12px; background:#f4f6fb; flex-wrap:wrap; align-items:center; }
-        .sub-tab-btn { padding:6px 14px; border-radius:20px; border:none; font-weight:500; font-size:0.75rem; background:#f1f5f9; color:#475569; cursor:pointer; transition:0.2s; }
-        .sub-tab-btn.active { background:#1e293b; color:white; }
+        .sub-tabs { display:flex; gap:8px; padding:8px 16px 12px; background:#f4f6fb; flex-wrap:wrap; align-items:center; }
+        .sub-tab-select { padding:6px 12px; border-radius:20px; border:1px solid #e2e8f0; font-size:0.75rem; font-weight:600; background:white; color:#1e293b; cursor:pointer; font-family:'Inter',sans-serif; }
+        .sub-tab-select option { font-weight:500; }
         .filter-extras { display:flex; align-items:center; gap:8px; margin-left:auto; }
         .refresh-btn { background:white; border:1px solid #e2e8f0; border-radius:20px; padding:6px 12px; font-size:0.9rem; cursor:pointer; color:#1e293b; display:flex; align-items:center; gap:4px; }
         .tab-content { flex:1; overflow-y:auto; padding:0 16px 16px; display:none; }
@@ -104,9 +104,6 @@
         .progress-item .bar-bg { background:#e2e8f0; height:24px; border-radius:12px; overflow:hidden; margin:4px 0; }
         .progress-item .bar-fill { height:100%; border-radius:12px; transition:width 0.5s; }
         .progress-item .details { font-size:0.8rem; color:#475569; }
-        .day-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:16px; font-size:0.7rem; font-weight:600; cursor:pointer; border:1px solid #e2e8f0; background:white; color:#475569; }
-        .day-chip.active { background:#1a56db; color:white; border-color:#1a56db; }
-        .day-chips-container { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
     </style>
 </head>
 <body>
@@ -148,22 +145,24 @@
             <button class="tab-btn" onclick="cambiarTab('lista')">📋 Lista</button>
         </div>
         <div class="sub-tabs" id="sub-tabs-container">
-            <button class="sub-tab-btn active" onclick="filtrarClientes('no_atendidos')">No atendidos</button>
-            <button class="sub-tab-btn" onclick="filtrarClientes('atendidos')">Atendidos</button>
-            <button class="sub-tab-btn" onclick="filtrarClientes('sin_compras')">Sin compras</button>
-            <button class="sub-tab-btn" onclick="filtrarClientes('todos')">Todos</button>
-            <!-- Filtro por días de visita (selección múltiple con chips) -->
-            <div class="day-chips-container" id="day-chips-container" style="margin-left:8px;">
-                <span style="font-size:0.7rem; color:#475569;">Días:</span>
-                <span class="day-chip active" data-day="" onclick="toggleDayChip(this)">Todos</span>
-                <span class="day-chip" data-day="Lunes" onclick="toggleDayChip(this)">Lun</span>
-                <span class="day-chip" data-day="Martes" onclick="toggleDayChip(this)">Mar</span>
-                <span class="day-chip" data-day="Miércoles" onclick="toggleDayChip(this)">Mié</span>
-                <span class="day-chip" data-day="Jueves" onclick="toggleDayChip(this)">Jue</span>
-                <span class="day-chip" data-day="Viernes" onclick="toggleDayChip(this)">Vie</span>
-                <span class="day-chip" data-day="Sábado" onclick="toggleDayChip(this)">Sáb</span>
-                <span class="day-chip" data-day="Domingo" onclick="toggleDayChip(this)">Dom</span>
-            </div>
+            <!-- Desplegable de Clientes -->
+            <select id="filtro-clientes" class="sub-tab-select" onchange="filtrarClientes(this.value)">
+                <option value="no_atendidos">No atendidos</option>
+                <option value="atendidos">Atendidos</option>
+                <option value="sin_compras">Sin compras</option>
+                <option value="todos">Todos</option>
+            </select>
+            <!-- Desplegable de Zonas -->
+            <select id="filtro-zonas" class="sub-tab-select" onchange="aplicarFiltroZona(this.value)">
+                <option value="todas">Todas las zonas</option>
+                <option value="zona1">🔴 Zona 1 (Lunes)</option>
+                <option value="zona2">🟠 Zona 2 (Martes)</option>
+                <option value="zona3">🟡 Zona 3 (Miércoles)</option>
+                <option value="zona4">🟢 Zona 4 (Jueves)</option>
+                <option value="zona5">🔵 Zona 5 (Viernes)</option>
+                <option value="zona6">🟣 Zona 6 (Sábado)</option>
+                <option value="zona7">🟤 Zona 7 (Domingo)</option>
+            </select>
             <div class="filter-extras">
                 <button class="refresh-btn" onclick="recargarDatos()" title="Actualizar datos"><i class="fas fa-sync-alt"></i></button>
             </div>
@@ -362,6 +361,7 @@
         let map, clientMarkers = [], zoneOverlays = [], miUbicacionMarker = null, locationWatcher = null;
         let currentTab = 'mapa';
         let currentFilter = 'no_atendidos';
+        let currentZonaFilter = 'todas'; // 'todas' o 'zona1', 'zona2', etc.
         let allProducts = [], pedidoLineas = [];
         let clienteSeleccionadoParaAccion = null;
         let ultimoPedidoClienteMap = {};
@@ -370,7 +370,6 @@
         let clienteTemporalId = null;
         let pedidoTemporalDoc = null;
         let flujoNuevoClientePendiente = false;
-        let selectedDays = new Set(); // Set con los días seleccionados (strings). Vacío = todos.
         let ultimaGestionMap = {};
 
         // Variables globales para la moneda de la empresa
@@ -389,7 +388,11 @@
             'Jueves': '#2ecc71', 'Viernes': '#3498db', 'Sábado': '#9b59b6', 'Domingo': '#e84393'
         };
 
-        const ALL_DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+        const DAY_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+        const ZONA_TO_DAY = {
+            'zona1': 'Lunes', 'zona2': 'Martes', 'zona3': 'Miércoles',
+            'zona4': 'Jueves', 'zona5': 'Viernes', 'zona6': 'Sábado', 'zona7': 'Domingo'
+        };
 
         const tiposDocPorPais = {
             'Bolivia':['CI','Pasaporte','NIT'], 'Argentina':['DNI','Pasaporte','CUIT'],
@@ -411,7 +414,6 @@
             'Otros motivos': 'no_compra'
         };
 
-        // Definición de métricas para la sección Avance (basado en supervisor_senior.html)
         const METRICAS_AVANCE = [
             { key: 'monto_objetivo', label: 'Volumen de venta (Monto)', tipo: 'dinero', monedaKey: 'moneda_objetivo_id', ayuda: 'Monto total de ventas esperado.' },
             { key: 'cantidad_objetivo', label: 'Unidades vendidas (Cantidad)', tipo: 'cantidad', unidadKey: 'unidad_objetivo_id', ayuda: 'Cantidad total de unidades.' },
@@ -573,34 +575,6 @@
             document.getElementById('currency-symbol-total').textContent = empresaCurrencySymbol + ' ';
         }
 
-        // Manejo de chips de días
-        function toggleDayChip(chip) {
-            const day = chip.dataset.day;
-            if (day === '') {
-                // Seleccionó "Todos"
-                selectedDays.clear();
-                document.querySelectorAll('#day-chips-container .day-chip').forEach(c => c.classList.remove('active'));
-                chip.classList.add('active');
-            } else {
-                // Quitar "Todos" si está activo
-                const todosChip = document.querySelector('#day-chips-container .day-chip[data-day=""]');
-                if (todosChip) todosChip.classList.remove('active');
-                
-                if (selectedDays.has(day)) {
-                    selectedDays.delete(day);
-                    chip.classList.remove('active');
-                } else {
-                    selectedDays.add(day);
-                    chip.classList.add('active');
-                }
-                // Si no hay días seleccionados, volver a "Todos"
-                if (selectedDays.size === 0) {
-                    if (todosChip) todosChip.classList.add('active');
-                }
-            }
-            aplicarFiltroActual();
-        }
-
         function actualizarTipoDocPorPais() {
             const pais = document.getElementById('cli-pais-hidden').value.trim();
             const sel = document.getElementById('cli-tipo-doc');
@@ -650,16 +624,18 @@
             document.getElementById('nombre-completo').textContent = nombreCompleto;
             await cargarConfiguracionMoneda();
             await obtenerEmpleadoId();
-            // Inicializar días con el día actual
+            // Seleccionar la zona correspondiente al día actual por defecto
             const today = getCurrentDayName();
-            selectedDays.clear();
-            selectedDays.add(today);
-            document.querySelectorAll('#day-chips-container .day-chip').forEach(c => {
-                c.classList.remove('active');
-                if (c.dataset.day === today) c.classList.add('active');
-            });
-            const todosChip = document.querySelector('#day-chips-container .day-chip[data-day=""]');
-            if (todosChip) todosChip.classList.remove('active');
+            const zonaEntry = Object.entries(ZONA_TO_DAY).find(([k,v]) => v === today);
+            if (zonaEntry) {
+                document.getElementById('filtro-zonas').value = zonaEntry[0];
+                currentZonaFilter = zonaEntry[0];
+            } else {
+                document.getElementById('filtro-zonas').value = 'todas';
+                currentZonaFilter = 'todas';
+            }
+            document.getElementById('filtro-clientes').value = 'no_atendidos';
+            currentFilter = 'no_atendidos';
             if (document.getElementById('seccion-clientes').classList.contains('active') && map) {
                 cargarDatosMapa();
             }
@@ -692,11 +668,14 @@
 
         function filtrarClientes(filtro) {
             currentFilter = filtro;
-            document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-            const filtrosMap = { 'no_atendidos':0, 'atendidos':1, 'sin_compras':2, 'todos':3 };
-            const idx = filtrosMap[filtro] !== undefined ? filtrosMap[filtro] : 0;
-            const botones = document.querySelectorAll('#sub-tabs-container .sub-tab-btn');
-            if(botones[idx]) botones[idx].classList.add('active');
+            document.getElementById('filtro-clientes').value = filtro;
+            if(currentTab === 'mapa') aplicarFiltroActual();
+            else cargarClientesLista();
+        }
+
+        function aplicarFiltroZona(zonaVal) {
+            currentZonaFilter = zonaVal;
+            document.getElementById('filtro-zonas').value = zonaVal;
             if(currentTab === 'mapa') aplicarFiltroActual();
             else cargarClientesLista();
         }
@@ -712,9 +691,12 @@
         async function obtenerClientesFiltrados() {
             if(!currentEmployeeId) return [];
             let clientes = await apiFetch(`clientes?vendedor_asignado_id=eq.${currentEmployeeId}&activo=eq.true&select=*&limit=1000`);
-            // Filtrar por días seleccionados
-            if (selectedDays.size > 0) {
-                clientes = clientes.filter(c => c.dia_visita && selectedDays.has(c.dia_visita));
+            // Filtrar por zona/día
+            if (currentZonaFilter !== 'todas') {
+                const diaZona = ZONA_TO_DAY[currentZonaFilter];
+                if (diaZona) {
+                    clientes = clientes.filter(c => c.dia_visita === diaZona);
+                }
             }
             if(currentFilter === 'todos') return clientes;
             const hoy = new Date().toISOString().slice(0,10);
@@ -789,8 +771,17 @@
             zoneOverlays.forEach(o => o.setMap(null));
             zoneOverlays = [];
             try {
-                // Cargar TODAS las zonas activas del empleado (sin filtrar por día)
-                const zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&select=*`);
+                let zonas;
+                if (currentZonaFilter !== 'todas') {
+                    const diaZona = ZONA_TO_DAY[currentZonaFilter];
+                    if (diaZona) {
+                        zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&dia_semana=eq.${diaZona}&select=*`);
+                    } else {
+                        zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&select=*`);
+                    }
+                } else {
+                    zonas = await apiFetch(`zonas_vendedor?empleado_id=eq.${currentEmployeeId}&activo=eq.true&select=*`);
+                }
                 zonas.forEach(z => {
                     if(z.geometria?.coordinates) {
                         const paths = z.geometria.coordinates[0].map(c => new google.maps.LatLng(c[1], c[0]));
@@ -861,10 +852,7 @@
                             if(!isNaN(lat) && !isNaN(lng)) {
                                 const nombre = c.razon_social || [c.nombres, c.apellido_paterno, c.apellido_materno].filter(Boolean).join(' ') || 'Sin nombre';
                                 const estado = obtenerEstadoCliente(c.id, ventasHoySet, ventasAlgunaVezSet);
-                                // Siempre usar el color de estado real, no el del filtro
-                                let color = getPinColorPorEstado(estado);
-                                // Si el filtro está activo, forzar el color del filtro
-                                if (colorFiltro) color = colorFiltro;
+                                let color = colorFiltro || getPinColorPorEstado(estado);
                                 if (ultimaGestionMap[c.id] && ultimaGestionMap[c.id] !== 'compra') {
                                     color = '#000000';
                                 }
@@ -946,7 +934,6 @@
         }
 
         function iniciarFlujoNuevoClienteMapa() {
-            // Desde el mapa, se crea cliente con pedido primero
             flujoNuevoClientePendiente = true;
             clienteTemporalId = null;
             pedidoTemporalDoc = null;
@@ -1569,7 +1556,6 @@
                 const [objetivoRow] = await apiFetch(`objetivos_empleado?empleado_id=eq.${currentEmployeeId}&mes=eq.${mes}&anio=eq.${anio}&limit=1`);
                 const ventasCompleta = await apiFetch(`ventas?empresa_id=eq.${empresaId}&vendedor_id=eq.${currentEmployeeId}&fecha=gte.${desde}T00:00:00&fecha=lte.${hasta}T23:59:59&select=total_linea,cantidad,producto_id,cliente_id`);
 
-                // Calcular valores reales
                 let montoReal = 0, cantidadReal = 0, pesoReal = 0, volumenReal = 0;
                 const productosSet = new Set();
                 const clientesSet = new Set();
@@ -1580,10 +1566,9 @@
                     if (v.cliente_id) clientesSet.add(v.cliente_id);
                 });
                 const variedadReal = productosSet.size;
-                const clientesNuevosReal = clientesSet.size; // proxy: clientes únicos con ventas este mes
-                const visitasReal = ventasCompleta.length; // proxy: líneas de venta como visitas
+                const clientesNuevosReal = clientesSet.size;
+                const visitasReal = ventasCompleta.length;
 
-                // Obtener pesos y volúmenes de productos
                 if (productosSet.size > 0) {
                     try {
                         const prods = await apiFetch(`productos?empresa_id=eq.${empresaId}&id=in.(${[...productosSet].map(id=>`"${id}"`).join(',')})&select=id,peso,volumen`);
