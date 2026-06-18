@@ -121,6 +121,7 @@
         .meta-editable-table input { width:80px; padding:6px 8px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.82rem; }
         .meta-editable-table select { padding:6px 8px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.82rem; width:100px; }
         .meta-editable-table td { vertical-align:middle; }
+        .distribucion-stock-info { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:12px 16px; margin-bottom:16px; font-size:0.85rem; }
         @media (max-width:900px) {
             .sidebar { width:100%; height:auto; position:relative; top:auto; bottom:auto; flex-direction:row; overflow-x:auto; padding:8px; border-right:none; border-bottom:1px solid #e2e8f0; }
             .sidebar-menu { display:flex; gap:4px; }
@@ -150,6 +151,7 @@
                 <li><a href="#" data-panel="inicio" class="active"><i class="fas fa-home"></i> Inicio</a></li>
                 <li><a href="#" data-panel="equipo"><i class="fas fa-users"></i> Equipo</a></li>
                 <li><a href="#" data-panel="metas"><i class="fas fa-bullseye"></i> Metas</a></li>
+                <li><a href="#" data-panel="distribucion"><i class="fas fa-boxes"></i> Distribución</a></li>
                 <li><a href="#" data-panel="clientes"><i class="fas fa-building"></i> Clientes</a></li>
                 <li><a href="#" data-panel="productos"><i class="fas fa-box"></i> Productos</a></li>
                 <li><a href="asignacion_rutas.html" class="external-link"><i class="fas fa-route"></i> Asignación de rutas <i class="fas fa-external-link-alt"></i></a></li>
@@ -160,6 +162,7 @@
             <section id="panel-inicio" class="section-panel active"></section>
             <section id="panel-equipo" class="section-panel"></section>
             <section id="panel-metas" class="section-panel"></section>
+            <section id="panel-distribucion" class="section-panel"></section>
             <section id="panel-clientes" class="section-panel"></section>
             <section id="panel-productos" class="section-panel"></section>
         </main>
@@ -960,20 +963,17 @@
             }
         }
 
-        // Función corregida para cargar supervisores: incluye múltiples roles y maneja ausencia
+        // Función para cargar supervisores (roles: Supervisor Senior, Director General, Director Financiero)
         async function llenarSelectSupervisores(selectId, seleccionado = '') {
             const sel = document.getElementById(selectId); if (!sel) return;
             const empId = currentUser.empresa_id;
             sel.innerHTML = '<option value="">Sin supervisor</option>';
             try {
-                // Roles que pueden actuar como supervisores
                 const supervisorRoles = ['Supervisor Senior', 'Director General', 'Director Financiero'];
-                // Obtener emails de usuarios con esos roles
                 const rolesFiltro = supervisorRoles.map(r => `"${r}"`).join(',');
                 const supervisoresUsuarios = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=in.(${encodeURIComponent(rolesFiltro)})&select=email&limit=1000`);
                 const emails = supervisoresUsuarios.map(u => u.email.toLowerCase());
                 if (emails.length === 0) return;
-                // Obtener empleados que correspondan a esos emails
                 const emps = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
                 const filtrados = emps.filter(e => emails.includes((e.email||'').toLowerCase()));
                 filtrados.forEach(e => { const o = document.createElement('option'); o.value = e.id; o.text = `${e.nombres} ${e.apellido_paterno}`; if (e.id === seleccionado) o.selected = true; sel.appendChild(o); });
@@ -1091,7 +1091,7 @@
             const monSimbolo = getSimboloMoneda(empresaMonedaCodigo);
             let filas = '';
             productos.forEach(p => {
-                const precioSimbolo = p.moneda_precio_id ? getSimboloMoneda(empresaMonedaCodigo) : monSimbolo; // simplificado: asumimos moneda empresa
+                const precioSimbolo = monSimbolo;
                 filas += `<tr><td>${p.sku}</td><td>${p.nombre}</td><td>${p.categoria||'-'}</td><td>${p.marca||'-'}</td><td>${p.modelo||'-'}</td><td>${precioSimbolo} ${parseFloat(p.precio_venta_base||0).toFixed(2)}</td><td>${p.stock_minimo||0}</td><td>${p.stock_maximo||'-'}</td><td class="action-buttons"><button class="btn-sm btn-edit" onclick="editarProducto('${p.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-delete" onclick="eliminarProducto('${p.id}')"><i class="fas fa-ban"></i></button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteProducto('${p.id}')"><i class="fas fa-trash-alt"></i></button></td></tr>`;
             });
             if (!filas) filas = '<tr><td colspan="9" style="text-align:center;">No hay productos.</td></tr>';
@@ -1495,7 +1495,7 @@
         });
         function parseJsonSeguro(valor) { if(!valor||!valor.trim()) return null; try { return JSON.parse(valor); } catch(e) { return null; } }
 
-        // ==================== PANEL DE METAS (TABLA GLOBAL EDITABLE) ====================
+        // ==================== PANEL DE METAS ====================
         async function cargarPanelMetas() {
             const empId = currentUser.empresa_id;
             const now = new Date();
@@ -1563,17 +1563,13 @@
                     let celda = `<td style="text-align:center;"><label style="display:flex; align-items:center; gap:4px; white-space:nowrap;"><input type="checkbox" class="meta-check-metric" data-key="${met.key}" ${checked}> `;
                     if (met.tipo === 'dinero') {
                         celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
-                        let monedaActual = monedaPorDefecto();
-                        if (meta.moneda_objetivo_id) {
-                            // Se establecerá asíncronamente
-                        }
                         celda += `<select class="meta-moneda-${met.key}" style="width:120px;">${monedasOptions}</select>`;
                     } else if (met.tipo === 'cantidad') {
                         celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
                         celda += `<select class="meta-unidad-${met.key}" style="width:100px;">${unidadesOptions}</select>`;
                     } else if (met.tipo === 'entero') {
                         celda += `<input type="number" step="1" min="0" class="meta-val-${met.key}" value="${val}" style="width:80px;">`;
-                    } else { // decimal
+                    } else {
                         celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
                     }
                     celda += `</label></td>`;
@@ -1582,11 +1578,9 @@
                 tabla += `<td><input type="text" class="meta-comentario" value="${meta.comentario || ''}" style="width:100%;"></td></tr>`;
             }
             tabla += `</tbody></table>`;
-
             document.getElementById('meta-tabla-global-container').innerHTML = tabla;
             document.getElementById('meta-guardar-area').hidden = false;
 
-            // Ajustar monedas/unidades existentes
             for (const emp of empleados) {
                 const meta = metasMap[emp.id];
                 if (!meta) continue;
@@ -1606,7 +1600,6 @@
                     }
                 });
             }
-
             initTooltips();
         }
 
@@ -1614,10 +1607,8 @@
             const mes = parseInt(document.getElementById('meta-mes')?.value);
             const anio = parseInt(document.getElementById('meta-anio')?.value);
             if (!mes || !anio) { showNotification('Seleccione mes y año', 'error'); return; }
-
             const filas = document.querySelectorAll('#meta-tabla-global-container tr[data-empleado-id]');
             if (!filas.length) return;
-
             const operaciones = [];
             for (const fila of filas) {
                 const empId = fila.dataset.empleadoId;
@@ -1630,26 +1621,19 @@
                     asignado_por: currentUser.id,
                     comentario: fila.querySelector('.meta-comentario')?.value || null
                 };
-
                 for (const met of METRICAS_META) {
                     const chk = fila.querySelector(`.meta-check-metric[data-key="${met.key}"]`);
                     if (chk && chk.checked) {
                         const valInput = fila.querySelector(`.meta-val-${met.key}`);
                         const val = valInput ? valInput.value : '';
-                        if (val !== '') {
-                            payload[met.key] = met.tipo === 'entero' ? parseInt(val) : parseFloat(val);
-                        } else {
-                            payload[met.key] = null;
-                        }
+                        payload[met.key] = val !== '' ? (met.tipo === 'entero' ? parseInt(val) : parseFloat(val)) : null;
                         if (met.moneda) {
                             const selMon = fila.querySelector(`.meta-moneda-${met.key}`);
-                            if (selMon && selMon.value) payload[met.moneda] = await ensureCurrency(selMon.value);
-                            else payload[met.moneda] = null;
+                            payload[met.moneda] = (selMon && selMon.value) ? await ensureCurrency(selMon.value) : null;
                         }
                         if (met.unidad) {
                             const selUni = fila.querySelector(`.meta-unidad-${met.key}`);
-                            if (selUni && selUni.value) payload[met.unidad] = await ensureUnidadMedida(selUni.value);
-                            else payload[met.unidad] = null;
+                            payload[met.unidad] = (selUni && selUni.value) ? await ensureUnidadMedida(selUni.value) : null;
                         }
                     } else {
                         payload[met.key] = null;
@@ -1657,38 +1641,241 @@
                         if (met.unidad) payload[met.unidad] = null;
                     }
                 }
-
                 const existente = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&select=id&limit=1`);
+                operaciones.push(
+                    existente.length > 0
+                        ? apiFetch(`objetivos_empleado?id=eq.${existente[0].id}`, 'PATCH', payload)
+                        : apiFetch('objetivos_empleado', 'POST', payload)
+                );
+            }
+            try {
+                await Promise.all(operaciones);
+                showNotification('Metas guardadas correctamente');
+                cargarMetasTablaGlobal();
+            } catch (err) { showNotification('Error al guardar: ' + err.message, 'error'); }
+        }
+
+        async function obtenerCodigoMoneda(monedaId) {
+            try { const mon = await apiFetch(`monedas?id=eq.${monedaId}&select=codigo,nombre`); if (mon.length) return `${mon[0].codigo} - ${mon[0].nombre}`; } catch(e) {}
+            return monedaPorDefecto();
+        }
+
+        async function obtenerNombreUnidad(unidadId) {
+            try { const um = await apiFetch(`unidades_medida?id=eq.${unidadId}&select=nombre`); if (um.length) return um[0].nombre; } catch(e) {}
+            return '';
+        }
+
+        // ==================== PANEL DE DISTRIBUCIÓN (ASIGNACIÓN DE PRODUCTO POR VENDEDOR) ====================
+        async function cargarPanelDistribucion() {
+            const now = new Date();
+            const mesActual = now.getMonth() + 1;
+            const anioActual = now.getFullYear();
+            let html = `
+            <div class="card">
+                <div class="card-header"><h2>Distribución de Producto por Vendedor</h2></div>
+                <div class="info-banner"><i class="fas fa-boxes"></i> Seleccione mes y año. El sistema muestra el stock disponible y calcula automáticamente los porcentajes de asignación según los objetivos de cada vendedor. Puede editar manualmente las cantidades y porcentajes. Presione <strong>Guardar Asignación</strong> para aplicar los cambios.</div>
+                <div class="filtros">
+                    <div class="filtro-group"><label>Producto:</label><select id="dist-prod-select" onchange="cargarDistribucion()"><option value="">Seleccione un producto...</option></select></div>
+                    <div class="filtro-group"><label>Mes:</label><select id="dist-mes" onchange="cargarDistribucion()">`;
+            for (let m = 1; m <= 12; m++) {
+                html += `<option value="${m}" ${m === mesActual ? 'selected' : ''}>${new Date(2024, m-1, 1).toLocaleString('es', { month: 'long' })}</option>`;
+            }
+            html += `</select></div>
+                    <div class="filtro-group"><label>Año:</label><input type="number" id="dist-anio" value="${anioActual}" min="2020" max="2100" style="width:90px;" onchange="cargarDistribucion()"></div>
+                    <div class="filtro-group"><label><input type="checkbox" id="dist-todos-productos" onchange="cargarDistribucion()"> Ver todos los productos</label></div>
+                </div>
+                <div id="dist-stock-info" class="distribucion-stock-info" style="display:none;"></div>
+                <div id="dist-tabla-container" class="table-wrapper">
+                    <p style="color:#64748b; font-size:0.9rem;">Seleccione un producto para ver la distribución.</p>
+                </div>
+                <div style="margin-top:16px;" id="dist-guardar-area" hidden>
+                    <div class="filtro-group" style="margin-bottom:12px;">
+                        <label>Almacén:</label><select id="dist-almacen-select"><option value="">Seleccione almacén...</option></select>
+                    </div>
+                    <button class="btn-solid" onclick="guardarDistribucion()"><i class="fas fa-save"></i> Guardar Asignación</button>
+                </div>
+            </div>`;
+            document.getElementById('panel-distribucion').innerHTML = html;
+
+            // Cargar lista de productos
+            const empId = currentUser.empresa_id;
+            const productos = await apiFetch(`productos?empresa_id=eq.${empId}&activo=eq.true&select=id,sku,nombre&order=nombre&limit=1000`);
+            const selProd = document.getElementById('dist-prod-select');
+            productos.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = `${p.sku} - ${p.nombre}`;
+                selProd.appendChild(opt);
+            });
+            // Cargar almacenes
+            const almacenes = await apiFetch(`almacenes?empresa_id=eq.${empId}&activo=eq.true&select=id,nombre&limit=1000`);
+            const selAlm = document.getElementById('dist-almacen-select');
+            almacenes.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.id;
+                opt.textContent = a.nombre;
+                selAlm.appendChild(opt);
+            });
+            initTooltips();
+        }
+
+        async function cargarDistribucion() {
+            const productoId = document.getElementById('dist-prod-select')?.value;
+            const mes = parseInt(document.getElementById('dist-mes')?.value);
+            const anio = parseInt(document.getElementById('dist-anio')?.value);
+            const verTodos = document.getElementById('dist-todos-productos')?.checked;
+
+            if (!mes || !anio || (!productoId && !verTodos)) return;
+
+            const empId = currentUser.empresa_id;
+
+            // Obtener stock disponible
+            let stockDisponible = 0;
+            let productoNombre = '';
+            if (productoId) {
+                const inventario = await apiFetch(`inventario?empresa_id=eq.${empId}&producto_id=eq.${productoId}&select=cantidad,cantidad_reservada&limit=1000`);
+                stockDisponible = inventario.reduce((sum, inv) => sum + (inv.cantidad - (inv.cantidad_reservada || 0)), 0);
+                const prodInfo = await apiFetch(`productos?id=eq.${productoId}&select=nombre,sku&limit=1`);
+                if (prodInfo.length) productoNombre = `${prodInfo[0].sku} - ${prodInfo[0].nombre}`;
+            }
+
+            // Obtener vendedores activos
+            const comerciales = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent('"Ejecutivo Comercial"')}&select=email&limit=1000`);
+            const emails = comerciales.map(u => u.email.toLowerCase());
+            const todosEmpleados = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
+            const vendedores = todosEmpleados.filter(e => emails.includes((e.email||'').toLowerCase()));
+
+            if (!vendedores.length) {
+                document.getElementById('dist-tabla-container').innerHTML = '<p style="color:#64748b;">No hay vendedores activos.</p>';
+                return;
+            }
+
+            // Obtener objetivos de los vendedores para el período
+            const empleadoIds = vendedores.map(v => `"${v.id}"`).join(',');
+            const objetivos = await apiFetch(`objetivos_empleado?empleado_id=in.(${encodeURIComponent(empleadoIds)})&mes=eq.${mes}&anio=eq.${anio}&activo=eq.true&select=empleado_id,monto_objetivo,cantidad_objetivo&limit=1000`);
+            const objMap = {};
+            objetivos.forEach(o => { objMap[o.empleado_id] = o; });
+
+            // Calcular total de objetivos
+            let totalMonto = 0, totalCantidad = 0;
+            vendedores.forEach(v => {
+                const obj = objMap[v.id];
+                if (obj) {
+                    totalMonto += parseFloat(obj.monto_objetivo || 0);
+                    totalCantidad += parseFloat(obj.cantidad_objetivo || 0);
+                }
+            });
+
+            // Obtener asignaciones existentes
+            let asignacionesQuery = `asignaciones_producto_vendedor?empresa_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&empleado_id=in.(${encodeURIComponent(empleadoIds)})&select=*&limit=1000`;
+            if (productoId) asignacionesQuery += `&producto_id=eq.${productoId}`;
+            const asignaciones = await apiFetch(asignacionesQuery);
+            const asigMap = {};
+            asignaciones.forEach(a => {
+                const key = `${a.empleado_id}_${a.producto_id}_${a.almacen_id || 'null'}`;
+                asigMap[key] = a;
+            });
+
+            // Construir tabla
+            let tablaHtml = `<table class="meta-editable-table"><thead><tr><th>Vendedor</th><th>Objetivo Monto</th><th>Objetivo Cantidad</th><th>% Ponderado</th><th>Cantidad Asignada</th><th>Comentario</th></tr></thead><tbody>`;
+
+            for (const v of vendedores) {
+                const obj = objMap[v.id];
+                const montoObj = obj ? parseFloat(obj.monto_objetivo || 0) : 0;
+                const cantObj = obj ? parseFloat(obj.cantidad_objetivo || 0) : 0;
+                // Calcular porcentaje basado en monto (si hay) o cantidad
+                let porcentaje = 0;
+                if (totalMonto > 0) {
+                    porcentaje = (montoObj / totalMonto) * 100;
+                } else if (totalCantidad > 0) {
+                    porcentaje = (cantObj / totalCantidad) * 100;
+                } else if (vendedores.length > 0) {
+                    porcentaje = 100 / vendedores.length;
+                }
+                const key = `${v.id}_${productoId || 'todos'}_null`;
+                const asig = asigMap[key] || {};
+                const cantidadAsignada = asig.cantidad_asignada !== undefined ? asig.cantidad_asignada : '';
+                const comentario = asig.comentario || '';
+
+                tablaHtml += `<tr data-empleado-id="${v.id}" data-producto-id="${productoId || 'todos'}">
+                    <td>${v.nombres} ${v.apellido_paterno}</td>
+                    <td>${montoObj.toFixed(2)}</td>
+                    <td>${cantObj.toFixed(2)}</td>
+                    <td>${porcentaje.toFixed(2)}%</td>
+                    <td><input type="number" step="1" min="0" class="dist-cantidad" value="${cantidadAsignada}" style="width:100px;"></td>
+                    <td><input type="text" class="dist-comentario" value="${comentario}" style="width:150px;"></td>
+                </tr>`;
+            }
+            tablaHtml += `</tbody></table>`;
+            document.getElementById('dist-tabla-container').innerHTML = tablaHtml;
+
+            // Mostrar info de stock
+            if (productoId) {
+                document.getElementById('dist-stock-info').style.display = 'block';
+                document.getElementById('dist-stock-info').innerHTML = `<strong>Producto:</strong> ${productoNombre} | <strong>Stock Disponible:</strong> ${stockDisponible} unidades`;
+            } else {
+                document.getElementById('dist-stock-info').style.display = 'none';
+            }
+
+            document.getElementById('dist-guardar-area').hidden = false;
+            initTooltips();
+        }
+
+        async function guardarDistribucion() {
+            const productoId = document.getElementById('dist-prod-select')?.value;
+            const mes = parseInt(document.getElementById('dist-mes')?.value);
+            const anio = parseInt(document.getElementById('dist-anio')?.value);
+            const almacenId = document.getElementById('dist-almacen-select')?.value || null;
+            const verTodos = document.getElementById('dist-todos-productos')?.checked;
+
+            if (!mes || !anio) { showNotification('Seleccione mes y año', 'error'); return; }
+            if (!productoId && !verTodos) { showNotification('Seleccione un producto o active "Ver todos los productos"', 'error'); return; }
+
+            const filas = document.querySelectorAll('#dist-tabla-container tr[data-empleado-id]');
+            if (!filas.length) return;
+
+            const operaciones = [];
+            for (const fila of filas) {
+                const empId = fila.dataset.empleadoId;
+                const prodId = fila.dataset.productoId === 'todos' ? productoId : fila.dataset.productoId;
+                if (!prodId || prodId === 'todos') continue;
+
+                const cantidad = parseInt(fila.querySelector('.dist-cantidad')?.value || '0');
+                const comentario = fila.querySelector('.dist-comentario')?.value || null;
+
+                const payload = {
+                    empresa_id: currentUser.empresa_id,
+                    producto_id: prodId,
+                    empleado_id: empId,
+                    almacen_id: almacenId,
+                    cantidad_asignada: cantidad,
+                    mes: mes,
+                    anio: anio,
+                    comentario: comentario,
+                    creado_por: currentUser.id
+                };
+
+                // Buscar asignación existente
+                let query = `asignaciones_producto_vendedor?producto_id=eq.${prodId}&empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}`;
+                if (almacenId) query += `&almacen_id=eq.${almacenId}`;
+                else query += `&almacen_id=is.null`;
+                query += `&select=id&limit=1`;
+
+                const existente = await apiFetch(query);
                 if (existente.length > 0) {
-                    operaciones.push(apiFetch(`objetivos_empleado?id=eq.${existente[0].id}`, 'PATCH', payload));
+                    operaciones.push(apiFetch(`asignaciones_producto_vendedor?id=eq.${existente[0].id}`, 'PATCH', payload));
                 } else {
-                    operaciones.push(apiFetch('objetivos_empleado', 'POST', payload));
+                    operaciones.push(apiFetch('asignaciones_producto_vendedor', 'POST', payload));
                 }
             }
 
             try {
                 await Promise.all(operaciones);
-                showNotification('Metas guardadas correctamente');
-                cargarMetasTablaGlobal();
+                showNotification('Distribución guardada correctamente');
+                cargarDistribucion();
             } catch (err) {
                 showNotification('Error al guardar: ' + err.message, 'error');
             }
-        }
-
-        async function obtenerCodigoMoneda(monedaId) {
-            try {
-                const mon = await apiFetch(`monedas?id=eq.${monedaId}&select=codigo,nombre`);
-                if (mon.length) return `${mon[0].codigo} - ${mon[0].nombre}`;
-            } catch(e) {}
-            return monedaPorDefecto();
-        }
-
-        async function obtenerNombreUnidad(unidadId) {
-            try {
-                const um = await apiFetch(`unidades_medida?id=eq.${unidadId}&select=nombre`);
-                if (um.length) return um[0].nombre;
-            } catch(e) {}
-            return '';
         }
 
         function prevenirSubmitEnter(e) {
@@ -1713,6 +1900,7 @@
             else if(panel==='equipo') cargarEquipo('comercial');
             else if(panel==='clientes') cargarClientes();
             else if(panel==='metas') cargarPanelMetas();
+            else if(panel==='distribucion') cargarPanelDistribucion();
         }
         document.querySelectorAll('.sidebar-menu a[data-panel]').forEach(a => a.addEventListener('click', function(e) { e.preventDefault(); navegarA(this.dataset.panel); }));
         function recargarTodo() { const panelActivo = document.querySelector('.section-panel.active')?.id?.replace('panel-',''); if(panelActivo) navegarA(panelActivo); showNotification('Datos actualizados'); }
