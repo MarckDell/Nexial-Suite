@@ -480,7 +480,6 @@
             { key: 'visitas_objetivo', label: 'Visitas programadas', tipo: 'entero', ayuda: 'Total de visitas a clientes.' }
         ];
 
-        // Obtener el símbolo de una moneda dado su código
         function getSimboloMoneda(codigo) {
             const moneda = todasLasMonedas.find(m => m.codigo === codigo);
             return moneda ? (moneda.simbolo || moneda.codigo) : codigo;
@@ -964,7 +963,6 @@
             }
         }
 
-        // Función para cargar supervisores (roles: Supervisor Senior, Director General, Director Financiero)
         async function llenarSelectSupervisores(selectId, seleccionado = '') {
             if (!currentUser || !currentUser.empresa_id) return;
             const sel = document.getElementById(selectId); if (!sel) return;
@@ -1276,7 +1274,12 @@
             document.getElementById('usr-nombres').value = u.nombres; document.getElementById('usr-ap').value = u.apellido_paterno; document.getElementById('usr-am').value = u.apellido_materno||'';
             document.getElementById('usr-email').value = u.email; document.getElementById('usr-rol').value = u.rol;
             document.getElementById('usr-extension').value = u.extension||''; document.getElementById('usr-fecha-nac').value = u.fecha_nacimiento||'';
-            document.getElementById('password-fields').style.display = 'none';
+            // Al editar, mostrar campos de contraseña opcionales
+            document.getElementById('password-fields').style.display = 'flex';
+            document.getElementById('usr-password').value = '';
+            document.getElementById('usr-password2').value = '';
+            document.getElementById('usr-password').required = false;
+            document.getElementById('usr-password2').required = false;
             document.getElementById('titulo-modal-usuario').textContent = 'Editar Miembro';
             const rowCap = document.getElementById('row-capacidad-vehiculo');
             if(u.rol==='Especialista Logístico') rowCap.style.display='flex'; else { rowCap.style.display='none'; document.getElementById('usr-capacidad-vehiculo').value=''; document.getElementById('usr-unidad-capacidad').value=''; }
@@ -1320,6 +1323,14 @@
                 rol: rol, telefonos: telefonosArray, extension: document.getElementById('usr-extension').value.trim()||null,
                 fecha_nacimiento: document.getElementById('usr-fecha-nac').value||null
             };
+            // Si se ingresó nueva contraseña, la incluimos
+            const pass = document.getElementById('usr-password').value;
+            const pass2 = document.getElementById('usr-password2').value;
+            if (pass && pass.length >= 6) {
+                if (pass !== pass2) { showNotification('Las contraseñas no coinciden','error'); return; }
+                const hashResp = await apiFetch('rpc/crypt_password', 'POST', { pass });
+                payloadUsuario.password_hash = typeof hashResp === 'string' ? hashResp : hashResp.crypt_password;
+            }
             const tipoDocVal = document.getElementById('usr-tipo-doc').value.trim();
             const payloadEmpleado = {
                 tipo_documento: tipoDocVal||null, numero_documento: document.getElementById('usr-num-doc').value.trim()||null,
@@ -1339,11 +1350,12 @@
             try { const file = document.getElementById('file-usr-imagen').files[0]; if(file) { const url = await uploadFile(file, 'empleados'); payloadUsuario.imagen = url; payloadEmpleado.imagen = url; } } catch {}
             try {
                 if(!userId) {
-                    const pass = document.getElementById('usr-password').value, pass2 = document.getElementById('usr-password2').value;
                     if(!pass||pass.length<6) { showNotification('Contraseña mínima 6 caracteres','error'); return; }
                     if(pass!==pass2) { showNotification('Las contraseñas no coinciden','error'); return; }
-                    const hashResp = await apiFetch('rpc/crypt_password', 'POST', { pass });
-                    payloadUsuario.password_hash = typeof hashResp === 'string' ? hashResp : hashResp.crypt_password;
+                    if (!payloadUsuario.password_hash) {
+                        const hashResp = await apiFetch('rpc/crypt_password', 'POST', { pass });
+                        payloadUsuario.password_hash = typeof hashResp === 'string' ? hashResp : hashResp.crypt_password;
+                    }
                     payloadUsuario.empresa_id = currentUser.empresa_id;
                     await apiFetch('usuarios', 'POST', payloadUsuario);
                     payloadEmpleado.empresa_id = currentUser.empresa_id;
@@ -1675,7 +1687,7 @@
             return '';
         }
 
-        // ==================== PANEL DE DISTRIBUCIÓN (ASIGNACIÓN DE PRODUCTO POR VENDEDOR) ====================
+        // ==================== PANEL DE DISTRIBUCIÓN ====================
         async function cargarPanelDistribucion() {
             if (!currentUser || !currentUser.empresa_id) return;
             const now = new Date();
@@ -1748,13 +1760,14 @@
                 if (prodInfo.length) productoNombre = `${prodInfo[0].sku} - ${prodInfo[0].nombre}`;
             }
 
-            const comerciales = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent('"Ejecutivo Comercial"')}&select=email&limit=1000`);
-            const emails = comerciales.map(u => u.email.toLowerCase());
+            // Obtener vendedores activos: empleados cuyo email esté en usuarios con rol "Ejecutivo Comercial"
+            const comercialesUsers = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent('Ejecutivo Comercial')}&select=email&limit=1000`);
+            const emails = comercialesUsers.map(u => u.email.toLowerCase());
             const todosEmpleados = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
             const vendedores = todosEmpleados.filter(e => emails.includes((e.email||'').toLowerCase()));
 
             if (!vendedores.length) {
-                document.getElementById('dist-tabla-container').innerHTML = '<p style="color:#64748b;">No hay vendedores activos.</p>';
+                document.getElementById('dist-tabla-container').innerHTML = '<p style="color:#64748b;">No hay vendedores activos. Asegúrese de que existan usuarios con rol "Ejecutivo Comercial" y empleados asociados con el mismo email.</p>';
                 return;
             }
 
