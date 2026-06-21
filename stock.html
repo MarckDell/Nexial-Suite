@@ -41,9 +41,44 @@
         const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
         let currentUser = null;
 
-        function verificarSesion() { const s=sessionStorage.getItem('currentUser'); if(!s){window.location.href='login.html';return;} currentUser=JSON.parse(s); if(currentUser.rol!=='Supervisor Senior' && currentUser.rol!=='Director General' && currentUser.rol!=='Director Financiero'){sessionStorage.removeItem('currentUser');window.location.href='login.html';} }
-        function showNotification(m,t='success'){const n=document.getElementById('notification');n.querySelector('span').innerText=m;n.className=`notification ${t}`;n.style.display='flex';setTimeout(()=>n.style.display='none',4500);}
-        async function apiFetch(endpoint,method='GET',body=null){const headers={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`};if(method==='POST'||method==='PATCH')headers['Prefer']='return=representation';const opts={method,headers};if(body)opts.body=JSON.stringify(body);const res=await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`,opts);if(!res.ok){const e=await res.text();throw new Error(e);}const txt=await res.text();return txt?JSON.parse(txt):{};}
+        function verificarSesion() {
+            const s = sessionStorage.getItem('currentUser');
+            if (!s) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = JSON.parse(s);
+            if (currentUser.rol !== 'Supervisor Senior' && currentUser.rol !== 'Director General' && currentUser.rol !== 'Director Financiero') {
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            }
+        }
+
+        function showNotification(m, t = 'success') {
+            const n = document.getElementById('notification');
+            n.querySelector('span').innerText = m;
+            n.className = `notification ${t}`;
+            n.style.display = 'flex';
+            setTimeout(() => n.style.display = 'none', 4500);
+        }
+
+        async function apiFetch(endpoint, method = 'GET', body = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`
+            };
+            if (method === 'POST' || method === 'PATCH') headers['Prefer'] = 'return=representation';
+            const opts = { method, headers };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, opts);
+            if (!res.ok) {
+                const e = await res.text();
+                throw new Error(e);
+            }
+            const txt = await res.text();
+            return txt ? JSON.parse(txt) : {};
+        }
 
         async function cargarDistribucion() {
             if (!currentUser || !currentUser.empresa_id) return;
@@ -109,14 +144,13 @@
             const prodInfo = await apiFetch(`productos?id=eq.${productoId}&select=nombre,sku&limit=1`);
             const productoNombre = prodInfo.length ? `${prodInfo[0].sku} - ${prodInfo[0].nombre}` : 'Producto';
 
-            // Vendedores activos con rol Ejecutivo Comercial
-            const comerciales = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent('"Ejecutivo Comercial"')}&select=email&limit=1000`);
-            const emails = comerciales.map(u => u.email.toLowerCase());
-            const todosEmpleados = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
-            const vendedores = todosEmpleados.filter(e => emails.includes((e.email||'').toLowerCase()));
+            // Vendedores activos: empleados con puesto "Ejecutivo Comercial"
+            const vendedores = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&puesto=eq.Ejecutivo%20Comercial&select=id,nombres,apellido_paterno,email&limit=1000`);
 
             if (!vendedores.length) {
                 document.getElementById('dist-tabla-container').innerHTML = '<p style="color:#64748b;">No hay vendedores activos.</p>';
+                document.getElementById('dist-guardar-area').hidden = true;
+                document.getElementById('dist-stock-info').style.display = 'none';
                 return;
             }
 
