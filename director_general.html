@@ -259,7 +259,7 @@
                 <button class="tab-btn" data-tab="productos"><i class="fas fa-box"></i> Productos</button>
                 <button class="tab-btn" data-tab="equipo"><i class="fas fa-user-tie"></i> Equipo</button>
             </div>
-            <!-- Los contenidos se cargan dinámicamente desde modulos/ -->
+            <!-- Los contenidos se cargan dinámicamente desde los archivos HTML existentes (misma carpeta) -->
             <div id="tab-resumen" class="tab-content active"></div>
             <div id="tab-clientes" class="tab-content"></div>
             <div id="tab-productos" class="tab-content"></div>
@@ -282,7 +282,7 @@
     const STORAGE_BUCKET = 'empresas';
     let currentUser = null;
 
-    // Mapeo de pestañas a archivos de módulo
+    // Mapeo de pestañas a archivos HTML (directamente en la misma carpeta)
     const moduloArchivo = {
         resumen: 'resumen.html',
         clientes: 'clientes.html',
@@ -313,12 +313,13 @@
         if (contenedor.innerHTML.trim() !== '') return;
 
         try {
-            const respuesta = await fetch('modulos/' + moduloArchivo[tab]);
-            if (!respuesta.ok) throw new Error('No se pudo cargar el módulo');
+            // Carga el archivo directamente desde la misma carpeta
+            const respuesta = await fetch(moduloArchivo[tab]);
+            if (!respuesta.ok) throw new Error('No se pudo cargar el módulo ' + moduloArchivo[tab]);
             const html = await respuesta.text();
             contenedor.innerHTML = html;
 
-            // Re-ejecutar scripts dentro del fragmento
+            // Re-ejecutar scripts dentro del fragmento (porque innerHTML no los ejecuta)
             const scripts = contenedor.querySelectorAll('script');
             scripts.forEach(script => {
                 const nuevoScript = document.createElement('script');
@@ -327,7 +328,7 @@
                 script.replaceWith(nuevoScript);
             });
         } catch (error) {
-            contenedor.innerHTML = `<div class="card"><p>Error al cargar el módulo: ${error.message}</p></div>`;
+            contenedor.innerHTML = `<div class="card"><p>Error al cargar el módulo: ${error.message}. Asegúrate de que el archivo ${moduloArchivo[tab]} existe en la misma carpeta.</p></div>`;
         }
     }
 
@@ -366,7 +367,7 @@
     function cargarModuloEmpresa() {
         const contenedor = document.getElementById('panel-empresa-contenido');
         if (contenedor.innerHTML.trim() !== '') return;
-        fetch('modulos/empresa.html')
+        fetch('empresa.html')
             .then(res => res.text())
             .then(html => {
                 contenedor.innerHTML = html;
@@ -376,7 +377,8 @@
                     ns.textContent = s.textContent;
                     s.replaceWith(ns);
                 });
-            });
+            })
+            .catch(err => contenedor.innerHTML = `<div class="card"><p>Error al cargar empresa.html: ${err.message}</p></div>`);
     }
 
     function recargarTodo() {
@@ -422,7 +424,7 @@
     // ==================== ARRANQUE ====================
     verificarSesion();
     window.addEventListener('load', () => {
-        cargarModulo('resumen');
+        cargarModulo('resumen');   // Carga la pestaña activa inicial
     });
 </script>
 </body>
