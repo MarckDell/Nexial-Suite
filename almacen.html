@@ -7,47 +7,374 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Inter','Segoe UI',system-ui,sans-serif; background:#f4f6fb; color:#1a1f36; line-height:1.6; }
-        .container { max-width:1200px; margin:24px auto; padding:0 24px; }
-        .card { background:white; border-radius:24px; padding:28px; box-shadow:0 4px 20px rgba(0,0,0,0.03); margin-bottom:24px; border:1px solid #f0f2f5; }
-        .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:14px; }
-        .card-header h2 { font-size:1.4rem; font-weight:700; color:#0f172a; }
-        .table-wrapper { overflow-x:auto; }
-        table { width:100%; border-collapse:collapse; }
-        th, td { padding:12px 14px; text-align:left; border-bottom:1px solid #e2e8f0; font-size:0.88rem; }
-        th { background:#f8fafc; color:#475569; font-weight:600; text-transform:uppercase; font-size:0.73rem; }
-        tr:hover td { background:#f1f5f9; }
-        .action-buttons { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
-        .btn-sm { padding:6px 12px; border-radius:18px; font-size:0.78rem; font-weight:600; border:none; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
-        .btn-edit { background:#e0f2fe; color:#0369a1; }
-        .btn-delete { background:#fee2e2; color:#991b1b; }
-        .btn-remove-permanent { background:#ffedd5; color:#9a3412; }
-        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,18,0.8); backdrop-filter:blur(8px); z-index:2000; display:none; align-items:flex-start; justify-content:center; padding:24px; overflow-y:auto; }
-        .modal-overlay.active { display:flex; }
-        .modal { background:white; border-radius:28px; padding:36px 32px; max-width:600px; width:100%; box-shadow:0 30px 60px rgba(0,0,0,0.4); animation:modalIn 0.3s ease; }
-        .modal-sm { max-width:440px; padding:32px; text-align:center; }
-        @keyframes modalIn { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
-        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
-        .modal-header h2 { font-size:1.7rem; font-weight:700; color:#0f172a; }
-        .close-modal { background:none; border:none; font-size:1.8rem; cursor:pointer; color:#64748b; }
-        .form-row { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:12px; }
-        .form-col { flex:1; min-width:160px; }
-        .form-group { margin-bottom:2px; }
-        .form-group label { font-size:0.73rem; font-weight:700; text-transform:uppercase; color:#334155; display:flex; align-items:center; gap:5px; margin-bottom:5px; }
-        .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:12px; font-size:0.88rem; font-family:'Inter',sans-serif; }
-        .form-group input:focus, .form-group select:focus { border-color:#1a56db; outline:none; box-shadow:0 0 0 3px rgba(26,86,219,0.08); }
-        .notification { position:fixed; top:24px; right:32px; background:#1a1f36; color:white; padding:14px 28px; border-radius:60px; font-weight:500; z-index:3000; box-shadow:0 12px 28px rgba(0,0,0,0.3); display:none; align-items:center; gap:10px; font-size:0.9rem; }
-        .notification.error { background:#c2412c; }
-        .notification.success { background:#2c6e49; }
-        .btn-outline { background:transparent; border:1.5px solid #cbd5e1; color:#1e293b; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
-        .btn-solid { background:#1a56db; border:none; color:white; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
-        .btn-solid:hover { background:#1340a0; }
-        .filtros { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
-        .filtro-group { display:flex; align-items:center; gap:6px; background:#f8fafc; padding:4px 14px; border-radius:30px; border:1px solid #e2e8f0; }
-        .filtro-group label { font-size:0.8rem; font-weight:600; color:#475569; }
-        .filtro-group select, .filtro-group input { border:none; background:transparent; font-family:'Inter',sans-serif; font-size:0.84rem; }
-        .confirm-buttons { display:flex; gap:12px; justify-content:center; margin-top:24px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: #f4f6fb;
+            color: #1a1f36;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 24px auto;
+            padding: 0 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            margin-bottom: 24px;
+            border: 1px solid #f0f2f5;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .card-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.88rem;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.73rem;
+        }
+
+        tr:hover td {
+            background: #f1f5f9;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            border-radius: 18px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .btn-edit {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .btn-inventory {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-remove-permanent {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 18, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 28px;
+            padding: 36px 32px;
+            max-width: 950px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            animation: modalIn 0.3s ease;
+        }
+
+        .modal-sm {
+            max-width: 440px;
+            padding: 32px;
+            text-align: center;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .form-col {
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .form-group {
+            margin-bottom: 2px;
+        }
+
+        .form-group label {
+            font-size: 0.73rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #1a56db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.08);
+        }
+
+        .help-text {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 32px;
+            background: #1a1f36;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 60px;
+            font-weight: 500;
+            z-index: 3000;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .notification.error {
+            background: #c2412c;
+        }
+
+        .notification.success {
+            background: #2c6e49;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #cbd5e1;
+            color: #1e293b;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-solid {
+            background: #1a56db;
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-solid:hover {
+            background: #1340a0;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .filtro-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8fafc;
+            padding: 4px 14px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filtro-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .filtro-group select,
+        .filtro-group input {
+            border: none;
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.84rem;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .info-banner {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 16px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #0369a1;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .section-divider {
+            margin: 28px 0 20px;
+            border: none;
+            border-top: 2px dashed #e2e8f0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
     </style>
 </head>
 <body>
@@ -56,7 +383,9 @@
     <!-- Modal Confirmación -->
     <div class="modal-overlay" id="modal-confirm">
         <div class="modal modal-sm">
-            <div class="modal-header" style="justify-content:center;"><h2>Confirmar acción</h2></div>
+            <div class="modal-header" style="justify-content:center;">
+                <h2>Confirmar acción</h2>
+            </div>
             <p id="confirm-mensaje" style="color:#475569; font-size:0.95rem; margin-bottom:8px;"></p>
             <div class="confirm-buttons">
                 <button class="btn-outline" onclick="cerrarModalConfirm(false)">Cancelar</button>
@@ -65,7 +394,7 @@
         </div>
     </div>
 
-    <!-- Modal Almacén -->
+    <!-- Modal Almacén (Crear/Editar) -->
     <div class="modal-overlay" id="modal-almacen">
         <div class="modal">
             <div class="modal-header">
@@ -74,30 +403,185 @@
             </div>
             <form id="form-almacen" autocomplete="off">
                 <input type="hidden" id="almacen-id">
-                <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Código *</label><input id="alm-codigo" required oninput="this.value = this.value.toUpperCase()"></div></div>
-                    <div class="form-col"><div class="form-group"><label>Nombre *</label><input id="alm-nombre" required oninput="capitalizarInput(this)"></div></div>
+                <div class="info-banner">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Todos los campos con <strong>*</strong> son obligatorios. Complete la información para identificar y ubicar su almacén.</span>
                 </div>
+
                 <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Dirección</label><input id="alm-direccion" oninput="capitalizarInput(this)"></div></div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Código * <i class="fas fa-tag"></i></label>
+                            <input id="alm-codigo" required oninput="this.value = this.value.toUpperCase()" placeholder="Ej: ALM-PRINCIPAL">
+                            <span class="help-text">Identificador corto y único para el almacén (solo letras, números y guiones).</span>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Nombre * <i class="fas fa-warehouse"></i></label>
+                            <input id="alm-nombre" required oninput="capitalizarInput(this)" placeholder="Ej: Almacén Central">
+                            <span class="help-text">Nombre descriptivo para reconocer el almacén fácilmente.</span>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="alm-ciudad" list="ciudad-list" oninput="capitalizarInput(this)"><datalist id="ciudad-list"></datalist></div></div>
-                    <div class="form-col"><div class="form-group"><label>Estado/Provincia</label><input id="alm-estado" list="estado-list" oninput="capitalizarInput(this)"><datalist id="estado-list"></datalist></div></div>
-                    <div class="form-col"><div class="form-group"><label>País</label><input id="alm-pais" list="pais-list" oninput="capitalizarInput(this)"><datalist id="pais-list"></datalist></div></div>
+                    <div class="form-col" style="flex:2;">
+                        <div class="form-group">
+                            <label>Dirección <i class="fas fa-map-marker-alt"></i></label>
+                            <input id="alm-direccion" oninput="capitalizarInput(this)" placeholder="Ej: Av. Principal #123, Zona Norte">
+                            <span class="help-text">Dirección física completa del almacén (calle, número, zona, referencia).</span>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Tipo de Almacén</label><input id="alm-tipo" list="tipo-list" oninput="capitalizarInput(this)"><datalist id="tipo-list"></datalist></div></div>
-                    <div class="form-col"><div class="form-group"><label>Capacidad Máxima</label><input id="alm-capacidad" type="number" step="1" min="0"></div></div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Ciudad <i class="fas fa-city"></i></label>
+                            <input id="alm-ciudad" list="ciudad-list" oninput="capitalizarInput(this)" placeholder="Ej: La Paz">
+                            <datalist id="ciudad-list"></datalist>
+                            <span class="help-text">Ciudad donde se ubica el almacén.</span>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Estado / Provincia <i class="fas fa-map"></i></label>
+                            <input id="alm-estado" list="estado-list" oninput="capitalizarInput(this)" placeholder="Ej: Murillo">
+                            <datalist id="estado-list"></datalist>
+                            <span class="help-text">Estado, departamento o provincia correspondiente.</span>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>País <i class="fas fa-globe-americas"></i></label>
+                            <input id="alm-pais" list="pais-list" oninput="capitalizarInput(this)" placeholder="Ej: Bolivia">
+                            <datalist id="pais-list"></datalist>
+                            <span class="help-text">País donde se encuentra el almacén.</span>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="form-row">
-                    <div class="form-col"><div class="form-group"><label>Imagen</label><input type="file" id="file-alm-imagen" accept="image/*"></div></div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Tipo de Almacén <i class="fas fa-boxes"></i></label>
+                            <input id="alm-tipo" list="tipo-list" oninput="capitalizarInput(this)" placeholder="Ej: General, Frío, Materia Prima">
+                            <datalist id="tipo-list"></datalist>
+                            <span class="help-text">Clasificación del almacén (General, Frigorífico, Tránsito, etc.).</span>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Capacidad Máxima (unidades) <i class="fas fa-weight-hanging"></i></label>
+                            <input id="alm-capacidad" type="number" step="1" min="0" placeholder="Ej: 5000">
+                            <span class="help-text">Número máximo de unidades que puede almacenar. Dejar vacío si no tiene límite.</span>
+                        </div>
+                    </div>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Imagen del Almacén <i class="fas fa-camera"></i></label>
+                            <input type="file" id="file-alm-imagen" accept="image/*">
+                            <span class="help-text">Fotografía o logotipo representativo del almacén (opcional).</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
                     <button type="button" class="btn-outline" onclick="cerrarModalAlmacen()">Cancelar</button>
-                    <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
+                    <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar Almacén</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Inventario (Gestión de productos en almacén) -->
+    <div class="modal-overlay" id="modal-inventario">
+        <div class="modal" style="max-width:1000px;">
+            <div class="modal-header">
+                <h2 id="titulo-modal-inventario">Inventario del Almacén</h2>
+                <button class="close-modal" onclick="cerrarModalInventario()">&times;</button>
+            </div>
+            <div class="info-banner">
+                <i class="fas fa-boxes"></i>
+                <span>Gestione los productos y sus existencias en este almacén. Puede agregar lotes y fechas de vencimiento si aplica.</span>
+            </div>
+
+            <!-- Formulario para agregar/editar producto en inventario -->
+            <form id="form-inventario" autocomplete="off">
+                <input type="hidden" id="inv-id">
+                <input type="hidden" id="inv-almacen-id">
+                <div class="form-row">
+                    <div class="form-col" style="flex:2;">
+                        <div class="form-group">
+                            <label>Producto * <i class="fas fa-box"></i></label>
+                            <select id="inv-producto-id" required style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:12px; font-size:0.88rem; font-family:'Inter',sans-serif;">
+                                <option value="">-- Seleccione un producto --</option>
+                            </select>
+                            <span class="help-text">Elija el producto que desea agregar al inventario de este almacén.</span>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Cantidad * <i class="fas fa-hashtag"></i></label>
+                            <input id="inv-cantidad" type="number" step="1" min="0" required placeholder="Ej: 100">
+                            <span class="help-text">Cantidad de unidades disponibles de este producto.</span>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Cantidad Reservada <i class="fas fa-lock"></i></label>
+                            <input id="inv-cantidad-reservada" type="number" step="1" min="0" value="0" placeholder="0">
+                            <span class="help-text">Unidades apartadas para pedidos o procesos (no disponibles para venta).</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Lote <i class="fas fa-barcode"></i></label>
+                            <input id="inv-lote" placeholder="Ej: L-2026-05" oninput="this.value = this.value.toUpperCase()">
+                            <span class="help-text">Número de lote de fabricación (si el producto maneja lotes).</span>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Fecha de Vencimiento <i class="fas fa-calendar-alt"></i></label>
+                            <input id="inv-fecha-vencimiento" type="date">
+                            <span class="help-text">Fecha límite para utilizar o vender este producto (si aplica).</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:8px; display:flex; gap:12px;">
+                    <button type="submit" class="btn-solid" id="btn-inv-guardar"><i class="fas fa-plus-circle"></i> Agregar Producto</button>
+                    <button type="button" class="btn-outline" id="btn-inv-cancelar" style="display:none;" onclick="cancelarEdicionInventario()">Cancelar Edición</button>
+                </div>
+            </form>
+
+            <hr class="section-divider">
+
+            <!-- Tabla de inventario actual del almacén -->
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>SKU</th>
+                            <th>Lote</th>
+                            <th>Vencimiento</th>
+                            <th>Cantidad</th>
+                            <th>Reservado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-inventario">
+                        <tr><td colspan="7" style="text-align:center;">Cargando inventario...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -109,14 +593,26 @@
         const STORAGE_BUCKET = 'empresas';
         let currentUser = null;
         let confirmCallback = null;
+        let almacenSeleccionadoId = null;
 
-        function capitalizarInput(el) { let val=el.value, pos=el.selectionStart; val=val.replace(/(?:^|\s)(\p{L})/gu,(m,p)=>m.toUpperCase()); el.value=val; el.setSelectionRange(pos,pos); }
+        function capitalizarInput(el) {
+            let val = el.value,
+                pos = el.selectionStart;
+            val = val.replace(/(?:^|\s)(\p{L})/gu, (m, p) => m.toUpperCase());
+            el.value = val;
+            el.setSelectionRange(pos, pos);
+        }
 
         function verificarSesion() {
             const s = sessionStorage.getItem('currentUser');
-            if (!s) { window.location.href = 'login.html'; return; }
+            if (!s) {
+                window.location.href = 'login.html';
+                return;
+            }
             currentUser = JSON.parse(s);
-            const allowedRoles = ['Supervisor Senior', 'Director General', 'Director Financiero', 'Gestor de Almacén', 'Director Corporativo'];
+            const allowedRoles = ['Supervisor Senior', 'Director General', 'Director Financiero', 'Gestor de Almacén',
+                'Director Corporativo'
+            ];
             if (!allowedRoles.includes(currentUser.rol)) {
                 sessionStorage.removeItem('currentUser');
                 window.location.href = 'login.html';
@@ -177,7 +673,7 @@
             return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${name}`;
         }
 
-        // Carga la lista principal de almacenes
+        // ==================== LISTA DE ALMACENES ====================
         async function cargarAlmacenes(filtro = {}) {
             if (!currentUser || !currentUser.empresa_id) return;
             const empId = currentUser.empresa_id;
@@ -191,7 +687,8 @@
             const almacenes = await apiFetch(query);
 
             // Obtener valores únicos para datalists
-            const todos = await apiFetch(`almacenes?empresa_id=eq.${empId}&select=ciudad,estado_provincia,pais,tipo&limit=1000`);
+            const todos = await apiFetch(
+                `almacenes?empresa_id=eq.${empId}&select=ciudad,estado_provincia,pais,tipo&limit=1000`);
             const ciudades = [...new Set(todos.map(a => a.ciudad).filter(Boolean))].sort();
             const estados = [...new Set(todos.map(a => a.estado_provincia).filter(Boolean))].sort();
             const paises = [...new Set(todos.map(a => a.pais).filter(Boolean))].sort();
@@ -199,27 +696,31 @@
 
             let filas = '';
             almacenes.forEach(a => {
+                const estadoBadge = a.activo ?
+                    '<span class="badge badge-success">Activo</span>' :
+                    '<span class="badge badge-danger">Inactivo</span>';
                 filas += `<tr>
-                    <td>${a.codigo}</td>
+                    <td><strong>${a.codigo}</strong></td>
                     <td>${a.nombre}</td>
                     <td>${a.ciudad || '-'}</td>
                     <td>${a.tipo || '-'}</td>
                     <td>${a.capacidad_maxima || '-'}</td>
-                    <td>${a.activo ? '<span style="color:#2c6e49;">Activo</span>' : '<span style="color:#991b1b;">Inactivo</span>'}</td>
+                    <td>${estadoBadge}</td>
                     <td class="action-buttons">
+                        <button class="btn-sm btn-inventory" onclick="abrirModalInventario('${a.id}')"><i class="fas fa-boxes"></i> Inventario</button>
                         <button class="btn-sm btn-edit" onclick="abrirModalAlmacen('${a.id}')"><i class="fas fa-edit"></i></button>
                         <button class="btn-sm btn-delete" onclick="desactivarAlmacen('${a.id}')"><i class="fas fa-ban"></i></button>
                         <button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteAlmacen('${a.id}')"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 </tr>`;
             });
-            if (!filas) filas = '<tr><td colspan="7" style="text-align:center;">No hay almacenes.</td></tr>';
+            if (!filas) filas = '<tr><td colspan="7" style="text-align:center;">No hay almacenes registrados.</td></tr>';
 
             document.getElementById('almacen-container').innerHTML = `
             <div class="card">
                 <div class="card-header">
-                    <h2>Gestión de Almacenes</h2>
-                    <button class="btn-solid" onclick="abrirModalAlmacen()"><i class="fas fa-plus"></i> Nuevo Almacén</button>
+                    <h2><i class="fas fa-warehouse"></i> Gesti&oacute;n de Almacenes</h2>
+                    <button class="btn-solid" onclick="abrirModalAlmacen()"><i class="fas fa-plus"></i> Nuevo Almac&eacute;n</button>
                 </div>
                 <div class="filtros">
                     <div class="filtro-group">
@@ -239,14 +740,14 @@
                     </div>
                     <div class="filtro-group">
                         <label>Buscar:</label>
-                        <input type="text" id="filtro-buscar" placeholder="Nombre, código, ciudad..." oninput="aplicarFiltros()">
+                        <input type="text" id="filtro-buscar" placeholder="Nombre, c&oacute;digo, ciudad..." oninput="aplicarFiltros()">
                     </div>
                 </div>
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
-                                <th>Código</th><th>Nombre</th><th>Ciudad</th><th>Tipo</th><th>Capacidad Máx</th><th>Estado</th><th>Acciones</th>
+                                <th>C&oacute;digo</th><th>Nombre</th><th>Ciudad</th><th>Tipo</th><th>Capacidad M&aacute;x</th><th>Estado</th><th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>${filas}</tbody>
@@ -254,7 +755,7 @@
                 </div>
             </div>`;
 
-            // Cargar datalists de ciudad, estado, país, tipo en el modal (para reutilizar)
+            // Cargar datalists para el modal de almacén
             cargarDatalistsAlmacenes(ciudades, estados, paises, tipos);
         }
 
@@ -288,12 +789,12 @@
             });
         }
 
+        // ==================== MODAL ALMACÉN (CREAR/EDITAR) ====================
         function abrirModalAlmacen(id = null) {
             document.getElementById('modal-almacen').classList.add('active');
             document.getElementById('form-almacen').reset();
             document.getElementById('almacen-id').value = '';
             document.getElementById('titulo-modal-almacen').textContent = 'Nuevo Almacén';
-            // Cargar datalists con datos existentes (se llamará desde cargarAlmacenes, pero por si acaso)
             if (id) {
                 editarAlmacen(id);
             }
@@ -321,26 +822,36 @@
         }
 
         function desactivarAlmacen(id) {
-            mostrarConfirmacion('¿Desactivar este almacén? Los productos asociados no se verán afectados.', 'Desactivar Almacén', async () => {
-                await apiFetch(`almacenes?id=eq.${id}`, 'PATCH', { activo: false });
-                cargarAlmacenes({});
-                showNotification('Almacén desactivado');
-            });
+            mostrarConfirmacion(
+                '¿Desactivar este almacén? Los productos en inventario no se perderán, pero el almacén no aparecerá en nuevas operaciones.',
+                'Desactivar Almacén',
+                async () => {
+                    await apiFetch(`almacenes?id=eq.${id}`, 'PATCH', { activo: false });
+                    cargarAlmacenes({});
+                    showNotification('Almacén desactivado');
+                }
+            );
         }
 
         function eliminarDefinitivamenteAlmacen(id) {
-            mostrarConfirmacion('¿Eliminar permanentemente este almacén? Se perderán todos los registros de inventario asociados.', 'Eliminar Almacén', async () => {
-                try {
-                    await apiFetch(`almacenes?id=eq.${id}`, 'DELETE');
-                    cargarAlmacenes({});
-                    showNotification('Almacén eliminado definitivamente');
-                } catch (e) {
-                    showNotification('Error al eliminar: ' + e.message, 'error');
+            mostrarConfirmacion(
+                '¿Eliminar permanentemente este almacén? Se perderán todos los registros de inventario asociados y no se podrá recuperar.',
+                'Eliminar Almacén',
+                async () => {
+                    try {
+                        // Eliminar inventario asociado primero para evitar problemas de FK
+                        await apiFetch(`inventario?almacen_id=eq.${id}`, 'DELETE');
+                        await apiFetch(`almacenes?id=eq.${id}`, 'DELETE');
+                        cargarAlmacenes({});
+                        showNotification('Almacén eliminado definitivamente');
+                    } catch (e) {
+                        showNotification('Error al eliminar: ' + e.message, 'error');
+                    }
                 }
-            });
+            );
         }
 
-        document.getElementById('form-almacen').addEventListener('submit', async function (e) {
+        document.getElementById('form-almacen').addEventListener('submit', async function(e) {
             e.preventDefault();
             const id = document.getElementById('almacen-id').value;
             const payload = {
@@ -366,25 +877,221 @@
             }
 
             try {
+                let nuevoId = id;
                 if (id) {
                     delete payload.empresa_id;
                     await apiFetch(`almacenes?id=eq.${id}`, 'PATCH', payload);
-                    showNotification('Almacén actualizado');
+                    showNotification('Almacén actualizado correctamente');
                 } else {
-                    await apiFetch('almacenes', 'POST', payload);
-                    showNotification('Almacén creado');
+                    const result = await apiFetch('almacenes', 'POST', payload);
+                    if (Array.isArray(result) && result.length > 0) {
+                        nuevoId = result[0].id;
+                    } else if (result.id) {
+                        nuevoId = result.id;
+                    }
+                    showNotification('Almacén creado correctamente');
                 }
                 cerrarModalAlmacen();
                 cargarAlmacenes({});
+                // Si es nuevo, abrir automáticamente el inventario para agregar productos
+                if (!id && nuevoId) {
+                    setTimeout(() => abrirModalInventario(nuevoId), 500);
+                }
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
             }
         });
 
-        window.onload = async function () {
+        // ==================== MODAL INVENTARIO ====================
+        async function abrirModalInventario(almacenId) {
+            almacenSeleccionadoId = almacenId;
+            document.getElementById('inv-almacen-id').value = almacenId;
+            document.getElementById('modal-inventario').classList.add('active');
+            document.getElementById('form-inventario').reset();
+            document.getElementById('inv-id').value = '';
+            document.getElementById('btn-inv-guardar').innerHTML = '<i class="fas fa-plus-circle"></i> Agregar Producto';
+            document.getElementById('btn-inv-cancelar').style.display = 'none';
+
+            // Obtener nombre del almacén para el título
+            const almacen = await apiFetch(`almacenes?id=eq.${almacenId}&select=nombre`);
+            const nombreAlmacen = almacen.length > 0 ? almacen[0].nombre : 'Almacén';
+            document.getElementById('titulo-modal-inventario').textContent = `Inventario: ${nombreAlmacen}`;
+
+            // Cargar lista de productos de la empresa
+            await cargarProductosEnSelect();
+            // Cargar inventario actual
+            await cargarInventarioActual();
+        }
+
+        function cerrarModalInventario() {
+            document.getElementById('modal-inventario').classList.remove('active');
+            almacenSeleccionadoId = null;
+            cargarAlmacenes({}); // Refrescar lista por si hubo cambios
+        }
+
+        async function cargarProductosEnSelect() {
+            const select = document.getElementById('inv-producto-id');
+            select.innerHTML = '<option value="">-- Seleccione un producto --</option>';
+            if (!currentUser || !currentUser.empresa_id) return;
+            const productos = await apiFetch(
+                `productos?empresa_id=eq.${currentUser.empresa_id}&activo=eq.true&select=id,nombre,sku&limit=1000`);
+            productos.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = `${p.nombre} (${p.sku})`;
+                select.appendChild(opt);
+            });
+        }
+
+        async function cargarInventarioActual() {
+            const tbody = document.getElementById('tbody-inventario');
+            const almacenId = document.getElementById('inv-almacen-id').value;
+            if (!almacenId) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No se ha seleccionado almacén.</td></tr>';
+                return;
+            }
+            try {
+                const inventario = await apiFetch(
+                    `inventario?almacen_id=eq.${almacenId}&select=*,productos(nombre,sku)&limit=1000`);
+                if (!inventario.length) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="7" style="text-align:center;">No hay productos en este almacén. Agregue productos usando el formulario superior.</td></tr>';
+                    return;
+                }
+                let filas = '';
+                inventario.forEach(inv => {
+                    const producto = inv.productos || {};
+                    filas += `<tr>
+                        <td>${producto.nombre || 'Sin nombre'}</td>
+                        <td>${producto.sku || '-'}</td>
+                        <td>${inv.lote || '-'}</td>
+                        <td>${inv.fecha_vencimiento || '-'}</td>
+                        <td>${inv.cantidad}</td>
+                        <td>${inv.cantidad_reservada || 0}</td>
+                        <td class="action-buttons">
+                            <button class="btn-sm btn-edit" onclick="editarInventario('${inv.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-sm btn-delete" onclick="eliminarInventario('${inv.id}')"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>`;
+                });
+                tbody.innerHTML = filas;
+            } catch (e) {
+                tbody.innerHTML =
+                    `<tr><td colspan="7" style="text-align:center;">Error al cargar inventario: ${e.message}</td></tr>`;
+            }
+        }
+
+        async function editarInventario(invId) {
+            const res = await apiFetch(`inventario?id=eq.${invId}&select=*`);
+            if (!res.length) return;
+            const inv = res[0];
+            document.getElementById('inv-id').value = inv.id;
+            document.getElementById('inv-producto-id').value = inv.producto_id;
+            document.getElementById('inv-cantidad').value = inv.cantidad;
+            document.getElementById('inv-cantidad-reservada').value = inv.cantidad_reservada || 0;
+            document.getElementById('inv-lote').value = inv.lote || '';
+            document.getElementById('inv-fecha-vencimiento').value = inv.fecha_vencimiento || '';
+            document.getElementById('btn-inv-guardar').innerHTML =
+            '<i class="fas fa-save"></i> Actualizar Producto';
+            document.getElementById('btn-inv-cancelar').style.display = 'inline-flex';
+        }
+
+        function cancelarEdicionInventario() {
+            document.getElementById('form-inventario').reset();
+            document.getElementById('inv-id').value = '';
+            document.getElementById('btn-inv-guardar').innerHTML =
+                '<i class="fas fa-plus-circle"></i> Agregar Producto';
+            document.getElementById('btn-inv-cancelar').style.display = 'none';
+        }
+
+        async function eliminarInventario(invId) {
+            mostrarConfirmacion('¿Eliminar este registro de inventario? Se perderá la cantidad registrada de este producto en el almacén.',
+                'Eliminar Producto del Inventario',
+                async () => {
+                    await apiFetch(`inventario?id=eq.${invId}`, 'DELETE');
+                    await cargarInventarioActual();
+                    showNotification('Producto eliminado del inventario');
+                }
+            );
+        }
+
+        document.getElementById('form-inventario').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const invId = document.getElementById('inv-id').value;
+            const almacenId = document.getElementById('inv-almacen-id').value;
+            const productoId = document.getElementById('inv-producto-id').value;
+            const cantidad = parseInt(document.getElementById('inv-cantidad').value);
+            const cantidadReservada = parseInt(document.getElementById('inv-cantidad-reservada').value) || 0;
+            const lote = document.getElementById('inv-lote').value.trim() || null;
+            const fechaVencimiento = document.getElementById('inv-fecha-vencimiento').value || null;
+
+            if (!productoId) {
+                showNotification('Debe seleccionar un producto', 'error');
+                return;
+            }
+            if (isNaN(cantidad) || cantidad < 0) {
+                showNotification('La cantidad debe ser un número válido mayor o igual a 0', 'error');
+                return;
+            }
+
+            const payload = {
+                empresa_id: currentUser.empresa_id,
+                producto_id: productoId,
+                almacen_id: almacenId,
+                cantidad: cantidad,
+                cantidad_reservada: cantidadReservada,
+                lote: lote,
+                fecha_vencimiento: fechaVencimiento
+            };
+
+            try {
+                if (invId) {
+                    // Actualizar registro existente
+                    delete payload.empresa_id;
+                    await apiFetch(`inventario?id=eq.${invId}`, 'PATCH', payload);
+                    showNotification('Inventario actualizado correctamente');
+                    cancelarEdicionInventario();
+                } else {
+                    // Verificar si ya existe un registro con la misma combinación única
+                    let checkQuery =
+                        `inventario?almacen_id=eq.${almacenId}&producto_id=eq.${productoId}&select=id,cantidad`;
+                    if (lote) checkQuery += `&lote=eq.${encodeURIComponent(lote)}`;
+                    else checkQuery += `&lote=is.null`;
+                    if (fechaVencimiento) checkQuery +=
+                        `&fecha_vencimiento=eq.${encodeURIComponent(fechaVencimiento)}`;
+                    else checkQuery += `&fecha_vencimiento=is.null`;
+
+                    const existente = await apiFetch(checkQuery);
+                    if (existente.length > 0) {
+                        // Actualizar sumando la cantidad
+                        const nuevaCantidad = existente[0].cantidad + cantidad;
+                        await apiFetch(`inventario?id=eq.${existente[0].id}`, 'PATCH', {
+                            cantidad: nuevaCantidad,
+                            cantidad_reservada: cantidadReservada
+                        });
+                        showNotification(
+                            'El producto ya existía en este almacén con ese lote/vencimiento. Se ha sumado la cantidad.'
+                        );
+                    } else {
+                        await apiFetch('inventario', 'POST', payload);
+                        showNotification('Producto agregado al inventario correctamente');
+                    }
+                }
+                document.getElementById('form-inventario').reset();
+                document.getElementById('inv-id').value = '';
+                document.getElementById('btn-inv-guardar').innerHTML =
+                    '<i class="fas fa-plus-circle"></i> Agregar Producto';
+                document.getElementById('btn-inv-cancelar').style.display = 'none';
+                await cargarInventarioActual();
+            } catch (err) {
+                showNotification('Error al guardar inventario: ' + err.message, 'error');
+            }
+        });
+
+        window.onload = async function() {
             verificarSesion();
             if (currentUser) {
-                cargarAlmacenes({});
+                await cargarAlmacenes({});
             }
         };
     </script>
