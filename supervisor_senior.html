@@ -5,842 +5,283 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <title>Nexial Suite · Supervisor Senior</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+    
+    <!-- Fuente y Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
     <style>
-        /* Estilos exactamente iguales a los de tu archivo original (se omiten por brevedad) */
+        /* ===== TEMA BASE (idéntico al anterior) ===== */
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Inter','Segoe UI',system-ui,sans-serif; background:#f4f6fb; color:#1a1f36; line-height:1.6; touch-action:manipulation; }
-        .navbar { position:fixed; top:0; width:100%; background:rgba(10,15,30,0.94); backdrop-filter:blur(14px); z-index:1000; border-bottom:1px solid rgba(255,255,255,0.05); padding:0 32px; height:72px; display:flex; align-items:center; justify-content:space-between; }
-        .logo-area { display:flex; align-items:center; gap:12px; text-decoration:none; }
-        .logo-icon { font-size:2.2rem; background:linear-gradient(135deg,#1a56db,#00a3ff); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 0 12px rgba(26,86,219,0.6)); animation:subtleGlow 3s ease-in-out infinite alternate; }
-        @keyframes subtleGlow { 0%{filter:drop-shadow(0 0 8px rgba(26,86,219,0.4));} 100%{filter:drop-shadow(0 0 18px rgba(0,163,255,0.8));} }
-        .logo-text { font-size:1.5rem; font-weight:700; background:linear-gradient(to right,#ffffff,#c0d0f0); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
-        .nav-actions { display:flex; align-items:center; gap:20px; }
-        .user-info { display:flex; align-items:center; gap:14px; color:white; padding:8px 20px; border-radius:14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); backdrop-filter:blur(8px); transition:0.25s; }
-        .user-info:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.18); }
-        .user-icon { font-size:1.6rem; color:#1a56db; filter:drop-shadow(0 0 6px rgba(26,86,219,0.5)); }
-        .user-details { display:flex; flex-direction:column; line-height:1.3; }
-        .user-name { font-weight:700; font-size:1.15rem; letter-spacing:0.2px; color:#fff; }
-        .user-role-badge { font-size:0.7rem; font-weight:600; background:linear-gradient(135deg,#1a56db,#4a8eff); padding:3px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:0.8px; width:fit-content; margin-top:4px; color:#fff; box-shadow:0 2px 8px rgba(26,86,219,0.3); }
-        .btn-outline { background:transparent; border:1.5px solid rgba(255,255,255,0.35); color:white; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.25s; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
-        .btn-outline:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.7); box-shadow:0 0 18px rgba(0,150,255,0.3); }
-        .btn-solid { background:#1a56db; border:none; color:white; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; transition:0.25s; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
-        .btn-solid:hover { background:#1340a0; box-shadow:0 0 18px rgba(26,86,219,0.5); }
-        .btn-icon { background:rgba(255,255,255,0.1); border:none; color:white; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; transition:0.2s; }
-        .btn-icon:hover { background:rgba(255,255,255,0.2); }
-        .dashboard-container { margin-top:72px; display:flex; min-height:calc(100vh - 72px); }
-        .sidebar { width:260px; background:white; border-right:1px solid #e5e7eb; padding:20px 0; display:flex; flex-direction:column; position:fixed; top:72px; bottom:0; overflow-y:auto; z-index:900; }
-        .sidebar-menu { list-style:none; flex:1; }
+        html { overscroll-behavior: none; }
+        body {
+            font-family:'Inter', -apple-system, sans-serif;
+            background:#f4f6fb;
+            color:#1a1f36;
+            touch-action:manipulation;
+            -webkit-tap-highlight-color:transparent;
+        }
+
+        .app-header {
+            position:fixed; top:0; left:0; width:100%; height:80px;
+            background:rgba(10,15,30,0.96); backdrop-filter:blur(14px);
+            z-index:1000; display:flex; align-items:center; justify-content:space-between;
+            padding:0 24px; border-bottom:1px solid rgba(255,255,255,0.08);
+        }
+        .header-brand { display:flex; align-items:center; gap:12px; text-decoration:none; }
+        .app-logo {
+            font-size:2.8rem;
+            background:linear-gradient(135deg,#1a56db,#00a3ff);
+            -webkit-background-clip:text; background-clip:text;
+            -webkit-text-fill-color:transparent;
+            filter:drop-shadow(0 0 14px rgba(26,86,219,0.7));
+        }
+        .brand-name {
+            color:white; font-weight:900; font-size:1.8rem; letter-spacing:-0.5px;
+            text-shadow: 0 0 20px rgba(0,163,255,0.5);
+        }
+        .header-actions {
+            display:flex; align-items:center; gap:16px;
+        }
+        .user-info {
+            display:flex; align-items:center; gap:12px;
+            background:rgba(255,255,255,0.06); padding:6px 18px 6px 12px;
+            border-radius:40px; border:1px solid rgba(255,255,255,0.08);
+        }
+        .user-icon { font-size:1.8rem; color:#1a56db; }
+        .user-details { display:flex; flex-direction:column; }
+        .user-name { font-weight:700; font-size:1rem; color:#fff; }
+        .user-role-badge {
+            font-size:0.6rem; font-weight:600;
+            background:linear-gradient(135deg,#1a56db,#4a8eff);
+            padding:2px 12px; border-radius:20px; color:#fff;
+            width:fit-content; margin-top:2px;
+        }
+
+        .btn-outline {
+            background:transparent; border:1.5px solid rgba(255,255,255,0.35);
+            color:white; padding:8px 20px; border-radius:40px;
+            font-weight:600; font-size:0.85rem; cursor:pointer;
+            display:inline-flex; align-items:center; gap:8px;
+            font-family:'Inter',sans-serif; transition:0.2s;
+        }
+        .btn-outline:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.7); }
+        .btn-outline.icon-only { padding:8px 12px; }
+        .btn-outline.danger:hover { background:rgba(194,65,44,0.3); border-color:#c2412c; }
+
+        .dashboard-container {
+            margin-top:80px; display:flex; min-height:calc(100vh - 80px);
+        }
+        .sidebar {
+            width:260px; background:white; border-right:1px solid #e5e7eb;
+            padding:20px 0; position:fixed; top:80px; bottom:0; overflow-y:auto;
+            z-index:900;
+        }
+        .sidebar-menu { list-style:none; }
         .sidebar-menu li { padding:0 16px; margin-bottom:2px; }
-        .sidebar-menu a { display:flex; align-items:center; gap:12px; padding:12px 18px; border-radius:12px; color:#475569; font-weight:500; font-size:0.9rem; text-decoration:none; transition:0.2s; }
-        .sidebar-menu a:hover, .sidebar-menu a.active { background:#f1f5f9; color:#1a56db; font-weight:600; }
-        .sidebar-menu a i { font-size:1.1rem; width:22px; text-align:center; }
-        .sidebar-menu a.external-link i.fa-external-link-alt { font-size:0.7rem; margin-left:auto; opacity:0.5; }
-        .main-content { margin-left:260px; flex:1; padding:32px; background:#f4f6fb; }
-        .section-panel { display:none; }
-        .section-panel.active { display:block; }
-        .card { background:white; border-radius:24px; padding:28px; box-shadow:0 4px 20px rgba(0,0,0,0.03); margin-bottom:24px; border:1px solid #f0f2f5; }
-        .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:14px; }
-        .card-header h2 { font-size:1.4rem; font-weight:700; color:#0f172a; }
-        .filtros { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
-        .filtros select, .filtros input, .filtros button { padding:8px 14px; border-radius:30px; border:1.5px solid #e2e8f0; font-family:'Inter',sans-serif; background:white; font-size:0.84rem; }
-        .filtros button { background:#1a56db; color:white; border:none; cursor:pointer; font-weight:600; }
-        .filtros button:hover { background:#1340a0; }
-        .filtro-group { display:flex; align-items:center; gap:6px; background:#f8fafc; padding:4px 14px; border-radius:30px; border:1px solid #e2e8f0; }
-        .filtro-group label { font-size:0.8rem; font-weight:600; color:#475569; white-space:nowrap; }
-        .table-wrapper { overflow-x:auto; }
-        table { width:100%; border-collapse:collapse; }
-        th, td { padding:12px 14px; text-align:left; border-bottom:1px solid #e2e8f0; font-size:0.88rem; }
-        th { background:#f8fafc; color:#475569; font-weight:600; text-transform:uppercase; font-size:0.73rem; letter-spacing:0.5px; }
-        tr:hover td { background:#f1f5f9; }
-        .action-buttons { display:flex; gap:6px; flex-wrap:wrap; align-items:center; position:relative; overflow:visible; }
-        .btn-sm { padding:6px 12px; border-radius:18px; font-size:0.78rem; font-weight:600; border:none; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
-        .btn-edit { background:#e0f2fe; color:#0369a1; }
-        .btn-delete { background:#fee2e2; color:#991b1b; }
-        .btn-activate { background:#dcfce7; color:#166534; }
-        .btn-remove-permanent { background:#ffedd5; color:#9a3412; }
-        .btn-edit:hover { background:#bae6fd; }
-        .btn-delete:hover { background:#fecaca; }
-        .btn-activate:hover { background:#bbf7d0; }
-        .btn-remove-permanent:hover { background:#fed7aa; }
-        .btn-add-phone { background:#e0f2fe; color:#0369a1; border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:0.8rem; font-weight:600; display:inline-flex; align-items:center; gap:6px; transition:0.2s; font-family:'Inter',sans-serif; }
-        .btn-add-phone:hover { background:#bae6fd; }
-        .btn-remove-phone { background:#fee2e2; color:#991b1b; border:none; width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:0.8rem; display:inline-flex; align-items:center; justify-content:center; transition:0.2s; flex-shrink:0; }
-        .btn-remove-phone:hover { background:#fecaca; }
-        .phone-input-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
-        .phone-input-row input { flex:1; }
-        .phone-input-row input.tag-input { flex:0 0 100px; }
-        .gps-input-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
-        .gps-input-row input { flex:1; }
-        .gps-input-row input.tag-input { flex:0 0 110px; }
-        .btn-gps-location { background:none; border:none; color:#1a56db; cursor:pointer; font-size:1rem; transition:0.2s; padding:4px; }
-        .btn-gps-location:hover { color:#1340a0; transform:scale(1.2); }
-        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,18,0.8); backdrop-filter:blur(8px); z-index:2000; display:none; align-items:flex-start; justify-content:center; padding:24px; overflow-y:auto; }
-        .modal-overlay.active { display:flex; }
-        .modal { background:white; border-radius:28px; padding:36px 32px; max-width:1050px; width:100%; box-shadow:0 30px 60px rgba(0,0,0,0.4); animation:modalIn 0.3s ease; position:relative; margin:auto 0; }
-        .modal-sm { max-width:440px; padding:32px; text-align:center; }
-        @keyframes modalIn { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
-        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
-        .modal-header h2 { font-size:1.7rem; font-weight:700; color:#0f172a; }
-        .close-modal { background:none; border:none; font-size:1.8rem; cursor:pointer; color:#64748b; }
-        .form-row { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:12px; }
-        .form-col { flex:1; min-width:160px; }
-        .form-group { margin-bottom:2px; position:relative; }
-        .form-group label { font-size:0.73rem; font-weight:700; text-transform:uppercase; color:#334155; display:flex; align-items:center; gap:5px; margin-bottom:5px; }
-        .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:12px; font-size:0.88rem; font-family:'Inter',sans-serif; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#1a56db; outline:none; box-shadow:0 0 0 3px rgba(26,86,219,0.08); }
-        .form-group textarea { resize:vertical; min-height:60px; }
-        .notification { position:fixed; top:24px; right:32px; background:#1a1f36; color:white; padding:14px 28px; border-radius:60px; font-weight:500; z-index:3000; box-shadow:0 12px 28px rgba(0,0,0,0.3); display:none; align-items:center; gap:10px; font-size:0.9rem; }
-        .notification.error { background:#c2412c; }
-        .notification.success { background:#2c6e49; }
-        .badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:0.7rem; font-weight:600; }
-        .badge-success { background:#dcfce7; color:#166534; }
-        .badge-danger { background:#fee2e2; color:#991b1b; }
-        .tabs-compact { display:flex; gap:4px; margin-bottom:20px; background:#f1f5f9; padding:4px; border-radius:30px; width:fit-content; }
-        .tab-btn-compact { padding:8px 20px; border-radius:26px; border:none; background:transparent; font-weight:600; font-size:0.82rem; cursor:pointer; color:#64748b; transition:0.2s; font-family:'Inter',sans-serif; }
-        .tab-btn-compact.active { background:white; color:#1a56db; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
-        .tooltip-trigger { position:relative; display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px; border-radius:50%; background:#cbd5e1; color:white; font-size:0.65rem; font-weight:700; cursor:help; transition:0.2s; flex-shrink:0; }
-        .tooltip-trigger:hover { background:#1a56db; transform:scale(1.1); }
-        #tooltip-global { position:fixed; background:#0f172a; color:#f1f5f9; padding:10px 16px; border-radius:12px; font-size:0.76rem; font-weight:400; white-space:normal; width:320px; max-width:90vw; text-align:left; line-height:1.5; box-shadow:0 12px 28px rgba(0,0,0,0.25); z-index:5000; pointer-events:none; opacity:0; visibility:hidden; transition:opacity 0.2s ease, visibility 0.2s ease; }
-        #tooltip-global.visible { opacity:1; visibility:visible; }
-        .chart-container { position:relative; height:400px; width:100%; margin-top:20px; }
-        .orden-select { padding:8px 16px; border-radius:30px; border:1.5px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:500; background:white; color:#1e293b; cursor:pointer; min-width:200px; }
-        .confirm-buttons { display:flex; gap:12px; justify-content:center; margin-top:24px; }
-        .info-banner { background:#f0f9ff; border:1px solid #bae6fd; border-radius:16px; padding:14px 20px; margin-bottom:20px; font-size:0.85rem; color:#0369a1; display:flex; align-items:flex-start; gap:10px; }
-        .info-banner i { font-size:1.2rem; margin-top:2px; flex-shrink:0; }
-        .meta-editable-table input { width:80px; padding:6px 8px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.82rem; }
-        .meta-editable-table select { padding:6px 8px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; font-size:0.82rem; width:100px; }
-        .meta-editable-table td { vertical-align:middle; }
-        .distribucion-stock-info { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:12px 16px; margin-bottom:16px; font-size:0.85rem; }
+        .sidebar-menu a {
+            display:flex; align-items:center; gap:12px;
+            padding:12px 18px; border-radius:12px;
+            color:#475569; font-weight:500; font-size:0.9rem;
+            text-decoration:none; transition:0.2s;
+        }
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background:#f1f5f9; color:#1a56db; font-weight:600;
+        }
+        .sidebar-menu a i { width:22px; text-align:center; }
+
+        .main-content {
+            margin-left:260px; flex:1;
+            height:calc(100vh - 80px);
+        }
+        iframe {
+            width:100%; height:100%; border:none;
+        }
+
         @media (max-width:900px) {
-            .sidebar { width:100%; height:auto; position:relative; top:auto; bottom:auto; flex-direction:row; overflow-x:auto; padding:8px; border-right:none; border-bottom:1px solid #e2e8f0; }
-            .sidebar-menu { display:flex; gap:4px; }
+            .app-header { padding:0 12px; height:70px; }
+            .brand-name { font-size:1.4rem; }
+            .user-info { padding:4px 12px; }
+            .user-name { font-size:0.85rem; }
+            .btn-outline { padding:6px 14px; font-size:0.75rem; }
+            .sidebar {
+                width:100%; height:auto; position:relative; top:auto;
+                bottom:auto; border-right:none; border-bottom:1px solid #e2e8f0;
+                padding:8px; overflow-x:auto; display:flex;
+            }
+            .sidebar-menu { display:flex; gap:4px; flex-wrap:nowrap; }
             .sidebar-menu li { padding:0; }
-            .sidebar-menu a { padding:8px 14px; font-size:0.78rem; white-space:nowrap; }
-            .main-content { margin-left:0; padding:16px; }
+            .sidebar-menu a { padding:8px 14px; font-size:0.75rem; white-space:nowrap; }
+            .main-content { margin-left:0; height:calc(100vh - 70px); }
             .dashboard-container { flex-direction:column; }
-            .navbar { padding:0 12px; }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <a href="index.html" class="logo-area">
-            <i class="fas fa-brain logo-icon"></i>
-            <span class="logo-text">Nexial Suite</span>
-        </a>
-        <div class="nav-actions">
-            <div class="user-info" id="user-display"></div>
-            <button class="btn-icon" onclick="recargarTodo()" title="Actualizar datos"><i class="fas fa-sync-alt"></i></button>
-            <button class="btn-outline" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+
+    <!-- ===== HEADER ===== -->
+    <header class="app-header">
+        <div class="header-brand">
+            <i class="fas fa-brain app-logo"></i>
+            <span class="brand-name">Nexial Suite</span>
         </div>
-    </nav>
+        <div class="header-actions">
+            <div class="user-info" id="user-display"></div>
+            <button class="btn-outline icon-only" onclick="recargarDatos()" title="Recargar datos">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <button class="btn-outline" onclick="cerrarSesion()">
+                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== DASHBOARD ===== -->
     <div class="dashboard-container">
-        <aside class="sidebar">
-            <ul class="sidebar-menu">
-                <li><a href="#" data-panel="inicio" class="active"><i class="fas fa-home"></i> Inicio</a></li>
-                <li><a href="#" data-panel="metas"><i class="fas fa-bullseye"></i> Metas</a></li>
-                <li><a href="#" data-panel="stock"><i class="fas fa-boxes"></i> Stock</a></li>
-                <li><a href="#" data-panel="clientes"><i class="fas fa-building"></i> Clientes</a></li>
-                <li><a href="catalogo.html" class="external-link"><i class="fas fa-box"></i> Catálogo <i class="fas fa-external-link-alt"></i></a></li>
-                <li><a href="equipo.html" class="external-link"><i class="fas fa-users"></i> Equipo <i class="fas fa-external-link-alt"></i></a></li>
-                <li><a href="asignacion_rutas.html" class="external-link"><i class="fas fa-route"></i> Asignación de rutas <i class="fas fa-external-link-alt"></i></a></li>
-                <li><a href="asignacion_carga.html" class="external-link"><i class="fas fa-truck-loading"></i> Asignación de carga <i class="fas fa-external-link-alt"></i></a></li>
-            </ul>
-        </aside>
+        <aside class="sidebar" id="sidebar-menu"></aside>
         <main class="main-content">
-            <section id="panel-inicio" class="section-panel active"></section>
-            <section id="panel-metas" class="section-panel"></section>
-            <section id="panel-stock" class="section-panel"></section>
-            <section id="panel-clientes" class="section-panel"></section>
+            <iframe id="content-frame" src=""></iframe>
         </main>
     </div>
 
-    <!-- Confirmación modal (genérico) -->
-    <div class="modal-overlay" id="modal-confirm">
-        <div class="modal modal-sm">
-            <div class="modal-header" style="justify-content:center;"><h2 id="confirm-titulo">Confirmar acción</h2></div>
-            <p id="confirm-mensaje" style="color:#475569; font-size:0.95rem; margin-bottom:8px;"></p>
-            <div class="confirm-buttons">
-                <button class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalConfirm(false)">Cancelar</button>
-                <button class="btn-solid" style="background:#c2412c;" id="confirm-btn-ok" onclick="cerrarModalConfirm(true)">Confirmar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="notification" class="notification"><i class="fas fa-circle-info"></i><span></span></div>
-    <div id="tooltip-global"></div>
-
     <script>
-        /* ==============================================
-           VARIABLES Y FUNCIONES GLOBALES (COMPARTIDAS)
-           ============================================== */
-        const SUPABASE_URL = 'https://zgzwhyywkervutpvazqp.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
-        const STORAGE_BUCKET = 'empresas';
-        const GEO_API_BASE = 'https://city-state-country.vercel.app';
+        // ═══════════════════════════════════════════
+        // CONFIGURACIÓN ESPECÍFICA PARA SUPERVISOR SENIOR
+        // ═══════════════════════════════════════════
 
-        let currentUser = null, empresaMonedaCodigo = 'USD', empresaPais = '';
-        let paisesData = [], todasLasMonedas = [];
-        let chartVentas = null;
-        let ventasDataCache = [], productosMapCache = {};
-        let currentDesde = null, currentHasta = null;
-        let confirmCallback = null;
-        let soloUnDiaActivo = true;
+        // Módulos permitidos para este rol (en el orden deseado)
+        const MODULE_ORDER = ['inicio', 'metas', 'stock', 'clientes', 'catalogo', 'equipo', 'rutas', 'carga'];
 
-        // Constantes comunes
-        const rolesDisponibles = ['Ejecutivo Comercial', 'Especialista Logístico', 'Gestor de Almacén'];
-        const METRICAS_META = [
-            { key: 'monto_objetivo', label: 'Volumen de venta (Monto)', tipo: 'dinero', moneda: 'moneda_objetivo_id', ayuda: 'Monto total de ventas esperado.' },
-            { key: 'cantidad_objetivo', label: 'Unidades vendidas (Cantidad)', tipo: 'cantidad', unidad: 'unidad_objetivo_id', ayuda: 'Cantidad total de unidades.' },
-            { key: 'variedad_objetivo', label: 'Diversidad de portafolio (Variedad)', tipo: 'entero', ayuda: 'Número de productos distintos.' },
-            { key: 'peso_objetivo', label: 'Peso total distribuido', tipo: 'decimal', ayuda: 'Peso total en kg a distribuir.' },
-            { key: 'volumen_objetivo', label: 'Volumen total distribuido', tipo: 'decimal', ayuda: 'Volumen total en m³ a distribuir.' },
-            { key: 'clientes_nuevos_objetivo', label: 'Captación de clientes (Cobertura)', tipo: 'entero', ayuda: 'Número de clientes nuevos.' },
-            { key: 'visitas_objetivo', label: 'Visitas programadas', tipo: 'entero', ayuda: 'Total de visitas a clientes.' }
-        ];
+        // Metadatos
+        const MENU_ITEMS = {
+            inicio:  { icon: 'fa-home',        label: 'Inicio' },
+            metas:   { icon: 'fa-bullseye',    label: 'Metas' },
+            stock:   { icon: 'fa-cubes',       label: 'Stock' },
+            clientes:{ icon: 'fa-building',    label: 'Clientes' },
+            catalogo:{ icon: 'fa-box',         label: 'Catálogo' },
+            equipo:  { icon: 'fa-users',       label: 'Equipo' },
+            rutas:   { icon: 'fa-route',       label: 'Asignación de Rutas' },
+            carga:   { icon: 'fa-truck-loading', label: 'Asignación de Carga' }
+        };
 
-        // Funciones utilitarias
-        function getSimboloMoneda(codigo) {
-            const moneda = todasLasMonedas.find(m => m.codigo === codigo);
-            return moneda ? (moneda.simbolo || moneda.codigo) : codigo;
-        }
+        // Archivos HTML
+        const PAGE_FILES = {
+            inicio:  'inicio.html',
+            metas:   'metas.html',
+            stock:   'stock.html',
+            clientes:'clientes.html',
+            catalogo:'catalogo.html',
+            equipo:  'equipo.html',
+            rutas:   'asignacion_rutas.html',
+            carga:   'asignacion_carga.html'
+        };
 
-        function capitalizarInput(el) {
-            let val = el.value;
-            let pos = el.selectionStart;
-            val = val.replace(/(?:^|\s)(\p{L})/gu, (match, p1) => match.toUpperCase());
-            el.value = val;
-            el.setSelectionRange(pos, pos);
-        }
+        // Este es el rol fijo para esta página
+        const ROL_ESPERADO = 'Supervisor Senior';
+
+        let currentUser = null;
+
+        // ═══════════════════════════════════════════
+        // SESIÓN
+        // ═══════════════════════════════════════════
 
         function verificarSesion() {
             const s = sessionStorage.getItem('currentUser');
-            if (!s) { window.location.href = 'login.html'; return; }
+            if (!s) { 
+                window.location.href = 'login.html'; 
+                return false; 
+            }
             currentUser = JSON.parse(s);
-            if (currentUser.rol !== 'Supervisor Senior' && currentUser.rol !== 'Director General' && currentUser.rol !== 'Director Financiero') {
-                sessionStorage.removeItem('currentUser');
-                window.location.href = 'login.html';
-                return;
+            // Verificar que el rol sea el esperado (opcional, puedes redirigir si no coincide)
+            if (currentUser.rol !== ROL_ESPERADO) {
+                // Si no es supervisor, redirigir al panel genérico o a login
+                window.location.href = 'index.html';
+                return false;
             }
             document.getElementById('user-display').innerHTML = `
-            <i class="fas fa-shield-haltered user-icon"></i>
-            <div class="user-details">
-                <span class="user-name">${currentUser.nombres} ${currentUser.apellido_paterno} ${currentUser.apellido_materno || ''}</span>
-                <span class="user-role-badge">${currentUser.rol}</span>
-            </div>`;
+                <i class="fas fa-shield-haltered user-icon"></i>
+                <div class="user-details">
+                    <span class="user-name">${currentUser.nombres} ${currentUser.apellido_paterno} ${currentUser.apellido_materno || ''}</span>
+                    <span class="user-role-badge">${currentUser.rol}</span>
+                </div>`;
+            return true;
         }
 
-        function cerrarSesion() { sessionStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
-
-        function showNotification(m, t = 'success') {
-            const n = document.getElementById('notification');
-            n.querySelector('span').innerText = m;
-            n.className = `notification ${t}`;
-            n.style.display = 'flex';
-            setTimeout(() => n.style.display = 'none', 4500);
+        function cerrarSesion() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
         }
 
-        function mostrarConfirmacion(mensaje, titulo, callback) {
-            document.getElementById('confirm-mensaje').innerText = mensaje;
-            document.getElementById('confirm-titulo').innerText = titulo || 'Confirmar acción';
-            document.getElementById('modal-confirm').classList.add('active');
-            confirmCallback = callback;
-        }
-        function cerrarModalConfirm(resultado) { document.getElementById('modal-confirm').classList.remove('active'); if (confirmCallback && resultado) confirmCallback(); confirmCallback = null; }
-
-        async function apiFetch(endpoint, method = 'GET', body = null) {
-            const headers = { 'Content-Type':'application/json', 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}` };
-            if (method === 'POST' || method === 'PATCH') headers['Prefer'] = 'return=representation';
-            const opts = { method, headers };
-            if (body) opts.body = JSON.stringify(body);
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, opts);
-            if (!res.ok) { const e = await res.text(); throw new Error(e); }
-            const txt = await res.text();
-            return txt ? JSON.parse(txt) : {};
-        }
-
-        async function uploadFile(file, folder) {
-            const name = `${folder}/${Date.now()}-${file.name}`;
-            const fd = new FormData(); fd.append('', file);
-            const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${name}`, { method:'POST', headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}, body:fd });
-            if (!res.ok) throw new Error('Error al subir');
-            return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${name}`;
-        }
-
-        function initTooltips() {
-            const tooltip = document.getElementById('tooltip-global');
-            document.querySelectorAll('.tooltip-trigger').forEach(trigger => {
-                trigger.addEventListener('mouseenter', function(e) {
-                    const text = this.getAttribute('data-tooltip'); if (!text) return;
-                    tooltip.textContent = text; tooltip.classList.add('visible');
-                });
-                trigger.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
-                trigger.addEventListener('mousemove', function(e) {
-                    tooltip.style.left = e.clientX - 160 + 'px';
-                    tooltip.style.top = e.clientY - 10 - tooltip.offsetHeight + 'px';
-                });
-            });
-        }
-
-        // Carga inicial de datos comunes (países, monedas)
-        async function cargarDatosIniciales() {
-            const PAISES_ESTATICOS = [
-                { name: { common: 'Bolivia' }, cca2: 'BO', idd: { root: '+591', suffixes: [''] }, currencies: { BOB: { name: 'Boliviano', symbol: 'Bs.' } } },
-                { name: { common: 'Argentina' }, cca2: 'AR', idd: { root: '+54', suffixes: [''] }, currencies: { ARS: { name: 'Peso argentino', symbol: '$' } } },
-                { name: { common: 'Perú' }, cca2: 'PE', idd: { root: '+51', suffixes: [''] }, currencies: { PEN: { name: 'Sol', symbol: 'S/.' } } },
-                { name: { common: 'Chile' }, cca2: 'CL', idd: { root: '+56', suffixes: [''] }, currencies: { CLP: { name: 'Peso chileno', symbol: '$' } } },
-                { name: { common: 'Colombia' }, cca2: 'CO', idd: { root: '+57', suffixes: [''] }, currencies: { COP: { name: 'Peso colombiano', symbol: '$' } } },
-                { name: { common: 'Ecuador' }, cca2: 'EC', idd: { root: '+593', suffixes: [''] }, currencies: { USD: { name: 'Dólar estadounidense', symbol: '$' } } },
-                { name: { common: 'Paraguay' }, cca2: 'PY', idd: { root: '+595', suffixes: [''] }, currencies: { PYG: { name: 'Guaraní', symbol: '₲' } } },
-                { name: { common: 'Uruguay' }, cca2: 'UY', idd: { root: '+598', suffixes: [''] }, currencies: { UYU: { name: 'Peso uruguayo', symbol: '$' } } },
-                { name: { common: 'México' }, cca2: 'MX', idd: { root: '+52', suffixes: [''] }, currencies: { MXN: { name: 'Peso mexicano', symbol: '$' } } },
-                { name: { common: 'España' }, cca2: 'ES', idd: { root: '+34', suffixes: [''] }, currencies: { EUR: { name: 'Euro', symbol: '€' } } },
-                { name: { common: 'Estados Unidos' }, cca2: 'US', idd: { root: '+1', suffixes: [''] }, currencies: { USD: { name: 'Dólar estadounidense', symbol: '$' } } }
-            ];
-            paisesData = PAISES_ESTATICOS;
-            const monSet = new Map();
-            paisesData.forEach(p => { if (p.currencies) Object.entries(p.currencies).forEach(([c,i]) => { if (!monSet.has(c)) monSet.set(c, { name:i.name, symbol:i.symbol||'' }); }); });
-            todasLasMonedas = Array.from(monSet, ([c,d]) => ({ codigo:c, nombre:d.name, simbolo:d.symbol }));
-            try {
-                const bdMonedas = await apiFetch('monedas?select=codigo,nombre,simbolo');
-                bdMonedas.forEach(m => { if (!todasLasMonedas.find(t => t.codigo === m.codigo)) todasLasMonedas.push({ codigo:m.codigo, nombre:m.nombre, simbolo:m.simbolo||'' }); });
-            } catch(e) {}
-            if (currentUser && currentUser.empresa_id) {
-                const emp = await apiFetch(`empresas?id=eq.${currentUser.empresa_id}&select=moneda_principal_id,pais`);
-                if (emp.length > 0) {
-                    if (emp[0].moneda_principal_id) { const mon = await apiFetch(`monedas?id=eq.${emp[0].moneda_principal_id}&select=codigo`); if (mon.length > 0) empresaMonedaCodigo = mon[0].codigo; }
-                    empresaPais = emp[0].pais || '';
-                }
-            }
-        }
-
-        function monedaPorDefecto() {
-            const mon = todasLasMonedas.find(m => m.codigo === empresaMonedaCodigo);
-            return mon ? `${mon.codigo} - ${mon.nombre}` : empresaMonedaCodigo;
-        }
-
-        async function ensureCurrency(input) {
-            const cod = (input.split(' - ')[0] || '').trim().toUpperCase();
-            if (!cod) throw new Error('Moneda inválida');
-            const exist = await apiFetch(`monedas?codigo=eq.${encodeURIComponent(cod)}&select=id`);
-            if (exist.length) return exist[0].id;
-            const data = todasLasMonedas.find(m => m.codigo === cod) || { nombre:cod, symbol:null };
-            const nueva = await apiFetch('monedas', 'POST', { codigo:cod, nombre:data.nombre, simbolo:data.symbol });
-            return Array.isArray(nueva) ? nueva[0].id : nueva.id;
-        }
-
-        async function ensureUnidadMedida(nombre) {
-            if (!nombre || !nombre.trim()) return null;
-            const nm = nombre.trim();
-            const exist = await apiFetch(`unidades_medida?nombre=eq.${encodeURIComponent(nm)}&select=id`);
-            if (exist.length) return exist[0].id;
-            const nueva = await apiFetch('unidades_medida', 'POST', { nombre:nm, codigo:nm.substring(0,20), abreviacion:nm.substring(0,10) });
-            return Array.isArray(nueva) ? nueva[0].id : nueva.id;
-        }
-
-        /* ==============================================
-           PANELES INTERNOS (Inicio, Metas, Stock)
-           ============================================== */
-        // --- Inicio (Gráfico de ventas) ---
-        async function cargarInicio(desde = null, hasta = null) {
-            if (!currentUser || !currentUser.empresa_id) return;
-            const empId = currentUser.empresa_id;
-            if (!desde || !hasta) {
-                const hoy = new Date(); const fechaHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-                desde = fechaHoy.toISOString(); hasta = new Date(fechaHoy.getTime() + 86399999).toISOString();
-            }
-            currentDesde = desde; currentHasta = hasta;
-            ventasDataCache = await apiFetch(`ventas?empresa_id=eq.${empId}&fecha=gte.${encodeURIComponent(desde)}&fecha=lte.${encodeURIComponent(hasta)}&select=vendedor_id,total_linea,cantidad,producto_id&limit=1000`);
-            const prodRes = await apiFetch(`productos?empresa_id=eq.${empId}&select=id,peso&activo=eq.true&limit=1000`);
-            productosMapCache = {}; prodRes.forEach(p => { productosMapCache[p.id] = p.peso ? parseFloat(p.peso) : 0; });
-            const fechaDesdeFormato = new Date(desde).toISOString().slice(0,10);
-            const fechaHastaFormato = new Date(hasta).toISOString().slice(0,10);
-            document.getElementById('panel-inicio').innerHTML = `
-            <div class="card">
-                <div class="card-header"><h2>Avance de Ventas por Vendedor</h2></div>
-                <div class="filtros">
-                    <div class="filtro-group"><label>Desde:</label><input type="date" id="fecha-desde-inicio" value="${fechaDesdeFormato}"></div>
-                    <div class="filtro-group" id="hasta-group" style="display:${soloUnDiaActivo ? 'none' : 'flex'};"><label>Hasta:</label><input type="date" id="fecha-hasta-inicio" value="${fechaHastaFormato}"></div>
-                    <div class="filtro-group"><label><input type="checkbox" id="chk-solo-dia" ${soloUnDiaActivo ? 'checked' : ''} onchange="toggleFiltroUnDia()"> Solo un día</label></div>
-                    <button onclick="filtrarVentasInicio()"><i class="fas fa-filter"></i> Filtrar</button>
-                </div>
-                <div class="info-banner"><i class="fas fa-lightbulb"></i> Seleccione el rango o active <strong>"Solo un día"</strong> para ver una fecha concreta. Luego ordene con el selector.</div>
-                <div style="display:flex; flex-wrap:wrap; align-items:center; gap:20px; margin-bottom:16px;">
-                    <div class="filtro-group"><label>Ordenar por:</label>
-                        <select id="orden-ventas" class="orden-select" onchange="actualizarGrafico()">
-                            <option value="monto_desc">Monto: Mayor a Menor</option><option value="monto_asc">Monto: Menor a Mayor</option>
-                            <option value="carga_desc">Carga Total: Mayor a Menor</option><option value="carga_asc">Carga Total: Menor a Mayor</option>
-                            <option value="variedad_desc">Variedad: Mayor a Menor</option><option value="variedad_asc">Variedad: Menor a Mayor</option>
-                        </select></div>
-                </div>
-                <div class="chart-container"><canvas id="grafico-ventas"></canvas></div>
-            </div>`;
-            actualizarGrafico(); initTooltips();
-        }
-
-        function toggleFiltroUnDia() {
-            const chk = document.getElementById('chk-solo-dia');
-            const hastaGroup = document.getElementById('hasta-group');
-            const hastaInput = document.getElementById('fecha-hasta-inicio');
-            const desdeInput = document.getElementById('fecha-desde-inicio');
-            if (chk && chk.checked) {
-                soloUnDiaActivo = true;
-                hastaGroup.style.display = 'none';
-                if (desdeInput && hastaInput) hastaInput.value = desdeInput.value;
+        function recargarDatos() {
+            const iframe = document.getElementById('content-frame');
+            if (iframe && iframe.src) {
+                iframe.src = iframe.src;
             } else {
-                soloUnDiaActivo = false;
-                hastaGroup.style.display = 'flex';
+                location.reload();
             }
         }
 
-        function actualizarGrafico() {
-            if (!ventasDataCache.length) return;
-            const empleadosMap = {}; const resumen = {};
-            ventasDataCache.forEach(v => {
-                const vid = v.vendedor_id || 'sin_asignar';
-                if (!resumen[vid]) resumen[vid] = { monto:0, cantidad:0, productos:new Set(), carga:0 };
-                resumen[vid].monto += parseFloat(v.total_linea); resumen[vid].cantidad += v.cantidad;
-                resumen[vid].productos.add(v.producto_id);
-                resumen[vid].carga += v.cantidad * (productosMapCache[v.producto_id] || 0);
+        // ═══════════════════════════════════════════
+        // CONSTRUCCIÓN DEL MENÚ
+        // ═══════════════════════════════════════════
+
+        function buildSidebar() {
+            const sidebar = document.getElementById('sidebar-menu');
+            let html = '<ul class="sidebar-menu">';
+
+            MODULE_ORDER.forEach(key => {
+                const item = MENU_ITEMS[key];
+                const file = PAGE_FILES[key];
+                if (!item || !file) return;
+                html += `<li><a href="#" data-panel="${key}" data-file="${file}">
+                    <i class="fas ${item.icon}"></i> ${item.label}
+                </a></li>`;
             });
-            apiFetch(`empleados?empresa_id=eq.${currentUser.empresa_id}&select=id,nombres,apellido_paterno&activo=eq.true&limit=1000`).then(emps => {
-                emps.forEach(e => empleadosMap[e.id] = `${e.nombres} ${e.apellido_paterno}`);
-            }).finally(() => {
-                const vendors = Object.entries(resumen).map(([id,d]) => ({ id, nombre: id==='sin_asignar' ? 'Sin vendedor' : (empleadosMap[id]||'Desconocido'), monto:d.monto, carga:d.carga, variedad:d.productos.size }));
-                const orden = document.getElementById('orden-ventas')?.value || 'monto_desc';
-                const [campo, dir] = orden.split('_');
-                vendors.sort((a,b) => dir==='desc' ? b[campo]-a[campo] : a[campo]-b[campo]);
-                const monSimbolo = getSimboloMoneda(empresaMonedaCodigo);
-                if (chartVentas) chartVentas.destroy();
-                const ctx = document.getElementById('grafico-ventas')?.getContext('2d'); if (!ctx) return;
-                chartVentas = new Chart(ctx, { type:'bar', data:{ labels: vendors.map(v=>v.nombre), datasets:[
-                    { label:`Monto (${monSimbolo})`, data: vendors.map(v=>v.monto), backgroundColor:'#2563eb', borderColor:'#1d4ed8', borderWidth:1, borderRadius:8 },
-                    { label:'Carga Total', data: vendors.map(v=>v.carga), backgroundColor:'#f59e0b', borderColor:'#d97706', borderWidth:1, borderRadius:8 },
-                    { label:'Variedad (productos)', data: vendors.map(v=>v.variedad), backgroundColor:'#10b981', borderColor:'#059669', borderWidth:1, borderRadius:8 }
-                ]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ usePointStyle:true, font:{ size:12 } } } } } });
-            });
-        }
 
-        function filtrarVentasInicio() {
-            const desde = document.getElementById('fecha-desde-inicio')?.value;
-            let hasta = document.getElementById('fecha-hasta-inicio')?.value;
-            if (soloUnDiaActivo) hasta = desde;
-            if (desde && hasta) {
-                if (hasta < desde) { showNotification('La fecha "Hasta" no puede ser menor que "Desde".', 'error'); return; }
-                cargarInicio(desde + 'T00:00:00', hasta + 'T23:59:59');
-            } else showNotification('Seleccione al menos la fecha "Desde"', 'error');
-        }
+            html += '</ul>';
+            sidebar.innerHTML = html;
 
-        // --- Metas ---
-        async function cargarPanelMetas() {
-            if (!currentUser || !currentUser.empresa_id) return;
-            const now = new Date();
-            const mesActual = now.getMonth() + 1;
-            const anioActual = now.getFullYear();
-            let html = `
-            <div class="card">
-                <div class="card-header"><h2>Definición de Objetivos por Empleado</h2></div>
-                <div class="info-banner"><i class="fas fa-bullseye"></i> Seleccione mes y año. La tabla muestra todos los empleados activos y sus métricas editables. Marque las casillas para habilitar cada objetivo y defina el valor. Presione <strong>Guardar Metas</strong> al finalizar.</div>
-                <div class="filtros">
-                    <div class="filtro-group"><label>Mes:</label><select id="meta-mes" onchange="cargarMetasTablaGlobal()">`;
-            for (let m = 1; m <= 12; m++) {
-                html += `<option value="${m}" ${m === mesActual ? 'selected' : ''}>${new Date(2024, m-1, 1).toLocaleString('es', { month: 'long' })}</option>`;
-            }
-            html += `</select></div>
-                    <div class="filtro-group"><label>Año:</label><input type="number" id="meta-anio" value="${anioActual}" min="2020" max="2100" style="width:90px;" onchange="cargarMetasTablaGlobal()"></div>
-                </div>
-                <div id="meta-tabla-global-container" class="table-wrapper">
-                    <p style="color:#64748b; font-size:0.9rem;">Cargando empleados...</p>
-                </div>
-                <div style="margin-top:16px;" id="meta-guardar-area" hidden>
-                    <button class="btn-solid" onclick="guardarMetasTablaGlobal()"><i class="fas fa-save"></i> Guardar Metas</button>
-                </div>
-            </div>`;
-            document.getElementById('panel-metas').innerHTML = html;
-            await cargarMetasTablaGlobal();
-            initTooltips();
-        }
-
-        async function cargarMetasTablaGlobal() {
-            if (!currentUser || !currentUser.empresa_id) return;
-            const mes = parseInt(document.getElementById('meta-mes')?.value);
-            const anio = parseInt(document.getElementById('meta-anio')?.value);
-            if (!mes || !anio) return;
-
-            const empId = currentUser.empresa_id;
-            const empleados = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&order=apellido_paterno&limit=1000`);
-            if (!empleados.length) {
-                document.getElementById('meta-tabla-global-container').innerHTML = '<p style="color:#64748b;">No hay empleados activos.</p>';
-                return;
-            }
-
-            const empleadoIds = empleados.map(e => `"${e.id}"`).join(',');
-            const metasExistentes = await apiFetch(`objetivos_empleado?empleado_id=in.(${encodeURIComponent(empleadoIds)})&mes=eq.${mes}&anio=eq.${anio}&activo=eq.true&select=*&limit=1000`);
-            const metasMap = {};
-            metasExistentes.forEach(m => { metasMap[m.empleado_id] = m; });
-
-            let monedasOptions = '';
-            todasLasMonedas.forEach(m => { monedasOptions += `<option value="${m.codigo} - ${m.nombre}">${m.simbolo || m.codigo} - ${m.nombre}</option>`; });
-            let unidadesOptions = '';
-            const unidadesList = ['Unidad','Pieza','Caja','Kilogramo','Gramo','Litro','Metro','Centímetro','Pulgada','Par','Tonelada','Galón'];
-            unidadesList.forEach(u => { unidadesOptions += `<option value="${u}">${u}</option>`; });
-
-            let tabla = `<table class="meta-editable-table"><thead><tr><th>Empleado</th>`;
-            METRICAS_META.forEach(met => {
-                tabla += `<th>${met.label}<br><small style="font-weight:400;">${met.ayuda}</small></th>`;
-            });
-            tabla += `<th>Comentario</th></tr></thead><tbody>`;
-
-            for (const emp of empleados) {
-                const meta = metasMap[emp.id] || {};
-                tabla += `<tr data-empleado-id="${emp.id}"><td>${emp.nombres} ${emp.apellido_paterno}</td>`;
-                METRICAS_META.forEach(met => {
-                    const val = meta[met.key] !== null && meta[met.key] !== undefined ? meta[met.key] : '';
-                    const checked = val !== '' ? 'checked' : '';
-                    let celda = `<td style="text-align:center;"><label style="display:flex; align-items:center; gap:4px; white-space:nowrap;"><input type="checkbox" class="meta-check-metric" data-key="${met.key}" ${checked}> `;
-                    if (met.tipo === 'dinero') {
-                        celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
-                        celda += `<select class="meta-moneda-${met.key}" style="width:120px;">${monedasOptions}</select>`;
-                    } else if (met.tipo === 'cantidad') {
-                        celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
-                        celda += `<select class="meta-unidad-${met.key}" style="width:100px;">${unidadesOptions}</select>`;
-                    } else if (met.tipo === 'entero') {
-                        celda += `<input type="number" step="1" min="0" class="meta-val-${met.key}" value="${val}" style="width:80px;">`;
-                    } else {
-                        celda += `<input type="number" step="0.01" min="0" class="meta-val-${met.key}" value="${val}" style="width:100px;">`;
-                    }
-                    celda += `</label></td>`;
-                    tabla += celda;
+            sidebar.querySelectorAll('a[data-panel]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const file = this.dataset.file;
+                    sidebar.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                    const base = getBasePath();
+                    document.getElementById('content-frame').src = base + file;
                 });
-                tabla += `<td><input type="text" class="meta-comentario" value="${meta.comentario || ''}" style="width:100%;"></td></tr>`;
-            }
-            tabla += `</tbody></table>`;
-            document.getElementById('meta-tabla-global-container').innerHTML = tabla;
-            document.getElementById('meta-guardar-area').hidden = false;
-
-            for (const emp of empleados) {
-                const meta = metasMap[emp.id];
-                if (!meta) continue;
-                const row = document.querySelector(`tr[data-empleado-id="${emp.id}"]`);
-                if (!row) continue;
-                METRICAS_META.forEach(met => {
-                    if (met.tipo === 'dinero' && meta.moneda_objetivo_id) {
-                        obtenerCodigoMoneda(meta.moneda_objetivo_id).then(cod => {
-                            const sel = row.querySelector(`.meta-moneda-${met.key}`);
-                            if (sel) sel.value = cod;
-                        });
-                    } else if (met.tipo === 'cantidad' && meta.unidad_objetivo_id) {
-                        obtenerNombreUnidad(meta.unidad_objetivo_id).then(nombre => {
-                            const sel = row.querySelector(`.meta-unidad-${met.key}`);
-                            if (sel) sel.value = nombre;
-                        });
-                    }
-                });
-            }
-            initTooltips();
-        }
-
-        async function guardarMetasTablaGlobal() {
-            const mes = parseInt(document.getElementById('meta-mes')?.value);
-            const anio = parseInt(document.getElementById('meta-anio')?.value);
-            if (!mes || !anio) { showNotification('Seleccione mes y año', 'error'); return; }
-            const filas = document.querySelectorAll('#meta-tabla-global-container tr[data-empleado-id]');
-            if (!filas.length) return;
-            const operaciones = [];
-            for (const fila of filas) {
-                const empId = fila.dataset.empleadoId;
-                const payload = {
-                    empleado_id: empId, mes: mes, anio: anio, activo: true,
-                    creado_por: currentUser.id, asignado_por: currentUser.id,
-                    comentario: fila.querySelector('.meta-comentario')?.value || null
-                };
-                for (const met of METRICAS_META) {
-                    const chk = fila.querySelector(`.meta-check-metric[data-key="${met.key}"]`);
-                    if (chk && chk.checked) {
-                        const valInput = fila.querySelector(`.meta-val-${met.key}`);
-                        const val = valInput ? valInput.value : '';
-                        payload[met.key] = val !== '' ? (met.tipo === 'entero' ? parseInt(val) : parseFloat(val)) : null;
-                        if (met.moneda) {
-                            const selMon = fila.querySelector(`.meta-moneda-${met.key}`);
-                            payload[met.moneda] = (selMon && selMon.value) ? await ensureCurrency(selMon.value) : null;
-                        }
-                        if (met.unidad) {
-                            const selUni = fila.querySelector(`.meta-unidad-${met.key}`);
-                            payload[met.unidad] = (selUni && selUni.value) ? await ensureUnidadMedida(selUni.value) : null;
-                        }
-                    } else {
-                        payload[met.key] = null;
-                        if (met.moneda) payload[met.moneda] = null;
-                        if (met.unidad) payload[met.unidad] = null;
-                    }
-                }
-                const existente = await apiFetch(`objetivos_empleado?empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&select=id&limit=1`);
-                operaciones.push(
-                    existente.length > 0
-                        ? apiFetch(`objetivos_empleado?id=eq.${existente[0].id}`, 'PATCH', payload)
-                        : apiFetch('objetivos_empleado', 'POST', payload)
-                );
-            }
-            try {
-                await Promise.all(operaciones);
-                showNotification('Metas guardadas correctamente');
-                cargarMetasTablaGlobal();
-            } catch (err) { showNotification('Error al guardar: ' + err.message, 'error'); }
-        }
-
-        async function obtenerCodigoMoneda(monedaId) {
-            try { const mon = await apiFetch(`monedas?id=eq.${monedaId}&select=codigo,nombre`); if (mon.length) return `${mon[0].codigo} - ${mon[0].nombre}`; } catch(e) {}
-            return monedaPorDefecto();
-        }
-        async function obtenerNombreUnidad(unidadId) {
-            try { const um = await apiFetch(`unidades_medida?id=eq.${unidadId}&select=nombre`); if (um.length) return um[0].nombre; } catch(e) {}
-            return '';
-        }
-
-        // --- Stock (Distribución) ---
-        async function cargarPanelDistribucion() {
-            if (!currentUser || !currentUser.empresa_id) return;
-            const now = new Date();
-            const mesActual = now.getMonth() + 1;
-            const anioActual = now.getFullYear();
-            let html = `
-            <div class="card">
-                <div class="card-header"><h2>Distribución de Producto por Vendedor</h2></div>
-                <div class="info-banner"><i class="fas fa-boxes"></i> Seleccione mes y año. El sistema muestra el stock disponible y calcula automáticamente los porcentajes de asignación según los objetivos de cada vendedor. Puede editar manualmente las cantidades y porcentajes. Presione <strong>Guardar Asignación</strong> para aplicar los cambios.</div>
-                <div class="filtros">
-                    <div class="filtro-group"><label>Producto:</label><select id="dist-prod-select" onchange="cargarDistribucion()"><option value="">Seleccione un producto...</option></select></div>
-                    <div class="filtro-group"><label>Mes:</label><select id="dist-mes" onchange="cargarDistribucion()">`;
-            for (let m = 1; m <= 12; m++) {
-                html += `<option value="${m}" ${m === mesActual ? 'selected' : ''}>${new Date(2024, m-1, 1).toLocaleString('es', { month: 'long' })}</option>`;
-            }
-            html += `</select></div>
-                    <div class="filtro-group"><label>Año:</label><input type="number" id="dist-anio" value="${anioActual}" min="2020" max="2100" style="width:90px;" onchange="cargarDistribucion()"></div>
-                    <div class="filtro-group"><label><input type="checkbox" id="dist-todos-productos" onchange="cargarDistribucion()"> Ver todos los productos</label></div>
-                </div>
-                <div id="dist-stock-info" class="distribucion-stock-info" style="display:none;"></div>
-                <div id="dist-tabla-container" class="table-wrapper">
-                    <p style="color:#64748b; font-size:0.9rem;">Seleccione un producto para ver la distribución.</p>
-                </div>
-                <div style="margin-top:16px;" id="dist-guardar-area" hidden>
-                    <div class="filtro-group" style="margin-bottom:12px;">
-                        <label>Almacén:</label><select id="dist-almacen-select"><option value="">Seleccione almacén...</option></select>
-                    </div>
-                    <button class="btn-solid" onclick="guardarDistribucion()"><i class="fas fa-save"></i> Guardar Asignación</button>
-                </div>
-            </div>`;
-            document.getElementById('panel-stock').innerHTML = html;
-
-            const empId = currentUser.empresa_id;
-            const productos = await apiFetch(`productos?empresa_id=eq.${empId}&activo=eq.true&select=id,sku,nombre&order=nombre&limit=1000`);
-            const selProd = document.getElementById('dist-prod-select');
-            productos.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p.id;
-                opt.textContent = `${p.sku} - ${p.nombre}`;
-                selProd.appendChild(opt);
             });
-            const almacenes = await apiFetch(`almacenes?empresa_id=eq.${empId}&activo=eq.true&select=id,nombre&limit=1000`);
-            const selAlm = document.getElementById('dist-almacen-select');
-            almacenes.forEach(a => {
-                const opt = document.createElement('option');
-                opt.value = a.id;
-                opt.textContent = a.nombre;
-                selAlm.appendChild(opt);
-            });
-            initTooltips();
         }
 
-        async function cargarDistribucion() {
-            if (!currentUser || !currentUser.empresa_id) return;
-            const productoId = document.getElementById('dist-prod-select')?.value;
-            const mes = parseInt(document.getElementById('dist-mes')?.value);
-            const anio = parseInt(document.getElementById('dist-anio')?.value);
-            const verTodos = document.getElementById('dist-todos-productos')?.checked;
+        // ═══════════════════════════════════════════
+        // RUTA BASE
+        // ═══════════════════════════════════════════
 
-            if (!mes || !anio || (!productoId && !verTodos)) return;
-
-            const empId = currentUser.empresa_id;
-
-            let stockDisponible = 0;
-            let productoNombre = '';
-            if (productoId) {
-                const inventario = await apiFetch(`inventario?empresa_id=eq.${empId}&producto_id=eq.${productoId}&select=cantidad,cantidad_reservada&limit=1000`);
-                stockDisponible = inventario.reduce((sum, inv) => sum + (inv.cantidad - (inv.cantidad_reservada || 0)), 0);
-                const prodInfo = await apiFetch(`productos?id=eq.${productoId}&select=nombre,sku&limit=1`);
-                if (prodInfo.length) productoNombre = `${prodInfo[0].sku} - ${prodInfo[0].nombre}`;
-            }
-
-            const comercialesUsers = await apiFetch(`usuarios?empresa_id=eq.${empId}&rol=eq.${encodeURIComponent('Ejecutivo Comercial')}&select=email&limit=1000`);
-            const emails = comercialesUsers.map(u => u.email.toLowerCase());
-            const todosEmpleados = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
-            const vendedores = todosEmpleados.filter(e => emails.includes((e.email||'').toLowerCase()));
-
-            if (!vendedores.length) {
-                document.getElementById('dist-tabla-container').innerHTML = '<p>No hay vendedores activos.</p>';
-                return;
-            }
-
-            const empleadoIds = vendedores.map(v => `"${v.id}"`).join(',');
-            const objetivos = await apiFetch(`objetivos_empleado?empleado_id=in.(${encodeURIComponent(empleadoIds)})&mes=eq.${mes}&anio=eq.${anio}&activo=eq.true&select=empleado_id,monto_objetivo,cantidad_objetivo&limit=1000`);
-            const objMap = {};
-            objetivos.forEach(o => { objMap[o.empleado_id] = o; });
-
-            let totalMonto = 0, totalCantidad = 0;
-            vendedores.forEach(v => {
-                const obj = objMap[v.id];
-                if (obj) {
-                    totalMonto += parseFloat(obj.monto_objetivo || 0);
-                    totalCantidad += parseFloat(obj.cantidad_objetivo || 0);
-                }
-            });
-
-            let asignacionesQuery = `asignaciones_producto_vendedor?empresa_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&empleado_id=in.(${encodeURIComponent(empleadoIds)})&select=*&limit=1000`;
-            if (productoId) asignacionesQuery += `&producto_id=eq.${productoId}`;
-            const asignaciones = await apiFetch(asignacionesQuery);
-            const asigMap = {};
-            asignaciones.forEach(a => {
-                const key = `${a.empleado_id}_${a.producto_id}_${a.almacen_id || 'null'}`;
-                asigMap[key] = a;
-            });
-
-            let tablaHtml = `<table class="meta-editable-table"><thead><tr><th>Vendedor</th><th>Objetivo Monto</th><th>Objetivo Cantidad</th><th>% Ponderado</th><th>Cantidad Asignada</th><th>Comentario</th></tr></thead><tbody>`;
-            for (const v of vendedores) {
-                const obj = objMap[v.id];
-                const montoObj = obj ? parseFloat(obj.monto_objetivo || 0) : 0;
-                const cantObj = obj ? parseFloat(obj.cantidad_objetivo || 0) : 0;
-                let porcentaje = 0;
-                if (totalMonto > 0) porcentaje = (montoObj / totalMonto) * 100;
-                else if (totalCantidad > 0) porcentaje = (cantObj / totalCantidad) * 100;
-                else if (vendedores.length > 0) porcentaje = 100 / vendedores.length;
-                const key = `${v.id}_${productoId || 'todos'}_null`;
-                const asig = asigMap[key] || {};
-                const cantidadAsignada = asig.cantidad_asignada !== undefined ? asig.cantidad_asignada : '';
-                const comentario = asig.comentario || '';
-                tablaHtml += `<tr data-empleado-id="${v.id}" data-producto-id="${productoId || 'todos'}">
-                    <td>${v.nombres} ${v.apellido_paterno}</td>
-                    <td>${montoObj.toFixed(2)}</td><td>${cantObj.toFixed(2)}</td><td>${porcentaje.toFixed(2)}%</td>
-                    <td><input type="number" step="1" min="0" class="dist-cantidad" value="${cantidadAsignada}" style="width:100px;"></td>
-                    <td><input type="text" class="dist-comentario" value="${comentario}" style="width:150px;"></td>
-                </tr>`;
-            }
-            tablaHtml += `</tbody></table>`;
-            document.getElementById('dist-tabla-container').innerHTML = tablaHtml;
-            if (productoId) {
-                document.getElementById('dist-stock-info').style.display = 'block';
-                document.getElementById('dist-stock-info').innerHTML = `<strong>Producto:</strong> ${productoNombre} | <strong>Stock Disponible:</strong> ${stockDisponible} unidades`;
-            } else document.getElementById('dist-stock-info').style.display = 'none';
-            document.getElementById('dist-guardar-area').hidden = false;
-            initTooltips();
+        function getBasePath() {
+            const path = window.location.pathname;
+            const lastSlash = path.lastIndexOf('/');
+            return path.substring(0, lastSlash + 1);
         }
 
-        async function guardarDistribucion() {
-            const productoId = document.getElementById('dist-prod-select')?.value;
-            const mes = parseInt(document.getElementById('dist-mes')?.value);
-            const anio = parseInt(document.getElementById('dist-anio')?.value);
-            const almacenId = document.getElementById('dist-almacen-select')?.value || null;
-            const verTodos = document.getElementById('dist-todos-productos')?.checked;
+        // ═══════════════════════════════════════════
+        // INICIO
+        // ═══════════════════════════════════════════
 
-            if (!mes || !anio) { showNotification('Seleccione mes y año', 'error'); return; }
-            if (!productoId && !verTodos) { showNotification('Seleccione un producto o active "Ver todos los productos"', 'error'); return; }
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!verificarSesion()) return;
 
-            const filas = document.querySelectorAll('#dist-tabla-container tr[data-empleado-id]');
-            if (!filas.length) return;
-            const operaciones = [];
-            for (const fila of filas) {
-                const empId = fila.dataset.empleadoId;
-                const prodId = fila.dataset.productoId === 'todos' ? productoId : fila.dataset.productoId;
-                if (!prodId || prodId === 'todos') continue;
-                const cantidad = parseInt(fila.querySelector('.dist-cantidad')?.value || '0');
-                const comentario = fila.querySelector('.dist-comentario')?.value || null;
-                const payload = {
-                    empresa_id: currentUser.empresa_id, producto_id: prodId, empleado_id: empId,
-                    almacen_id: almacenId, cantidad_asignada: cantidad, mes: mes, anio: anio,
-                    comentario: comentario, creado_por: currentUser.id
-                };
-                let query = `asignaciones_producto_vendedor?producto_id=eq.${prodId}&empleado_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}`;
-                if (almacenId) query += `&almacen_id=eq.${almacenId}`;
-                else query += `&almacen_id=is.null`;
-                query += `&select=id&limit=1`;
-                const existente = await apiFetch(query);
-                if (existente.length > 0) {
-                    operaciones.push(apiFetch(`asignaciones_producto_vendedor?id=eq.${existente[0].id}`, 'PATCH', payload));
-                } else {
-                    operaciones.push(apiFetch('asignaciones_producto_vendedor', 'POST', payload));
-                }
+            buildSidebar();
+
+            // Cargar el primer módulo (Inicio)
+            const firstKey = MODULE_ORDER[0];
+            const firstFile = PAGE_FILES[firstKey];
+            if (firstFile) {
+                const base = getBasePath();
+                document.getElementById('content-frame').src = base + firstFile;
+                const firstLink = document.querySelector(`.sidebar-menu a[data-panel="${firstKey}"]`);
+                if (firstLink) firstLink.classList.add('active');
             }
-            try {
-                await Promise.all(operaciones);
-                showNotification('Distribución guardada correctamente');
-                cargarDistribucion();
-            } catch (err) { showNotification('Error al guardar: ' + err.message, 'error'); }
-        }
-
-        /* ==============================================
-           CARGA DINÁMICA DEL FRAGMENTO CLIENTES
-           ============================================== */
-        async function cargarPanelClientes() {
-            const panel = document.getElementById('panel-clientes');
-            panel.innerHTML = '<p style="color:#64748b;">Cargando clientes...</p>';
-            try {
-                const response = await fetch('clientes.html');
-                if (!response.ok) throw new Error('No se pudo cargar clientes.html');
-                const html = await response.text();
-                panel.innerHTML = html;
-                // Ejecutar scripts del fragmento
-                const scripts = panel.querySelectorAll('script');
-                scripts.forEach(oldScript => {
-                    const newScript = document.createElement('script');
-                    if (oldScript.src) {
-                        newScript.src = oldScript.src;
-                    } else {
-                        newScript.textContent = oldScript.textContent;
-                    }
-                    document.body.appendChild(newScript);
-                    oldScript.remove();
-                });
-                // Inicializar tooltips nuevamente
-                initTooltips();
-            } catch (err) {
-                panel.innerHTML = `<div class="card"><p style="color:#c2412c;">Error al cargar el módulo de clientes: ${err.message}</p></div>`;
-            }
-        }
-
-        /* ==============================================
-           NAVEGACIÓN Y RECARGA
-           ============================================== */
-        function navegarA(panel) {
-            if (!currentUser || !currentUser.empresa_id) return;
-            document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
-            document.querySelector(`.sidebar-menu a[data-panel="${panel}"]`)?.classList.add('active');
-            document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
-            document.getElementById(`panel-${panel}`)?.classList.add('active');
-            if(panel==='inicio') cargarInicio();
-            else if(panel==='metas') cargarPanelMetas();
-            else if(panel==='stock') cargarPanelDistribucion();
-            else if(panel==='clientes') cargarPanelClientes();
-        }
-
-        document.querySelectorAll('.sidebar-menu a[data-panel]').forEach(a => a.addEventListener('click', function(e) {
-            e.preventDefault();
-            navegarA(this.dataset.panel);
-        }));
-
-        function recargarTodo() {
-            const panelActivo = document.querySelector('.section-panel.active')?.id?.replace('panel-','');
-            if(panelActivo) navegarA(panelActivo);
-            showNotification('Datos actualizados');
-        }
-
-        window.onload = async function() {
-            verificarSesion();
-            if(currentUser) {
-                await cargarDatosIniciales();
-                navegarA('inicio');
-            }
-        };
+        });
     </script>
 </body>
 </html>
