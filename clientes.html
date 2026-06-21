@@ -1,0 +1,598 @@
+<!-- FRAGMENTO CLIENTES - Se inserta dentro de supervisor_senior.html -->
+<div class="card">
+    <div class="card-header">
+        <h2>Clientes</h2>
+        <button class="btn-solid" onclick="abrirModalCliente()"><i class="fas fa-plus"></i> Nuevo Cliente</button>
+    </div>
+    <div class="filtros">
+        <div class="filtro-group">
+            <label>Vendedor:</label>
+            <select id="filtro-vendedor-clientes" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select>
+        </div>
+        <div class="filtro-group">
+            <label>Estado:</label>
+            <select id="filtro-estado-clientes" onchange="aplicarFiltrosClientes()">
+                <option value="true" selected>Activos</option>
+                <option value="false">Inactivos</option>
+                <option value="all">Todos</option>
+            </select>
+        </div>
+        <div class="filtro-group">
+            <label>Tipo:</label>
+            <select id="filtro-tipo-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select>
+        </div>
+        <div class="filtro-group">
+            <label>Segmento:</label>
+            <select id="filtro-segmento-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select>
+        </div>
+        <div class="filtro-group">
+            <label>Canal:</label>
+            <select id="filtro-canal-cliente" onchange="aplicarFiltrosClientes()"><option value="">Todos</option></select>
+        </div>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Razón Social / Nombre</th>
+                    <th>Nombre Comercial</th>
+                    <th>Email</th>
+                    <th>Ubicación</th>
+                    <th>Tipo</th>
+                    <th>Segmento</th>
+                    <th>Canal</th>
+                    <th>GPS</th>
+                    <th>Vendedor</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="clientes-tbody">
+                <tr><td colspan="11" style="text-align:center;">Cargando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Cliente (dentro del fragmento, se mostrará sobre el contenido) -->
+<div class="modal-overlay" id="modal-cliente">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="titulo-modal-cliente">Nuevo Cliente</h2>
+            <button class="close-modal" onclick="cerrarModalCliente()">&times;</button>
+        </div>
+        <form id="form-cliente" autocomplete="off">
+            <input type="hidden" id="cliente-id">
+            <div class="info-banner"><i class="fas fa-info-circle"></i> Complete primero el <strong>País</strong> para configurar documentos y moneda.</div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>País</label><input id="cli-pais" list="cli-paises-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="cli-paises-list"></datalist></div></div>
+                <div class="form-col"><div class="form-group"><label>Tipo Persona</label><select id="cli-tipo-persona" onchange="toggleClientePersona()"><option value="natural">Persona Natural</option><option value="juridica">Persona Jurídica</option></select></div></div>
+            </div>
+            <div class="form-row" id="row-cli-natural">
+                <div class="form-col"><div class="form-group"><label>Nombres</label><input id="cli-nombres" oninput="capitalizarInput(this)"></div></div>
+                <div class="form-col"><div class="form-group"><label>Apellido Paterno</label><input id="cli-ap" oninput="capitalizarInput(this)"></div></div>
+                <div class="form-col"><div class="form-group"><label>Apellido Materno</label><input id="cli-am" oninput="capitalizarInput(this)"></div></div>
+            </div>
+            <div class="form-row" id="row-cli-juridica" style="display:none;">
+                <div class="form-col"><div class="form-group"><label>Razón Social *</label><input id="cli-razon-social" oninput="capitalizarInput(this)"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Nombre Comercial</label><input id="cli-nombre-comercial" oninput="capitalizarInput(this)"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Tipo Documento</label><select id="cli-tipo-doc"></select></div></div>
+                <div class="form-col"><div class="form-group"><label>Número Documento</label><input id="cli-num-doc"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Email</label><input id="cli-email" type="email"></div></div>
+                <div class="form-col"><div class="form-group"><label>Teléfonos</label>
+                    <div id="cli-telefonos-container"></div>
+                    <button type="button" class="btn-add-phone" onclick="agregarTelefonoCliente()" title="Agregar teléfono" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar teléfono</button>
+                </div></div>
+                <div class="form-col"><div class="form-group"><label>Dirección</label><input id="cli-direccion" oninput="capitalizarInput(this)"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Coordenadas GPS de Entrega *</label>
+                    <div id="gps-entrega-container"></div>
+                    <button type="button" class="btn-add-phone" onclick="agregarPuntoGPS()" title="Agregar punto GPS" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar punto GPS</button>
+                </div></div>
+                <div class="form-col"><div class="form-group"><label>Estado / Provincia</label><input id="cli-estado" list="cli-estados-list" autocomplete="off"><datalist id="cli-estados-list"></datalist></div></div>
+                <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="cli-ciudad" list="cli-ciudades-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="cli-ciudades-list"></datalist></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Tipo Cliente</label>
+                    <select id="cli-tipo-cliente"><option value="">Seleccione...</option></select>
+                </div></div>
+                <div class="form-col"><div class="form-group"><label>Segmento Mercado</label>
+                    <select id="cli-segmento"><option value="">Seleccione...</option></select>
+                </div></div>
+                <div class="form-col"><div class="form-group"><label>Canal Venta</label>
+                    <select id="cli-canal"><option value="">Seleccione...</option></select>
+                </div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Límite Crédito</label><input id="cli-limite-credito" type="number" step="0.01" min="0"></div></div>
+                <div class="form-col"><div class="form-group"><label>Moneda Crédito</label><input id="cli-moneda-credito" list="monedas-global-list-cli"><datalist id="monedas-global-list-cli"></datalist></div></div>
+                <div class="form-col"><div class="form-group"><label>Días Crédito</label><input id="cli-dias-credito" type="number" step="1" min="0"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Vendedor Asignado</label><select id="cli-vendedor"><option value="">Sin asignar</option></select></div></div>
+                <div class="form-col"><div class="form-group"><label>Imagen</label><input type="file" id="file-cli-imagen" accept="image/*"></div></div>
+            </div>
+            <div class="form-row">
+                <div class="form-col"><div class="form-group"><label>Lista de Precios Especiales</label><textarea id="cli-lista-precios" rows="2" placeholder="Producto: SKU-001, Precio: 9.99"></textarea></div></div>
+            </div>
+            <div style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
+                <button type="button" class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalCliente()">Cancelar</button>
+                <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    /* ==============================================
+       LÓGICA EXCLUSIVA DEL MÓDULO CLIENTES
+       (Se ejecuta al insertar el fragmento)
+       ============================================== */
+    (function() {
+        // Esperar a que las funciones globales estén disponibles
+        if (typeof apiFetch !== 'function' || typeof showNotification !== 'function') {
+            setTimeout(arguments.callee, 50);
+            return;
+        }
+
+        // Constantes específicas de clientes
+        const TIPOS_CLIENTE = ['Distribuidor','Mayorista','Minorista','Mayorista-Distribuidor','Cuenta Clave (Key Account)','Institucional','HORECA','Consumidor Final','E-commerce (Marketplace)'];
+        const SEGMENTOS_MERCADO = ['Moderno – Hipermercado','Moderno – Supermercado','Moderno – Discount','Moderno – Conveniencia','Tradicional – Tienda de barrio','Tradicional – Canal Mayorista','Industrial / B2B','Institucional','HORECA','Digital'];
+        const CANALES_VENTA = ['Venta Directa – Fuerza Propia','Venta Directa – Preventa','Venta Directa – Autoventa','Distribuidor Exclusivo','Televenta','E-commerce B2B','E-commerce B2C','Mayorista / Cash & Carry','Retail Moderno'];
+        const tiposDocCompletos = { 'CI':'CI - Cédula de Identidad', 'Pasaporte':'Pasaporte', 'NIT':'NIT - Número de Identificación Tributaria', 'DNI':'DNI - Documento Nacional de Identidad', 'CUIT':'CUIT - Clave Única de Identificación Tributaria', 'RUC':'RUC - Registro Único de Contribuyentes', 'RUN':'RUN - Rol Único Nacional', 'RUT':'RUT - Rol Único Tributario', 'CC':'CC - Cédula de Ciudadanía', 'INE':'INE - Instituto Nacional Electoral', 'RFC':'RFC - Registro Federal de Contribuyentes', 'NIE':'NIE - Número de Identidad de Extranjero', 'SSN':'SSN - Social Security Number', 'Driver License':'Driver License - Licencia de Conducir' };
+        const tiposDocPorPais = { 'Bolivia':['CI','Pasaporte','NIT'], 'Argentina':['DNI','Pasaporte','CUIT'], 'Perú':['DNI','Pasaporte','RUC'], 'Chile':['RUN','Pasaporte','RUT'], 'Colombia':['CC','Pasaporte','NIT'], 'Ecuador':['CI','Pasaporte','RUC'], 'Paraguay':['CI','Pasaporte','RUC'], 'Uruguay':['CI','Pasaporte','RUT'], 'México':['INE','Pasaporte','RFC'], 'España':['DNI','Pasaporte','NIE'], 'Estados Unidos':['Pasaporte','SSN','Driver License'] };
+
+        // Rellenar selects fijos al iniciar
+        poblarSelectsFijos();
+        // Configurar eventos de país y estado
+        document.getElementById('cli-pais').addEventListener('input', onPaisChange);
+        document.getElementById('cli-estado').addEventListener('input', onEstadoChange);
+        document.getElementById('form-cliente').addEventListener('submit', onSubmitCliente);
+
+        // Llenar datalist de países
+        if (typeof paisesData !== 'undefined') {
+            const dl = document.getElementById('cli-paises-list');
+            if (dl) {
+                dl.innerHTML = '';
+                paisesData.forEach(p => { const o = document.createElement('option'); o.value = p.name.common; dl.appendChild(o); });
+            }
+        }
+
+        // Llenar datalist de monedas
+        if (typeof todasLasMonedas !== 'undefined') {
+            const dlMon = document.getElementById('monedas-global-list-cli');
+            if (dlMon) {
+                dlMon.innerHTML = '';
+                todasLasMonedas.forEach(m => { const o = document.createElement('option'); o.value = `${m.codigo} - ${m.nombre}`; dlMon.appendChild(o); });
+            }
+        }
+
+        // Cargar primera vista
+        cargarClientes();
+
+        /* ---- Funciones públicas (se adjuntan a window por si se invocan desde onclick) ---- */
+        window.abrirModalCliente = function(id) {
+            const modal = document.getElementById('modal-cliente');
+            modal.classList.add('active');
+            const form = document.getElementById('form-cliente');
+            form.reset();
+            document.getElementById('cliente-id').value = '';
+            document.getElementById('titulo-modal-cliente').textContent = 'Nuevo Cliente';
+            document.getElementById('cli-tipo-persona').value = 'natural';
+            document.getElementById('cli-moneda-credito').value = window.monedaPorDefecto ? monedaPorDefecto() : (empresaMonedaCodigo ? empresaMonedaCodigo : 'USD');
+            document.getElementById('cli-pais').value = window.empresaPais || '';
+            if (window.empresaPais) {
+                actualizarSelectTiposDocumento(window.empresaPais, 'cli-tipo-doc');
+                actualizarMonedaConPais({value: window.empresaPais}, 'cli-moneda-credito');
+                if (typeof cargarEstados === 'function') cargarEstados(window.empresaPais, 'cli-estados-list');
+            }
+            llenarInputsTelefonoDesdeJson('#cli-telefonos-container', [{etiqueta:'', numero:''}]);
+            llenarCoordenadasGPSDesdeArray([{etiqueta:'', coordenadas:''}]);
+            toggleClientePersona();
+            llenarSelectVendedores('cli-vendedor');
+            if (id) editarCliente(id);
+            if (typeof initTooltips === 'function') initTooltips();
+        };
+
+        window.cerrarModalCliente = function() {
+            document.getElementById('modal-cliente').classList.remove('active');
+        };
+
+        window.aplicarFiltrosClientes = function() {
+            const estado = document.getElementById('filtro-estado-clientes')?.value || 'true';
+            cargarClientes(
+                document.getElementById('filtro-vendedor-clientes')?.value || '',
+                document.getElementById('filtro-tipo-cliente')?.value || '',
+                document.getElementById('filtro-segmento-cliente')?.value || '',
+                document.getElementById('filtro-canal-cliente')?.value || '',
+                estado
+            );
+        };
+
+        window.editarCliente = async function(id) {
+            const c = await apiFetch(`clientes?id=eq.${id}&select=*`);
+            if (!c.length) return;
+            const cli = c[0];
+            document.getElementById('cliente-id').value = cli.id;
+            document.getElementById('cli-tipo-persona').value = cli.razon_social ? 'juridica' : 'natural';
+            toggleClientePersona();
+            document.getElementById('cli-pais').value = cli.pais || window.empresaPais || '';
+            document.getElementById('cli-tipo-doc').value = cli.tipo_documento || '';
+            document.getElementById('cli-num-doc').value = cli.numero_documento || '';
+            document.getElementById('cli-nombres').value = cli.nombres || '';
+            document.getElementById('cli-ap').value = cli.apellido_paterno || '';
+            document.getElementById('cli-am').value = cli.apellido_materno || '';
+            document.getElementById('cli-razon-social').value = cli.razon_social || '';
+            document.getElementById('cli-nombre-comercial').value = cli.nombre_comercial || '';
+            document.getElementById('cli-email').value = cli.email || '';
+            document.getElementById('cli-direccion').value = cli.direccion || '';
+            document.getElementById('cli-estado').value = cli.estado_provincia || '';
+            document.getElementById('cli-ciudad').value = cli.ciudad || '';
+            document.getElementById('cli-tipo-cliente').value = cli.tipo_cliente || '';
+            document.getElementById('cli-segmento').value = cli.segmento_mercado || '';
+            document.getElementById('cli-canal').value = cli.canal_venta || '';
+            document.getElementById('cli-limite-credito').value = cli.limite_credito || '';
+            document.getElementById('cli-dias-credito').value = cli.dias_credito || '';
+            document.getElementById('cli-moneda-credito').value = window.monedaPorDefecto ? monedaPorDefecto() : '';
+            document.getElementById('cli-lista-precios').value = cli.lista_precios ? JSON.stringify(cli.lista_precios, null, 2) : '';
+            llenarInputsTelefonoDesdeJson('#cli-telefonos-container', cli.telefonos || [{etiqueta:'', numero:''}]);
+            llenarCoordenadasGPSDesdeArray(cli.direcciones_entrega || [{etiqueta:'', coordenadas:''}]);
+            if (cli.moneda_credito_id) {
+                const mon = await apiFetch(`monedas?id=eq.${cli.moneda_credito_id}&select=codigo,nombre`);
+                if (mon.length) document.getElementById('cli-moneda-credito').value = `${mon[0].codigo} - ${mon[0].nombre}`;
+            }
+            await llenarSelectVendedores('cli-vendedor', cli.vendedor_asignado_id || '');
+            const paisVal = cli.pais || window.empresaPais || '';
+            if (paisVal) {
+                actualizarSelectTiposDocumento(paisVal, 'cli-tipo-doc');
+                actualizarMonedaConPais({value: paisVal}, 'cli-moneda-credito');
+                if (typeof cargarEstados === 'function') cargarEstados(paisVal, 'cli-estados-list');
+            }
+            document.getElementById('titulo-modal-cliente').textContent = 'Editar Cliente';
+            document.getElementById('modal-cliente').classList.add('active');
+            if (typeof initTooltips === 'function') initTooltips();
+        };
+
+        window.eliminarCliente = function(id) {
+            window.mostrarConfirmacion('¿Desactivar cliente?', 'Desactivar Cliente', async () => {
+                await apiFetch(`clientes?id=eq.${id}`, 'PATCH', { activo: false });
+                window.aplicarFiltrosClientes();
+                showNotification('Cliente desactivado');
+            });
+        };
+
+        window.eliminarDefinitivamenteCliente = function(id) {
+            window.mostrarConfirmacion('¿Eliminar permanentemente?', 'Eliminar Cliente', async () => {
+                await apiFetch(`clientes?id=eq.${id}`, 'DELETE');
+                window.aplicarFiltrosClientes();
+                showNotification('Cliente eliminado');
+            });
+        };
+
+        window.activarCliente = function(id) {
+            window.mostrarConfirmacion('¿Activar cliente?', 'Activar Cliente', async () => {
+                await apiFetch(`clientes?id=eq.${id}`, 'PATCH', { activo: true });
+                window.aplicarFiltrosClientes();
+                showNotification('Cliente activado');
+            });
+        };
+
+        /* ---- Funciones auxiliares locales ---- */
+        function poblarSelectsFijos() {
+            const selTipo = document.getElementById('cli-tipo-cliente');
+            if (selTipo) {
+                selTipo.innerHTML = '<option value="">Seleccione...</option>';
+                TIPOS_CLIENTE.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; selTipo.appendChild(opt); });
+            }
+            const selSeg = document.getElementById('cli-segmento');
+            if (selSeg) {
+                selSeg.innerHTML = '<option value="">Seleccione...</option>';
+                SEGMENTOS_MERCADO.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; selSeg.appendChild(opt); });
+            }
+            const selCanal = document.getElementById('cli-canal');
+            if (selCanal) {
+                selCanal.innerHTML = '<option value="">Seleccione...</option>';
+                CANALES_VENTA.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; selCanal.appendChild(opt); });
+            }
+        }
+
+        function actualizarSelectTiposDocumento(pais, selectId) {
+            const sel = document.getElementById(selectId); if (!sel) return; sel.innerHTML = '';
+            const clave = Object.keys(tiposDocPorPais).find(k => k.toLowerCase() === pais.toLowerCase());
+            const tipos = clave ? tiposDocPorPais[clave] : ['CI','Pasaporte','DNI','RUC','NIT'];
+            tipos.forEach(codigo => { const o = document.createElement('option'); o.value = codigo; o.text = tiposDocCompletos[codigo] || codigo; sel.appendChild(o); });
+        }
+
+        function actualizarMonedaConPais(paisInput, monedaInputId) {
+            const val = typeof paisInput === 'string' ? paisInput : paisInput.value.trim();
+            if (val.length > 1 && typeof paisesData !== 'undefined') {
+                const pais = paisesData.find(p => p.name.common.toLowerCase() === val.toLowerCase());
+                if (pais && pais.currencies) {
+                    const cod = Object.keys(pais.currencies)[0];
+                    document.getElementById(monedaInputId).value = `${cod} - ${pais.currencies[cod].name}`;
+                }
+            }
+        }
+
+        async function llenarSelectVendedores(selectId, vendedorSeleccionado = '') {
+            if (!currentUser || !currentUser.empresa_id) return;
+            const sel = document.getElementById(selectId); if (!sel) return;
+            sel.innerHTML = '<option value="">Sin asignar</option>';
+            try {
+                const todos = await apiFetch(`empleados?empresa_id=eq.${currentUser.empresa_id}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);
+                const comerciales = await apiFetch(`usuarios?empresa_id=eq.${currentUser.empresa_id}&rol=eq.${encodeURIComponent('"Ejecutivo Comercial"')}&select=email&limit=1000`);
+                const emails = comerciales.map(u => u.email.toLowerCase());
+                let vendedores = todos.filter(e => emails.includes((e.email||'').toLowerCase()));
+                if (vendedores.length === 0) vendedores = todos;
+                vendedores.forEach(v => { const o = document.createElement('option'); o.value = v.id; o.text = `${v.nombres} ${v.apellido_paterno}`; if (v.id === vendedorSeleccionado) o.selected = true; sel.appendChild(o); });
+            } catch(e) {
+                const todos = await apiFetch(`empleados?empresa_id=eq.${currentUser.empresa_id}&activo=eq.true&select=id,nombres,apellido_paterno&limit=1000`);
+                todos.forEach(v => { const o = document.createElement('option'); o.value = v.id; o.text = `${v.nombres} ${v.apellido_paterno}`; if (v.id === vendedorSeleccionado) o.selected = true; sel.appendChild(o); });
+            }
+        }
+
+        function toggleClientePersona() {
+            const tipo = document.getElementById('cli-tipo-persona').value;
+            document.getElementById('row-cli-natural').style.display = tipo === 'natural' ? 'flex' : 'none';
+            document.getElementById('row-cli-juridica').style.display = tipo === 'juridica' ? 'flex' : 'none';
+        }
+
+        // Teléfonos y GPS (mini-versiones, usan funciones del padre si existen, sino se definen)
+        function llenarInputsTelefonoDesdeJson(containerSelector, telefonos) {
+            const container = document.querySelector(containerSelector); if (!container) return;
+            container.innerHTML = '';
+            const lista = Array.isArray(telefonos) ? telefonos : [];
+            if (!lista.length) lista.push({ etiqueta:'', numero:'' });
+            lista.forEach(item => {
+                let etiqueta='', numero='';
+                if (typeof item === 'string') { numero = item; }
+                else if (item && typeof item === 'object') { etiqueta = item.etiqueta || ''; numero = item.numero || ''; }
+                const row = document.createElement('div'); row.className = 'phone-input-row';
+                const tagInp = document.createElement('input'); tagInp.type='text'; tagInp.className='tag-input'; tagInp.placeholder='Etiqueta'; tagInp.value=etiqueta;
+                tagInp.addEventListener('input', function() { if (typeof capitalizarInput === 'function') capitalizarInput(this); });
+                const numInp = document.createElement('input'); numInp.type='text'; numInp.placeholder='555-1234'; numInp.value=numero;
+                row.appendChild(tagInp); row.appendChild(numInp);
+                container.appendChild(row);
+            });
+            actualizarEstadoTelefonos(containerSelector);
+        }
+
+        function llenarCoordenadasGPSDesdeArray(coordenadas) {
+            const container = document.getElementById('gps-entrega-container'); if (!container) return;
+            container.innerHTML = '';
+            const lista = Array.isArray(coordenadas) ? coordenadas : [];
+            if (!lista.length) lista.push({ etiqueta:'', coordenadas:'' });
+            lista.forEach(item => {
+                let etiqueta='', coord='';
+                if (typeof item === 'string') { coord = item; }
+                else if (item && typeof item === 'object') { etiqueta = item.etiqueta || ''; coord = item.coordenadas || ''; }
+                const row = document.createElement('div'); row.className = 'gps-input-row';
+                const tagInp = document.createElement('input'); tagInp.type='text'; tagInp.className='tag-input'; tagInp.placeholder='Ej: Tienda'; tagInp.value=etiqueta;
+                tagInp.addEventListener('input', function() { if (typeof capitalizarInput === 'function') capitalizarInput(this); });
+                const coordInp = document.createElement('input'); coordInp.type='text'; coordInp.placeholder='lat, lng'; coordInp.value=coord;
+                const gpsBtn = document.createElement('button'); gpsBtn.type='button'; gpsBtn.className='btn-gps-location'; gpsBtn.innerHTML='<i class="fas fa-map-marker-alt"></i>'; gpsBtn.title='Usar ubicación actual';
+                gpsBtn.onclick = function() { obtenerUbicacionGPSInput(coordInp); };
+                row.appendChild(tagInp); row.appendChild(coordInp); row.appendChild(gpsBtn);
+                container.appendChild(row);
+            });
+            actualizarEstadoGPS();
+        }
+
+        window.agregarTelefonoCliente = function() {
+            agregarTelefonoGenerico('#cli-telefonos-container');
+        };
+
+        window.agregarPuntoGPS = function() {
+            const container = document.getElementById('gps-entrega-container'); if (!container) return;
+            const row = document.createElement('div'); row.className = 'gps-input-row';
+            const tagInp = document.createElement('input'); tagInp.type='text'; tagInp.className='tag-input'; tagInp.placeholder='Ej: Tienda';
+            tagInp.addEventListener('input', function() { if (typeof capitalizarInput === 'function') capitalizarInput(this); });
+            const coordInp = document.createElement('input'); coordInp.type='text'; coordInp.placeholder='lat, lng';
+            const gpsBtn = document.createElement('button'); gpsBtn.type='button'; gpsBtn.className='btn-gps-location'; gpsBtn.innerHTML='<i class="fas fa-map-marker-alt"></i>'; gpsBtn.title='Usar ubicación actual';
+            gpsBtn.onclick = function() { obtenerUbicacionGPSInput(coordInp); };
+            row.appendChild(tagInp); row.appendChild(coordInp); row.appendChild(gpsBtn);
+            container.appendChild(row);
+            actualizarEstadoGPS();
+        };
+
+        function agregarTelefonoGenerico(containerSelector) {
+            const container = document.querySelector(containerSelector); if (!container) return;
+            const row = document.createElement('div'); row.className = 'phone-input-row';
+            const tagInp = document.createElement('input'); tagInp.type='text'; tagInp.className='tag-input'; tagInp.placeholder='Etiqueta';
+            tagInp.addEventListener('input', function() { if (typeof capitalizarInput === 'function') capitalizarInput(this); });
+            const numInp = document.createElement('input'); numInp.type='text'; numInp.placeholder='555-1234';
+            row.appendChild(tagInp); row.appendChild(numInp);
+            container.appendChild(row);
+            actualizarEstadoTelefonos(containerSelector);
+        }
+
+        function actualizarEstadoTelefonos(containerSelector) {
+            const container = document.querySelector(containerSelector); if (!container) return;
+            const filas = container.querySelectorAll('.phone-input-row');
+            filas.forEach(fila => {
+                const existingBtn = fila.querySelector('.btn-remove-phone');
+                if (filas.length === 1 && existingBtn) existingBtn.remove();
+                else if (filas.length > 1 && !existingBtn) {
+                    const btn = document.createElement('button'); btn.type='button'; btn.className='btn-remove-phone'; btn.innerHTML='<i class="fas fa-minus"></i>'; btn.title='Eliminar';
+                    btn.onclick = function() { fila.remove(); actualizarEstadoTelefonos(containerSelector); };
+                    fila.appendChild(btn);
+                }
+            });
+        }
+
+        function actualizarEstadoGPS() {
+            const container = document.getElementById('gps-entrega-container'); if (!container) return;
+            const filas = container.querySelectorAll('.gps-input-row');
+            filas.forEach(fila => {
+                const existingBtn = fila.querySelector('.btn-remove-phone');
+                if (filas.length === 1 && existingBtn) existingBtn.remove();
+                else if (filas.length > 1 && !existingBtn) {
+                    const btn = document.createElement('button'); btn.type='button'; btn.className='btn-remove-phone'; btn.innerHTML='<i class="fas fa-minus"></i>'; btn.title='Eliminar';
+                    btn.onclick = function() { fila.remove(); actualizarEstadoGPS(); };
+                    fila.appendChild(btn);
+                }
+            });
+        }
+
+        function obtenerUbicacionGPSInput(inputElement) {
+            if (!navigator.geolocation) { showNotification('Geolocalización no soportada.', 'error'); return; }
+            navigator.geolocation.getCurrentPosition(pos => {
+                inputElement.value = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+                showNotification('Coordenadas actualizadas.');
+            }, () => showNotification('No se pudo obtener la ubicación.', 'error'));
+        }
+
+        function jsonATelefonosDesdeInputs() {
+            const rows = document.querySelectorAll('#cli-telefonos-container .phone-input-row');
+            const tels = [];
+            rows.forEach(row => {
+                const tagInput = row.querySelector('input.tag-input');
+                const numInput = row.querySelector('input:not(.tag-input)');
+                const etiqueta = tagInput ? tagInput.value.trim() : '';
+                const numero = numInput ? numInput.value.trim() : '';
+                if (numero || etiqueta) tels.push({ etiqueta, numero });
+            });
+            return tels;
+        }
+
+        function jsonACoordenadasDesdeInputs() {
+            const rows = document.querySelectorAll('#gps-entrega-container .gps-input-row');
+            const coords = [];
+            rows.forEach(row => {
+                const tagInput = row.querySelector('input.tag-input');
+                const coordInput = row.querySelector('input:not(.tag-input)');
+                const etiqueta = tagInput ? tagInput.value.trim() : '';
+                const coordenadas = coordInput ? coordInput.value.trim() : '';
+                if (coordenadas || etiqueta) coords.push({ etiqueta, coordenadas });
+            });
+            return coords;
+        }
+
+        // Carga de la tabla de clientes
+        async function cargarClientes(vendedorId='', filtroTipo='', filtroSegmento='', filtroCanal='', estadoFiltro='true') {
+            if (!currentUser || !currentUser.empresa_id) return;
+            const empId = currentUser.empresa_id;
+            let query = `clientes?empresa_id=eq.${empId}&select=*&limit=1000`;
+            if (estadoFiltro === 'true') query += `&activo=eq.true`;
+            else if (estadoFiltro === 'false') query += `&activo=eq.false`;
+            if(vendedorId) query += `&vendedor_asignado_id=eq.${vendedorId}`;
+            if(filtroTipo) query += `&tipo_cliente=eq.${encodeURIComponent(filtroTipo)}`;
+            if(filtroSegmento) query += `&segmento_mercado=eq.${encodeURIComponent(filtroSegmento)}`;
+            if(filtroCanal) query += `&canal_venta=eq.${encodeURIComponent(filtroCanal)}`;
+            const clientes = await apiFetch(query);
+            const vendedores = await apiFetch(`empleados?empresa_id=eq.${empId}&select=id,nombres,apellido_paterno&activo=eq.true&limit=1000`);
+            const vendedorMap = {}; vendedores.forEach(v => vendedorMap[v.id] = v.nombres+' '+v.apellido_paterno);
+            let filas = '';
+            clientes.forEach(c => {
+                const nombreMostrar = c.razon_social || (c.nombres||'')+' '+(c.apellido_paterno||'');
+                const gpsCount = Array.isArray(c.direcciones_entrega) ? c.direcciones_entrega.length : 0;
+                const estadoBadge = c.activo ? '<span class="badge badge-success">Activo</span>' : '<span class="badge badge-danger">Inactivo</span>';
+                const acciones = c.activo
+                    ? `<button class="btn-sm btn-edit" onclick="editarCliente('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-sm btn-delete" onclick="eliminarCliente('${c.id}')"><i class="fas fa-ban"></i></button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button>`
+                    : `<button class="btn-sm btn-activate" onclick="activarCliente('${c.id}')"><i class="fas fa-check"></i> Activar</button><button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteCliente('${c.id}')"><i class="fas fa-trash-alt"></i></button>`;
+                filas += `<tr><td>${nombreMostrar.trim()||'-'}</td><td>${c.nombre_comercial || '-'}</td><td>${c.email||'-'}</td><td>${c.ciudad||'-'}, ${c.pais||'-'}</td><td>${c.tipo_cliente||'-'}</td><td>${c.segmento_mercado||'-'}</td><td>${c.canal_venta||'-'}</td><td>${gpsCount > 0 ? `<i class="fas fa-map-marker-alt" style="color:#1a56db;" title="${gpsCount} punto(s) de entrega"></i> ${gpsCount}` : '-'}</td><td>${c.vendedor_asignado_id ? (vendedorMap[c.vendedor_asignado_id]||'Asignado') : 'Sin asignar'}</td><td>${estadoBadge}</td><td class="action-buttons">${acciones}</td></tr>`;
+            });
+            if(!filas) filas = '<tr><td colspan="11" style="text-align:center;">No se encontraron clientes.</td></tr>';
+            document.getElementById('clientes-tbody').innerHTML = filas;
+
+            // Llenar filtros dinámicos (vendedor, tipos, etc.)
+            const selVend = document.getElementById('filtro-vendedor-clientes');
+            selVend.innerHTML = '<option value="">Todos</option>';
+            vendedores.forEach(v => { const o = document.createElement('option'); o.value=v.id; o.text=v.nombres+' '+v.apellido_paterno; if(v.id===vendedorId) o.selected=true; selVend.appendChild(o); });
+            const tipos = [...new Set(clientes.map(c=>c.tipo_cliente).filter(Boolean))].sort();
+            const segs = [...new Set(clientes.map(c=>c.segmento_mercado).filter(Boolean))].sort();
+            const canales = [...new Set(clientes.map(c=>c.canal_venta).filter(Boolean))].sort();
+            ['filtro-tipo-cliente','filtro-segmento-cliente','filtro-canal-cliente'].forEach((id,i) => {
+                const sel = document.getElementById(id);
+                sel.innerHTML = '<option value="">Todos</option>';
+                const arr = [tipos,segs,canales][i];
+                const val = [filtroTipo,filtroSegmento,filtroCanal][i];
+                arr.forEach(v => { const o = document.createElement('option'); o.value=v; o.text=v; if(v===val) o.selected=true; sel.appendChild(o); });
+            });
+        }
+
+        function onPaisChange() {
+            const val = this.value.trim();
+            if (val.length > 1) {
+                actualizarSelectTiposDocumento(val, 'cli-tipo-doc');
+                actualizarMonedaConPais(this, 'cli-moneda-credito');
+                if (typeof cargarEstados === 'function') cargarEstados(val, 'cli-estados-list');
+                document.getElementById('cli-estado').value = '';
+                document.getElementById('cli-ciudad').value = '';
+                const dl = document.getElementById('cli-ciudades-list');
+                if(dl) dl.innerHTML = '';
+            }
+        }
+
+        function onEstadoChange() {
+            const pais = document.getElementById('cli-pais').value.trim();
+            const est = this.value.trim();
+            if (pais && est && typeof cargarCiudades === 'function') {
+                cargarCiudades(pais, est, 'cli-ciudades-list');
+            }
+        }
+
+        async function onSubmitCliente(e) {
+            e.preventDefault();
+            const id = document.getElementById('cliente-id').value;
+            const tipoPersona = document.getElementById('cli-tipo-persona').value;
+            const monCreditoId = await window.ensureCurrency(document.getElementById('cli-moneda-credito').value.trim());
+            const gpsArray = jsonACoordenadasDesdeInputs();
+            const telefonosArray = jsonATelefonosDesdeInputs();
+            const payload = {
+                empresa_id: currentUser.empresa_id,
+                tipo_documento: document.getElementById('cli-tipo-doc').value.trim()||null,
+                numero_documento: document.getElementById('cli-num-doc').value.trim()||null,
+                nombres: tipoPersona==='natural' ? document.getElementById('cli-nombres').value.trim() : null,
+                apellido_paterno: tipoPersona==='natural' ? document.getElementById('cli-ap').value.trim() : null,
+                apellido_materno: tipoPersona==='natural' ? document.getElementById('cli-am').value.trim() : null,
+                razon_social: tipoPersona==='juridica' ? document.getElementById('cli-razon-social').value.trim() : null,
+                nombre_comercial: document.getElementById('cli-nombre-comercial').value.trim()||null,
+                email: document.getElementById('cli-email').value.trim()||null,
+                telefonos: telefonosArray,
+                direccion: document.getElementById('cli-direccion').value.trim()||null,
+                direcciones_entrega: gpsArray,
+                pais: document.getElementById('cli-pais').value.trim()||null,
+                estado_provincia: document.getElementById('cli-estado').value.trim()||null,
+                ciudad: document.getElementById('cli-ciudad').value.trim()||null,
+                tipo_cliente: document.getElementById('cli-tipo-cliente').value||null,
+                segmento_mercado: document.getElementById('cli-segmento').value||null,
+                canal_venta: document.getElementById('cli-canal').value||null,
+                limite_credito: parseFloat(document.getElementById('cli-limite-credito').value)||null,
+                moneda_credito_id: monCreditoId,
+                dias_credito: parseInt(document.getElementById('cli-dias-credito').value)||null,
+                vendedor_asignado_id: document.getElementById('cli-vendedor').value||null,
+                lista_precios: parseJsonSeguro(document.getElementById('cli-lista-precios').value)
+            };
+            try {
+                const file = document.getElementById('file-cli-imagen').files[0];
+                if(file) payload.imagen = await window.uploadFile(file, 'clientes');
+            } catch {}
+            try {
+                if(id) {
+                    delete payload.empresa_id;
+                    await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload);
+                } else {
+                    await apiFetch('clientes', 'POST', payload);
+                }
+                window.cerrarModalCliente();
+                window.aplicarFiltrosClientes();
+                showNotification(id?'Cliente actualizado':'Cliente creado');
+            } catch(err) { showNotification('Error: '+err.message, 'error'); }
+        }
+
+        function parseJsonSeguro(valor) { if(!valor||!valor.trim()) return null; try { return JSON.parse(valor); } catch(e) { return null; } }
+
+        // Eventos
+        document.getElementById('cli-pais').addEventListener('input', onPaisChange);
+        document.getElementById('cli-estado').addEventListener('input', onEstadoChange);
+        document.getElementById('form-cliente').addEventListener('submit', onSubmitCliente);
+    })();
+</script>
