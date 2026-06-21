@@ -77,12 +77,25 @@
             'Gestor de Almacén':   ['catalogo']                                // solo catálogo
         };
 
-        // Mapeo de clave interna → archivo HTML que existe en el servidor
+        // Obtener la base de la ruta donde está este archivo (para rutas relativas)
+        function getBasePath() {
+            const path = window.location.pathname;
+            // Si termina con '/', es un directorio
+            if (path.endsWith('/')) return path;
+            // Si no, quita el nombre del archivo
+            const lastSlash = path.lastIndexOf('/');
+            return path.substring(0, lastSlash + 1);
+        }
+
+        const BASE_PATH = getBasePath();
+
+        // Mapeo de clave interna → archivo HTML (ruta absoluta desde la raíz)
+        // Usamos BASE_PATH para que funcione en cualquier subdirectorio
         const PAGE_FILES = {
-            catalogo: 'catalogo.html',
-            clientes: 'clientes.html',
-            equipo:   'equipo.html',
-            rutas:    'asignacion_rutas.html'
+            catalogo: BASE_PATH + 'catalogo.html',
+            clientes: BASE_PATH + 'clientes.html',
+            equipo:   BASE_PATH + 'equipo.html',
+            rutas:    BASE_PATH + 'asignacion_rutas.html'
         };
 
         // Información para el menú (icono y etiqueta)
@@ -118,7 +131,7 @@
 
         function cerrarSesion() {
             sessionStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         }
 
         // ═══════════════════════════════════════════
@@ -134,8 +147,6 @@
                 const file = PAGE_FILES[key];
                 if (!item || !file) return;
 
-                // Para rutas lo abrimos en una nueva pestaña (o en el iframe, como prefieras)
-                // Aquí lo abro en el iframe igual que los demás, porque es más limpio.
                 html += `<li><a href="#" data-panel="${key}" data-file="${file}">
                     <i class="fas ${item.icon}"></i> ${item.label}
                 </a></li>`;
