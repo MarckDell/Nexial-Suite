@@ -21,6 +21,7 @@
         .user-name { font-weight:700; font-size:1.15rem; color:#fff; }
         .user-role-badge { font-size:0.7rem; font-weight:600; background:linear-gradient(135deg,#1a56db,#4a8eff); padding:3px 12px; border-radius:20px; width:fit-content; margin-top:4px; color:#fff; }
         .btn-outline { background:transparent; border:1.5px solid rgba(255,255,255,0.35); color:white; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
+        .btn-outline:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.7); }
         .dashboard-container { margin-top:72px; display:flex; min-height:calc(100vh - 72px); }
         .sidebar { width:260px; background:white; border-right:1px solid #e5e7eb; padding:20px 0; position:fixed; top:72px; bottom:0; overflow-y:auto; z-index:900; }
         .sidebar-menu { list-style:none; }
@@ -28,8 +29,17 @@
         .sidebar-menu a { display:flex; align-items:center; gap:12px; padding:12px 18px; border-radius:12px; color:#475569; font-weight:500; font-size:0.9rem; text-decoration:none; transition:0.2s; }
         .sidebar-menu a:hover, .sidebar-menu a.active { background:#f1f5f9; color:#1a56db; font-weight:600; }
         .sidebar-menu a i { width:22px; text-align:center; }
-        .main-content { margin-left:260px; flex:1; height:calc(100vh - 72px); position:relative; }
+        .main-content { margin-left:260px; flex:1; height:calc(100vh - 72px); }
         iframe { width:100%; height:100%; border:none; }
+        @media (max-width:900px) {
+            .sidebar { width:100%; height:auto; position:relative; top:auto; bottom:auto; flex-direction:row; overflow-x:auto; padding:8px; border-right:none; border-bottom:1px solid #e2e8f0; }
+            .sidebar-menu { display:flex; gap:4px; }
+            .sidebar-menu li { padding:0; }
+            .sidebar-menu a { padding:8px 14px; font-size:0.78rem; white-space:nowrap; }
+            .main-content { margin-left:0; height:calc(100vh - 132px); }
+            .dashboard-container { flex-direction:column; }
+            .navbar { padding:0 12px; }
+        }
     </style>
 </head>
 <body>
@@ -43,6 +53,7 @@
             <button class="btn-outline" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
         </div>
     </nav>
+
     <div class="dashboard-container">
         <aside class="sidebar" id="sidebar-menu"></aside>
         <main class="main-content">
@@ -51,43 +62,42 @@
     </div>
 
     <script>
-        // ───────────────────── Configuración ─────────────────────
+        // ═══════════════════════════════════════════
+        // Configuración de roles y archivos reales
+        // ═══════════════════════════════════════════
+
+        // Definimos qué módulos (clave interna) puede ver cada rol
         const ROLE_PERMISSIONS = {
-            'Director Corporativo': ['inicio', 'equipo', 'metas', 'distribucion', 'clientes', 'productos', 'rutas', 'carga'],
-            'Director General':    ['inicio', 'equipo', 'metas', 'distribucion', 'clientes', 'productos', 'rutas', 'carga'],
-            'Director Financiero': ['inicio', 'equipo', 'metas', 'distribucion', 'clientes', 'productos'],
-            'Supervisor Senior':  ['inicio', 'equipo', 'metas', 'distribucion', 'clientes', 'productos', 'rutas', 'carga'],
-            'Ejecutivo Comercial': ['inicio', 'clientes', 'productos'],
-            'Especialista Logístico': ['inicio', 'distribucion', 'clientes', 'productos', 'rutas', 'carga'],
-            'Gestor de Almacén':   ['inicio', 'productos', 'distribucion']
+            'Director Corporativo': ['catalogo', 'clientes', 'equipo', 'rutas'],
+            'Director General':    ['catalogo', 'clientes', 'equipo', 'rutas'],
+            'Director Financiero': ['catalogo', 'clientes', 'equipo'],         // sin rutas
+            'Supervisor Senior':  ['catalogo', 'clientes', 'equipo', 'rutas'],
+            'Ejecutivo Comercial': ['catalogo', 'clientes'],                  // solo catálogo y clientes
+            'Especialista Logístico': ['catalogo', 'clientes', 'rutas'],       // sin equipo
+            'Gestor de Almacén':   ['catalogo']                                // solo catálogo
         };
 
-        // Mapea el panel a la página HTML que ya existe
-        const PANEL_FILES = {
-            inicio:        'inicio.html',        // si no existe, puedes dejar vacío o usar un placeholder
-            equipo:        'equipo.html',
-            metas:         'metas.html',
-            distribucion:  'distribucion.html',
-            clientes:      'clientes.html',
-            productos:     'productos.html',
-            rutas:         'asignacion_rutas.html',
-            carga:         'asignacion_carga.html'
+        // Mapeo de clave interna → archivo HTML que existe en el servidor
+        const PAGE_FILES = {
+            catalogo: 'catalogo.html',
+            clientes: 'clientes.html',
+            equipo:   'equipo.html',
+            rutas:    'asignacion_rutas.html'
         };
 
+        // Información para el menú (icono y etiqueta)
         const MENU_ITEMS = {
-            inicio:        { icon: 'fa-home',       label: 'Inicio' },
-            equipo:        { icon: 'fa-users',      label: 'Equipo' },
-            metas:         { icon: 'fa-bullseye',   label: 'Metas' },
-            distribucion:  { icon: 'fa-boxes',      label: 'Distribución' },
-            clientes:      { icon: 'fa-building',   label: 'Clientes' },
-            productos:     { icon: 'fa-box',        label: 'Productos' },
-            rutas:         { icon: 'fa-route',      label: 'Rutas' },
-            carga:         { icon: 'fa-truck-loading', label: 'Carga' }
+            catalogo: { icon: 'fa-box',         label: 'Catálogo' },
+            clientes: { icon: 'fa-building',    label: 'Clientes' },
+            equipo:   { icon: 'fa-users',       label: 'Equipo' },
+            rutas:    { icon: 'fa-route',       label: 'Rutas' }
         };
 
         let currentUser = null;
 
-        // ───────────────────── Sesión ─────────────────────
+        // ═══════════════════════════════════════════
+        // Sesión
+        // ═══════════════════════════════════════════
         function verificarSesion() {
             const s = sessionStorage.getItem('currentUser');
             if (!s) { window.location.href = 'login.html'; return false; }
@@ -111,32 +121,35 @@
             window.location.href = 'index.html';
         }
 
-        // ───────────────────── Sidebar ─────────────────────
+        // ═══════════════════════════════════════════
+        // Construcción del menú lateral
+        // ═══════════════════════════════════════════
         function buildSidebar(role) {
             const allowed = ROLE_PERMISSIONS[role] || [];
             const sidebar = document.getElementById('sidebar-menu');
-            sidebar.innerHTML = '<ul class="sidebar-menu">' +
-                allowed.map(key => {
-                    const item = MENU_ITEMS[key];
-                    if (!item) return '';
-                    const file = PANEL_FILES[key];
-                    // Si el archivo no existe (como inicio.html) no lo ponemos como enlace interno, mejor abrir en blanco
-                    if (!file) return '';
-                    // Para rutas y carga, podemos abrir en nueva pestaña o en el iframe (tú decides)
-                    if (key === 'rutas' || key === 'carga') {
-                        return `<li><a href="${file}" target="_blank" class="external-link"><i class="fas ${item.icon}"></i> ${item.label} <i class="fas fa-external-link-alt"></i></a></li>`;
-                    }
-                    return `<li><a href="#" data-panel="${key}" data-file="${file}"><i class="fas ${item.icon}"></i> ${item.label}</a></li>`;
-                }).join('') +
-                '</ul>';
+            let html = '<ul class="sidebar-menu">';
 
-            // Eventos de navegación
+            allowed.forEach(key => {
+                const item = MENU_ITEMS[key];
+                const file = PAGE_FILES[key];
+                if (!item || !file) return;
+
+                // Para rutas lo abrimos en una nueva pestaña (o en el iframe, como prefieras)
+                // Aquí lo abro en el iframe igual que los demás, porque es más limpio.
+                html += `<li><a href="#" data-panel="${key}" data-file="${file}">
+                    <i class="fas ${item.icon}"></i> ${item.label}
+                </a></li>`;
+            });
+
+            html += '</ul>';
+            sidebar.innerHTML = html;
+
+            // Agregar eventos de clic a los enlaces
             sidebar.querySelectorAll('a[data-panel]').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     const file = this.dataset.file;
-                    const panel = this.dataset.panel;
-                    // Marcar activo
+                    // Marcar como activo
                     sidebar.querySelectorAll('a').forEach(a => a.classList.remove('active'));
                     this.classList.add('active');
                     // Cargar en el iframe
@@ -145,19 +158,24 @@
             });
         }
 
-        // ───────────────────── Inicio ─────────────────────
+        // ═══════════════════════════════════════════
+        // Inicialización
+        // ═══════════════════════════════════════════
         window.addEventListener('DOMContentLoaded', () => {
             if (!verificarSesion()) return;
             buildSidebar(currentUser.rol);
-            // Cargar el primer panel permitido que no sea rutas/carga (para que se vea algo)
+
+            // Cargar automáticamente el primer módulo permitido
             const allowed = ROLE_PERMISSIONS[currentUser.rol] || [];
-            const firstPanel = allowed.find(p => p !== 'rutas' && p !== 'carga' && PANEL_FILES[p]) || allowed[0];
-            if (firstPanel) {
-                const file = PANEL_FILES[firstPanel];
-                document.getElementById('content-frame').src = file;
-                // Activar enlace correspondiente
-                const activeLink = document.querySelector(`.sidebar-menu a[data-panel="${firstPanel}"]`);
-                if (activeLink) activeLink.classList.add('active');
+            if (allowed.length > 0) {
+                const firstKey = allowed[0];
+                const firstFile = PAGE_FILES[firstKey];
+                if (firstFile) {
+                    document.getElementById('content-frame').src = firstFile;
+                    // Activar el enlace correspondiente
+                    const firstLink = document.querySelector(`.sidebar-menu a[data-panel="${firstKey}"]`);
+                    if (firstLink) firstLink.classList.add('active');
+                }
             }
         });
     </script>
