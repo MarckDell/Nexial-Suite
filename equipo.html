@@ -1,4 +1,4 @@
-<!-- FRAGMENTO: equipo.html – Gestión de Equipo (Comercial / Distribución) -->
+<!-- FRAGMENTO: equipo.html – Gestión completa de Equipo (Comercial / Distribución) -->
 <div class="tabs-compact" id="equipo-tabs">
     <button class="tab-btn-compact active" data-tab="comercial"><i class="fas fa-user-tie"></i> Comercial</button>
     <button class="tab-btn-compact" data-tab="distribucion"><i class="fas fa-truck"></i> Distribución</button>
@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<!-- Modal Usuario (completo) -->
+<!-- Modal Usuario (FORMULARIO COMPLETO) -->
 <div class="modal-overlay" id="modal-usuario">
     <div class="modal">
         <div class="modal-header">
@@ -38,15 +38,21 @@
             <input type="hidden" id="usuario-id">
             <input type="hidden" id="empleado-id">
             <div class="info-banner"><i class="fas fa-info-circle"></i> Complete primero el <strong>País</strong> para que los campos de documento, moneda, estados y ciudades se configuren automáticamente.</div>
+            
+            <!-- País, Extensión -->
             <div class="form-row">
                 <div class="form-col"><div class="form-group"><label>País</label><input id="usr-pais" list="usr-paises-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="usr-paises-list"></datalist></div></div>
                 <div class="form-col"><div class="form-group"><label>Extensión Tel.</label><input id="usr-extension" readonly style="background:#f1f5f9;"></div></div>
             </div>
+            
+            <!-- Nombres, Apellidos -->
             <div class="form-row">
                 <div class="form-col"><div class="form-group"><label>Nombres *</label><input id="usr-nombres" required oninput="capitalizarInput(this)"></div></div>
                 <div class="form-col"><div class="form-group"><label>Apellido Paterno *</label><input id="usr-ap" required oninput="capitalizarInput(this)"></div></div>
                 <div class="form-col"><div class="form-group"><label>Apellido Materno</label><input id="usr-am" oninput="capitalizarInput(this)"></div></div>
             </div>
+            
+            <!-- Email, Rol, Teléfonos -->
             <div class="form-row">
                 <div class="form-col"><div class="form-group"><label>Email *</label><input id="usr-email" type="email" required></div></div>
                 <div class="form-col"><div class="form-group"><label>Rol *</label><select id="usr-rol" required></select></div></div>
@@ -55,39 +61,60 @@
                     <button type="button" class="btn-add-phone" onclick="agregarTelefono()" title="Agregar teléfono" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar teléfono</button>
                 </div></div>
             </div>
+            
+            <!-- Contraseña -->
             <div class="form-row" id="password-fields">
-                <div class="form-col" style="position:relative;"><div class="form-group"><label>Contraseña *</label><input id="usr-password" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div><button type="button" class="password-toggle" tabindex="-1" onclick="togglePassword('usr-password', this)"><i class="far fa-eye"></i></button></div>
-                <div class="form-col" style="position:relative;"><div class="form-group"><label>Repetir contraseña *</label><input id="usr-password2" type="password" placeholder="Repita la contraseña" autocomplete="new-password"></div><button type="button" class="password-toggle" tabindex="-1" onclick="togglePassword('usr-password2', this)"><i class="far fa-eye"></i></button></div>
+                <div class="form-col" style="position:relative;">
+                    <div class="form-group"><label>Contraseña *</label><input id="usr-password" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
+                    <button type="button" class="password-toggle" tabindex="-1" onclick="togglePassword('usr-password', this)"><i class="far fa-eye"></i></button>
+                </div>
+                <div class="form-col" style="position:relative;">
+                    <div class="form-group"><label>Repetir contraseña *</label><input id="usr-password2" type="password" placeholder="Repita la contraseña" autocomplete="new-password"></div>
+                    <button type="button" class="password-toggle" tabindex="-1" onclick="togglePassword('usr-password2', this)"><i class="far fa-eye"></i></button>
+                </div>
             </div>
+            
+            <!-- Documento, Fecha Nac. -->
             <div class="form-row">
                 <div class="form-col"><div class="form-group"><label>Tipo Documento</label><select id="usr-tipo-doc"></select></div></div>
                 <div class="form-col"><div class="form-group"><label>Número Documento</label><input id="usr-num-doc"></div></div>
                 <div class="form-col"><div class="form-group"><label>Fecha Nacimiento</label><input id="usr-fecha-nac" type="date"></div></div>
             </div>
+            
+            <!-- Dirección, Estado, Ciudad -->
             <div class="form-row">
                 <div class="form-col"><div class="form-group"><label>Dirección</label><input id="usr-direccion" oninput="capitalizarInput(this)"></div></div>
                 <div class="form-col"><div class="form-group"><label>Estado / Provincia</label><input id="usr-estado" list="usr-estados-list" autocomplete="off"><datalist id="usr-estados-list"></datalist></div></div>
                 <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="usr-ciudad" list="usr-ciudades-list" autocomplete="off" oninput="capitalizarInput(this)"><datalist id="usr-ciudades-list"></datalist></div></div>
             </div>
+            
+            <!-- Puesto, Depto, Supervisor -->
             <div class="form-row">
                 <div class="form-col"><div class="form-group"><label>Puesto</label><input id="usr-puesto" list="puestos-list" oninput="capitalizarInput(this)"><datalist id="puestos-list"></datalist></div></div>
                 <div class="form-col"><div class="form-group"><label>Departamento</label><input id="usr-departamento" list="departamentos-list" oninput="capitalizarInput(this)"><datalist id="departamentos-list"></datalist></div></div>
                 <div class="form-col"><div class="form-group"><label>Supervisor</label><select id="usr-supervisor"><option value="">Sin supervisor</option></select></div></div>
             </div>
+            
+            <!-- Salario, Moneda, Contrato -->
             <div class="form-row">
                 <div class="form-col"><div class="form-group"><label>Salario Base</label><input id="usr-salario" type="number" step="0.01" min="0"></div></div>
                 <div class="form-col"><div class="form-group"><label>Moneda Salario</label><input id="usr-moneda-salario" list="monedas-global-list-emp"><datalist id="monedas-global-list-emp"></datalist></div></div>
                 <div class="form-col"><div class="form-group"><label>Tipo Contrato</label><input id="usr-tipo-contrato" list="tipos-contrato-list" oninput="capitalizarInput(this)"><datalist id="tipos-contrato-list"></datalist></div></div>
             </div>
+            
+            <!-- Fechas, Imagen -->
             <div class="form-row">
                 <div class="form-col"><div class="form-group"><label>Fecha Contratación</label><input id="usr-fecha-contrato" type="date"></div></div>
                 <div class="form-col"><div class="form-group"><label>Fecha Fin (opcional)</label><input id="usr-fecha-fin" type="date"></div></div>
                 <div class="form-col"><div class="form-group"><label>Imagen</label><input type="file" id="file-usr-imagen" accept="image/*"></div></div>
             </div>
+            
+            <!-- Capacidad Vehículo (solo para Logístico) -->
             <div class="form-row" id="row-capacidad-vehiculo" style="display:none;">
                 <div class="form-col"><div class="form-group"><label>Capacidad Vehículo</label><input id="usr-capacidad-vehiculo" type="number" step="0.01" min="0" placeholder="Ej: 2.5"></div></div>
                 <div class="form-col"><div class="form-group"><label>Unidad Capacidad</label><input id="usr-unidad-capacidad" list="unidad-cap-list" placeholder="toneladas, kg, m³..."><datalist id="unidad-cap-list"></datalist></div></div>
             </div>
+            
             <div style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
                 <button type="button" class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalUsuario()">Cancelar</button>
                 <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
@@ -101,16 +128,13 @@
 
 <script>
 (function() {
-    /* ==============================================
-       MÓDULO EQUIPO – Versión completa
-       ============================================== */
-    // Esperar a que el entorno global esté listo
+    // Esperar a que el entorno global (SUPABASE, currentUser, etc.) esté disponible
     if (typeof apiFetch !== 'function' || typeof currentUser === 'undefined') {
         setTimeout(arguments.callee, 50);
         return;
     }
 
-    // Constantes locales
+    // Constantes
     const rolesDisponibles = ['Ejecutivo Comercial', 'Especialista Logístico', 'Gestor de Almacén'];
     const puestoPorRol = {
         'Ejecutivo Comercial':'Ejecutivo Comercial',
@@ -152,13 +176,13 @@
 
     let tabActivo = 'comercial';
 
-    // Inicialización
-    llenarRolesSelect();
+    // Inicializar datalists y eventos
     llenarDatalists();
-    // Eventos de cambio en el país/estado dentro del modal
+    llenarRolesSelect();
     document.getElementById('usr-pais').addEventListener('input', onPaisChange);
     document.getElementById('usr-estado').addEventListener('input', onEstadoChange);
     document.getElementById('usr-rol').addEventListener('change', onRolChange);
+
     // Tabs
     document.querySelectorAll('#equipo-tabs .tab-btn-compact').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -172,7 +196,7 @@
     // Cargar primera vista
     cargarEquipo('comercial');
 
-    /* ---- Funciones públicas (expuestas al scope global para onclick) ---- */
+    /* ===== FUNCIONES PÚBLICAS (expuestas al scope global) ===== */
     window.abrirModalUsuario = function(id, tab) {
         const modal = document.getElementById('modal-usuario');
         modal.classList.add('active');
@@ -183,7 +207,7 @@
         document.getElementById('password-fields').style.display = 'flex';
         document.getElementById('titulo-modal-usuario').textContent = 'Nuevo Miembro';
         document.getElementById('row-capacidad-vehiculo').style.display = 'none';
-        document.getElementById('usr-moneda-salario').value = window.monedaPorDefecto ? monedaPorDefecto() : (empresaMonedaCodigo || 'USD');
+        document.getElementById('usr-moneda-salario').value = (typeof monedaPorDefecto === 'function') ? monedaPorDefecto() : (empresaMonedaCodigo || 'USD');
         document.getElementById('usr-pais').value = empresaPais || '';
         if (empresaPais) {
             actualizarDependenciasPaisEmpleado(empresaPais);
@@ -227,20 +251,12 @@
         document.getElementById('usr-password').required = false;
         document.getElementById('usr-password2').required = false;
         document.getElementById('titulo-modal-usuario').textContent = 'Editar Miembro';
+        onRolChange.call(document.getElementById('usr-rol'));
 
-        const rowCap = document.getElementById('row-capacidad-vehiculo');
-        if (u.rol === 'Especialista Logístico') {
-            rowCap.style.display = 'flex';
-        } else {
-            rowCap.style.display = 'none';
-            document.getElementById('usr-capacidad-vehiculo').value = '';
-            document.getElementById('usr-unidad-capacidad').value = '';
-        }
         document.getElementById('usr-puesto').value = puestoPorRol[u.rol] || '';
         document.getElementById('usr-departamento').value = deptosPorRol[u.rol] || '';
-        document.getElementById('usr-moneda-salario').value = window.monedaPorDefecto ? monedaPorDefecto() : '';
+        document.getElementById('usr-moneda-salario').value = (typeof monedaPorDefecto === 'function') ? monedaPorDefecto() : '';
 
-        // Buscar empleado asociado
         const empleados = await apiFetch(`empleados?empresa_id=eq.${currentUser.empresa_id}&email=eq.${encodeURIComponent(u.email)}&select=*&order=creado_en.desc&limit=1`);
         if (empleados.length) {
             const e = empleados[0];
@@ -308,7 +324,7 @@
         agregarTelefonoGenerico('#telefonos-container');
     };
 
-    // Manejador del envío del formulario
+    // Envío del formulario
     document.getElementById('form-usuario').addEventListener('submit', async function(e) {
         e.preventDefault();
         const userId = document.getElementById('usuario-id').value;
@@ -330,10 +346,7 @@
         const pass = document.getElementById('usr-password').value;
         const pass2 = document.getElementById('usr-password2').value;
         if (pass && pass.length >= 6) {
-            if (pass !== pass2) {
-                showNotification('Las contraseñas no coinciden', 'error');
-                return;
-            }
+            if (pass !== pass2) { showNotification('Las contraseñas no coinciden', 'error'); return; }
             const hashResp = await apiFetch('rpc/crypt_password', 'POST', { pass });
             payloadUsuario.password_hash = typeof hashResp === 'string' ? hashResp : hashResp.crypt_password;
         }
@@ -383,14 +396,8 @@
 
         try {
             if (!userId) {
-                if (!pass || pass.length < 6) {
-                    showNotification('Contraseña mínima 6 caracteres', 'error');
-                    return;
-                }
-                if (pass !== pass2) {
-                    showNotification('Las contraseñas no coinciden', 'error');
-                    return;
-                }
+                if (!pass || pass.length < 6) { showNotification('Contraseña mínima 6 caracteres', 'error'); return; }
+                if (pass !== pass2) { showNotification('Las contraseñas no coinciden', 'error'); return; }
                 if (!payloadUsuario.password_hash) {
                     const hashResp = await apiFetch('rpc/crypt_password', 'POST', { pass });
                     payloadUsuario.password_hash = typeof hashResp === 'string' ? hashResp : hashResp.crypt_password;
@@ -416,7 +423,7 @@
         }
     });
 
-    /* ---- Funciones privadas ---- */
+    /* ===== FUNCIONES PRIVADAS ===== */
     async function cargarEquipo(tab) {
         if (!currentUser || !currentUser.empresa_id) return;
         tabActivo = tab;
@@ -446,23 +453,6 @@
         if (!filas) filas = '<tr><td colspan="6" style="text-align:center;">No hay miembros.</td></tr>';
         document.getElementById('equipo-tbody').innerHTML = filas;
         document.getElementById('equipo-titulo').textContent = tab === 'comercial' ? 'Equipo Comercial' : 'Equipo Distribución';
-        // Actualizar botón "Nuevo Miembro" para que envíe el tab correcto
-        const btnNuevo = document.querySelector('#equipo-titulo + button') || document.querySelector('.card-header .btn-solid');
-        if (btnNuevo) {
-            btnNuevo.onclick = function() { abrirModalUsuario(null, tabActivo); };
-        }
-    }
-
-    function llenarRolesSelect() {
-        const sel = document.getElementById('usr-rol');
-        if (!sel) return;
-        sel.innerHTML = '';
-        rolesDisponibles.forEach(r => {
-            const o = document.createElement('option');
-            o.value = r;
-            o.text = r;
-            sel.appendChild(o);
-        });
     }
 
     function llenarDatalists() {
@@ -470,32 +460,27 @@
         const dlPaises = document.getElementById('usr-paises-list');
         if (dlPaises && typeof paisesData !== 'undefined') {
             dlPaises.innerHTML = '';
-            paisesData.forEach(p => {
-                const o = document.createElement('option');
-                o.value = p.name.common;
-                dlPaises.appendChild(o);
-            });
+            paisesData.forEach(p => { const o = document.createElement('option'); o.value = p.name.common; dlPaises.appendChild(o); });
         }
         // Monedas
         const dlMon = document.getElementById('monedas-global-list-emp');
         if (dlMon && typeof todasLasMonedas !== 'undefined') {
             dlMon.innerHTML = '';
-            todasLasMonedas.forEach(m => {
-                const o = document.createElement('option');
-                o.value = `${m.codigo} - ${m.nombre}`;
-                dlMon.appendChild(o);
-            });
+            todasLasMonedas.forEach(m => { const o = document.createElement('option'); o.value = `${m.codigo} - ${m.nombre}`; dlMon.appendChild(o); });
         }
         // Capacidades
         const dlCap = document.getElementById('unidad-cap-list');
         if (dlCap) {
             dlCap.innerHTML = '';
-            ['toneladas','kg','m³','litros','unidades','pallets'].forEach(u => {
-                const o = document.createElement('option');
-                o.value = u;
-                dlCap.appendChild(o);
-            });
+            ['toneladas','kg','m³','litros','unidades','pallets'].forEach(u => { const o = document.createElement('option'); o.value = u; dlCap.appendChild(o); });
         }
+    }
+
+    function llenarRolesSelect() {
+        const sel = document.getElementById('usr-rol');
+        if (!sel) return;
+        sel.innerHTML = '';
+        rolesDisponibles.forEach(r => { const o = document.createElement('option'); o.value = r; o.text = r; sel.appendChild(o); });
     }
 
     function actualizarSelectTiposDocumento(pais, selectId) {
@@ -504,12 +489,7 @@
         sel.innerHTML = '';
         const clave = Object.keys(tiposDocPorPais).find(k => k.toLowerCase() === pais.toLowerCase());
         const tipos = clave ? tiposDocPorPais[clave] : ['CI','Pasaporte','DNI','RUC','NIT'];
-        tipos.forEach(codigo => {
-            const o = document.createElement('option');
-            o.value = codigo;
-            o.text = tiposDocCompletos[codigo] || codigo;
-            sel.appendChild(o);
-        });
+        tipos.forEach(codigo => { const o = document.createElement('option'); o.value = codigo; o.text = tiposDocCompletos[codigo] || codigo; sel.appendChild(o); });
     }
 
     function actualizarTiposContrato(pais) {
@@ -518,11 +498,7 @@
         dl.innerHTML = '';
         const clave = Object.keys(contratosBase).find(k => k.toLowerCase() === pais.toLowerCase());
         const lista = contratosBase[clave] || contratosBase['default'];
-        lista.forEach(c => {
-            const o = document.createElement('option');
-            o.value = c;
-            dl.appendChild(o);
-        });
+        lista.forEach(c => { const o = document.createElement('option'); o.value = c; dl.appendChild(o); });
     }
 
     function actualizarDependenciasPaisEmpleado(paisVal) {
@@ -580,18 +556,12 @@
         } catch(e) {}
     }
 
-    function onPaisChange() {
-        actualizarDependenciasPaisEmpleado(this.value.trim());
-    }
-
+    function onPaisChange() { actualizarDependenciasPaisEmpleado(this.value.trim()); }
     function onEstadoChange() {
         const pais = document.getElementById('usr-pais').value.trim();
         const est = this.value.trim();
-        if (pais && est && typeof cargarCiudades === 'function') {
-            cargarCiudades(pais, est, 'usr-ciudades-list');
-        }
+        if (pais && est && typeof cargarCiudades === 'function') cargarCiudades(pais, est, 'usr-ciudades-list');
     }
-
     function onRolChange() {
         const rol = this.value;
         document.getElementById('usr-puesto').value = puestoPorRol[rol] || '';
@@ -606,7 +576,7 @@
         }
     }
 
-    // Teléfonos dinámicos
+    /* Teléfonos dinámicos */
     function llenarInputsTelefonoDesdeJson(containerSelector, telefonos) {
         const container = document.querySelector(containerSelector);
         if (!container) return;
@@ -677,7 +647,7 @@
         return arr.map(item => typeof item === 'string' ? item : (item.numero || '')).filter(Boolean).join(', ');
     }
 
-    // WhatsApp
+    /* WhatsApp */
     function generarBotonWhatsApp(telefonosJson) {
         const numeros = [];
         if (Array.isArray(telefonosJson)) {
@@ -719,7 +689,6 @@
         }
     };
 
-    // Cierre global de dropdowns
     document.addEventListener('click', function(e) {
         const dropdowns = document.querySelectorAll('.whatsapp-dropdown-content.show');
         let inside = false;
