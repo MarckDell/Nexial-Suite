@@ -188,7 +188,6 @@
             { name: { common: 'Estados Unidos' }, cca2: 'US', idd: { root: '+1', suffixes: [''] }, currencies: { USD: { name: 'Dólar estadounidense', symbol: '$' } } }
         ];
 
-        // Funciones auxiliares (capitalizar, notificaciones, apiFetch, etc.)
         function capitalizarInput(el) { let val=el.value, pos=el.selectionStart; val=val.replace(/(?:^|\s)(\p{L})/gu,(m,p)=>m.toUpperCase()); el.value=val; el.setSelectionRange(pos,pos); }
         function verificarSesion() { const s=sessionStorage.getItem('currentUser'); if(!s){window.location.href='login.html';return;} currentUser=JSON.parse(s); if(currentUser.rol!=='Supervisor Senior' && currentUser.rol!=='Director General' && currentUser.rol!=='Director Financiero'){sessionStorage.removeItem('currentUser');window.location.href='login.html';} }
         function showNotification(m,t='success'){const n=document.getElementById('notification');n.querySelector('span').innerText=m;n.className=`notification ${t}`;n.style.display='flex';setTimeout(()=>n.style.display='none',4500);}
@@ -221,11 +220,10 @@
         document.addEventListener('click',function(e){const dropdowns=document.querySelectorAll('.whatsapp-dropdown-content.show');let clickedInside=false;dropdowns.forEach(dd=>{if(dd.contains(e.target))clickedInside=true;});if(!clickedInside)dropdowns.forEach(dd=>dd.classList.remove('show'));});
         function generarBotonWhatsApp(telefonosJson){const numeros=[];if(Array.isArray(telefonosJson)){telefonosJson.forEach(item=>{if(typeof item==='string')numeros.push(item);else if(item&&item.numero)numeros.push(item.numero);});}else if(typeof telefonosJson==='string')numeros.push(...telefonosJson.split(',').map(t=>t.trim()).filter(t=>t));if(!numeros.length)return'';if(numeros.length===1)return`<button class="btn-sm btn-whatsapp" onclick="abrirWhatsApp('${numeros[0]}')" title="Hablar por WhatsApp"><i class="fab fa-whatsapp"></i></button>`;const idUnico='whatsapp-dd-'+Math.random().toString(36).substr(2,9);let opciones=numeros.map(n=>`<a href="#" onclick="event.preventDefault(); abrirWhatsApp('${n}'); document.getElementById('${idUnico}').classList.remove('show');">📞 ${n}</a>`).join('');return`<div class="whatsapp-dropdown"><button class="btn-sm btn-whatsapp" onclick="event.stopPropagation(); toggleWhatsAppDropdown(this, '${idUnico}')"><i class="fab fa-whatsapp"></i> <i class="fas fa-caret-down" style="font-size:0.7rem;"></i></button><div class="whatsapp-dropdown-content" id="${idUnico}">${opciones}</div></div>`;}
 
-        // Funciones específicas del módulo de equipo
+        // Lógica del módulo de equipo
         function llenarRolesSelect(){const sel=document.getElementById('usr-rol');if(!sel)return;sel.innerHTML='';rolesDisponibles.forEach(r=>{const o=document.createElement('option');o.value=r;o.text=r;sel.appendChild(o);});}
         async function llenarSelectSupervisores(selectId,seleccionado=''){if(!currentUser||!currentUser.empresa_id)return;const sel=document.getElementById(selectId);if(!sel)return;sel.innerHTML='<option value="">Sin supervisor</option>';try{const rolesFiltro=['Supervisor Senior','Director General','Director Financiero'].map(r=>`"${r}"`).join(',');const supervisoresUsuarios=await apiFetch(`usuarios?empresa_id=eq.${currentUser.empresa_id}&rol=in.(${encodeURIComponent(rolesFiltro)})&select=email&limit=1000`);const emails=supervisoresUsuarios.map(u=>u.email.toLowerCase());if(emails.length===0)return;const emps=await apiFetch(`empleados?empresa_id=eq.${currentUser.empresa_id}&activo=eq.true&select=id,nombres,apellido_paterno,email&limit=1000`);const filtrados=emps.filter(e=>emails.includes((e.email||'').toLowerCase()));filtrados.forEach(e=>{const o=document.createElement('option');o.value=e.id;o.text=`${e.nombres} ${e.apellido_paterno}`;if(e.id===seleccionado)o.selected=true;sel.appendChild(o);});}catch(e){}}
 
-        // Cargar panel de equipo
         async function cargarEquipo(tab='comercial'){
             if(!currentUser||!currentUser.empresa_id)return;
             const empId=currentUser.empresa_id;
@@ -302,7 +300,6 @@
         function toggleUsuario(id,activo){const accion=activo?'activar':'desactivar';mostrarConfirmacion(`¿${accion} usuario?`,'Cambiar estado',async()=>{await apiFetch(`usuarios?id=eq.${id}`,'PATCH',{activo});cargarEquipo(document.querySelector('#equipo-container .tab-btn-compact.active')?.dataset.tab||'comercial');showNotification(activo?'Usuario activado':'Usuario desactivado');});}
         function eliminarUsuarioDefinitivo(id){mostrarConfirmacion('¿Eliminar permanentemente este usuario y su empleado asociado?','Eliminar Usuario',async()=>{await apiFetch(`usuarios?id=eq.${id}`,'DELETE');cargarEquipo(document.querySelector('#equipo-container .tab-btn-compact.active')?.dataset.tab||'comercial');showNotification('Usuario eliminado');});}
 
-        // Eventos del formulario de usuario
         document.getElementById('form-usuario').addEventListener('submit',async function(e){
             e.preventDefault();const userId=document.getElementById('usuario-id').value,empleadoId=document.getElementById('empleado-id').value;
             const rol=document.getElementById('usr-rol').value;
@@ -363,7 +360,6 @@
         });
         document.querySelectorAll('form').forEach(f=>f.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA'&&!e.target.closest('button[type="submit"]'))e.preventDefault();}));
 
-        // Carga inicial de datos estáticos (países, monedas)
         async function cargarDatosIniciales(){
             paisesData=PAISES_ESTATICOS;
             ['usr-paises-list'].forEach(id=>{const dl=document.getElementById(id);if(!dl)return;dl.innerHTML='';paisesData.forEach(p=>{const o=document.createElement('option');o.value=p.name.common;dl.appendChild(o);});});
@@ -383,7 +379,6 @@
             const dlCap=document.getElementById('unidad-cap-list');if(dlCap){dlCap.innerHTML='';caps.forEach(u=>{const o=document.createElement('option');o.value=u;dlCap.appendChild(o);});}
         }
 
-        // Arranque
         window.onload=async function(){
             verificarSesion();
             if(currentUser){
