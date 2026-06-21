@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexial Suite · Panel Directivo</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
-    <!-- Tema Nexial Suite -->
+    <!-- ============================================= -->
+    <!-- NEXIAL SUITE · TEMA BASE (copiar y pegar)      -->
+    <!-- ============================================= -->
+    <!-- 1. Fuente Inter (Google Fonts) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- 2. Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ===== RESET Y BASE ===== */
@@ -42,6 +46,17 @@
         .header-actions { display:flex; align-items:center; gap:20px; }
 
         /* ===== BOTONES ===== */
+        .btn-solid {
+            background:#1a56db; border:none; color:white;
+            padding:10px 24px; border-radius:40px;
+            font-weight:600; font-size:0.9rem; cursor:pointer;
+            transition:0.25s; display:inline-flex; align-items:center; gap:8px;
+            font-family:'Inter',sans-serif;
+        }
+        .btn-solid:hover { background:#1340a0; box-shadow:0 0 18px rgba(26,86,219,0.5); }
+        .btn-solid.danger { background:#c2412c; }
+        .btn-solid.danger:hover { background:#9b1b1b; }
+
         .btn-outline {
             background:transparent; border:1.5px solid rgba(255,255,255,0.35); color:white;
             padding:10px 24px; border-radius:40px;
@@ -50,6 +65,30 @@
             font-family:'Inter',sans-serif;
         }
         .btn-outline:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.7); box-shadow:0 0 18px rgba(0,150,255,0.3); }
+        .btn-outline.dark { border-color:#cbd5e1; color:#1e293b; }
+        .btn-outline.dark:hover { background:#f1f5f9; border-color:#94a3b8; }
+
+        .btn-sm {
+            padding:6px 14px; border-radius:20px; font-size:0.8rem; font-weight:600;
+            border:none; cursor:pointer;
+            display:inline-flex; align-items:center; gap:6px;
+            font-family:'Inter',sans-serif;
+        }
+        .btn-sm.edit { background:#e0f2fe; color:#0369a1; }
+        .btn-sm.delete { background:#fee2e2; color:#991b1b; }
+        .btn-sm.activate { background:#dcfce7; color:#166534; }
+        .btn-sm.edit:hover { background:#bae6fd; }
+        .btn-sm.delete:hover { background:#fecaca; }
+        .btn-sm.activate:hover { background:#bbf7d0; }
+
+        .btn-add {
+            background:#1a56db; color:white; border:none;
+            padding:10px 18px; border-radius:30px;
+            font-weight:600; font-size:0.9rem;
+            display:inline-flex; align-items:center; gap:6px;
+            margin-bottom:12px; cursor:pointer;
+        }
+
         .btn-icon {
             background:rgba(255,255,255,0.1); border:none; color:white;
             width:40px; height:40px; border-radius:50%; cursor:pointer;
@@ -58,22 +97,71 @@
         }
         .btn-icon:hover { background:rgba(255,255,255,0.2); }
 
-        .user-info {
-            display:flex; align-items:center; gap:14px; color:white;
-            padding:8px 20px; border-radius:14px; background:rgba(255,255,255,0.05);
-            border:1px solid rgba(255,255,255,0.10); backdrop-filter:blur(8px); transition:0.25s;
-        }
-        .user-info:hover { background:rgba(255,255,255,0.10); border-color:rgba(255,255,255,0.20); }
-        .user-icon { font-size:1.6rem; color:#1a56db; filter:drop-shadow(0 0 6px rgba(26,86,219,0.5)); }
-        .user-details { display:flex; flex-direction:column; line-height:1.3; }
-        .user-name { font-weight:700; font-size:1.1rem; letter-spacing:0.2px; color:#ffffff; }
-        .user-role-badge {
-            font-size:0.7rem; font-weight:600; background:linear-gradient(135deg,#1a56db,#4da6ff);
-            padding:3px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:0.8px;
-            width:fit-content; margin-top:4px; color:#fff; box-shadow:0 2px 8px rgba(26,86,219,0.3);
+        /* ===== TARJETAS ===== */
+        .card {
+            background:white; border-radius:20px; padding:20px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.04); margin-bottom:16px;
         }
 
-        /* ===== LAYOUT ===== */
+        /* ===== TABLAS ===== */
+        .table-wrapper { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+        th, td { padding:10px 8px; text-align:left; border-bottom:1px solid #e2e8f0; }
+        th { background:#f8fafc; color:#475569; font-weight:600; text-transform:uppercase; font-size:0.7rem; }
+        tr.clickable-row { cursor:pointer; transition: background 0.2s; }
+        tr.clickable-row:hover td { background:#f1f5f9; }
+
+        /* ===== BADGES ===== */
+        .badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:0.7rem; font-weight:600; }
+        .badge-success { background:#dcfce7; color:#166534; }
+        .badge-danger { background:#fee2e2; color:#991b1b; }
+
+        /* ===== MODALES ===== */
+        .modal-overlay {
+            position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(2,6,18,0.8); backdrop-filter:blur(8px);
+            z-index:2000; display:none; align-items:flex-end; justify-content:center;
+        }
+        .modal-overlay.active { display:flex; }
+        .modal {
+            background:white; border-radius:28px 28px 0 0; padding:24px 20px;
+            width:100%; max-height:90vh; overflow-y:auto;
+            box-shadow:0 -8px 32px rgba(0,0,0,0.15);
+            animation:slideUp 0.25s ease;
+        }
+        @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .modal-header h2 { font-size:1.4rem; font-weight:700; color:#0f172a; }
+        .close-modal { background:none; border:none; font-size:1.8rem; color:#64748b; cursor:pointer; }
+
+        /* ===== FORMULARIOS ===== */
+        .form-group { margin-bottom:14px; }
+        .form-group label {
+            font-size:0.73rem; font-weight:700; text-transform:uppercase;
+            color:#334155; display:block; margin-bottom:4px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width:100%; padding:10px; border:1.5px solid #e2e8f0;
+            border-radius:12px; font-size:0.9rem; font-family:'Inter',sans-serif;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color:#1a56db; outline:none; box-shadow:0 0 0 3px rgba(26,86,219,0.08);
+        }
+
+        .form-row { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:8px; }
+        .form-col { flex:1; min-width:180px; }
+
+        /* ===== NOTIFICACIONES ===== */
+        .notification {
+            position:fixed; top:16px; right:16px;
+            background:#1a1f36; color:white; padding:12px 20px;
+            border-radius:40px; font-weight:500; z-index:3000;
+            font-size:0.85rem; display:none; align-items:center; gap:8px;
+        }
+        .notification.error { background:#c2412c; }
+        .notification.success { background:#2c6e49; }
+
+        /* ===== LAYOUT DASHBOARD ===== */
         .dashboard-container { display:flex; min-height:100vh; padding-top:80px; }
         .sidebar {
             width:260px; background:white; border-right:1px solid #e2e8f0;
@@ -98,6 +186,7 @@
         .section-panel { display:none; }
         .section-panel.active { display:block; }
 
+        /* PESTAÑAS */
         .tabs-nav {
             display:flex; gap:0; margin-bottom:28px;
             border-bottom:2px solid #e2e8f0; flex-wrap:wrap; overflow-x:auto;
@@ -114,14 +203,29 @@
         .tab-content { display:none; }
         .tab-content.active { display:block; }
 
-        .notification {
-            position:fixed; top:16px; right:16px;
-            background:#1a1f36; color:white; padding:12px 20px;
-            border-radius:40px; font-weight:500; z-index:3000;
-            font-size:0.85rem; display:none; align-items:center; gap:8px;
+        .filtros {
+            display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:20px;
         }
-        .notification.error { background:#c2412c; }
-        .notification.success { background:#2c6e49; }
+        .filtros select, .filtros input, .filtros button {
+            padding:8px 16px; border-radius:30px; border:1.5px solid #e2e8f0;
+            font-family:'Inter',sans-serif; background:white; font-size:0.85rem;
+        }
+        .filtros button {
+            background:#1a56db; color:white; border:none; cursor:pointer; font-weight:600;
+        }
+        .filtros button:hover { background:#1340a0; }
+
+        .graficos-grid {
+            display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-top:20px;
+        }
+        @media (max-width:900px) { .graficos-grid { grid-template-columns:1fr; } }
+        .grafico-box {
+            background:#f8fafc; border-radius:20px; padding:20px;
+            border:1px solid #e2e8f0; min-width:300px;
+        }
+        .grafico-box h3 { font-size:1rem; font-weight:700; color:#0f172a; margin-bottom:16px; text-align:center; }
+
+        .file-upload-area { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
     </style>
 </head>
 <body>
@@ -154,22 +258,12 @@
                 <button class="tab-btn" data-tab="clientes"><i class="fas fa-users"></i> Clientes</button>
                 <button class="tab-btn" data-tab="productos"><i class="fas fa-box"></i> Productos</button>
                 <button class="tab-btn" data-tab="equipo"><i class="fas fa-user-tie"></i> Equipo</button>
-                <button class="tab-btn" data-tab="proveedores"><i class="fas fa-truck"></i> Proveedores</button>
-                <button class="tab-btn" data-tab="almacenes"><i class="fas fa-warehouse"></i> Almacenes</button>
-                <button class="tab-btn" data-tab="inventario"><i class="fas fa-pallet"></i> Inventario</button>
-                <button class="tab-btn" data-tab="ventas"><i class="fas fa-receipt"></i> Ventas</button>
-                <button class="tab-btn" data-tab="compras"><i class="fas fa-shopping-cart"></i> Compras</button>
             </div>
-            <!-- Los contenidos se cargarán dinámicamente desde la carpeta modulos/ -->
+            <!-- Los contenidos se cargan dinámicamente desde modulos/ -->
             <div id="tab-resumen" class="tab-content active"></div>
             <div id="tab-clientes" class="tab-content"></div>
             <div id="tab-productos" class="tab-content"></div>
             <div id="tab-equipo" class="tab-content"></div>
-            <div id="tab-proveedores" class="tab-content"></div>
-            <div id="tab-almacenes" class="tab-content"></div>
-            <div id="tab-inventario" class="tab-content"></div>
-            <div id="tab-ventas" class="tab-content"></div>
-            <div id="tab-compras" class="tab-content"></div>
         </section>
 
         <!-- PANEL MI EMPRESA -->
@@ -182,9 +276,10 @@
 <div id="notification" class="notification"><i class="fas fa-circle-info"></i><span></span></div>
 
 <script>
-    // --- Configuración ---
+    // ==================== CONFIGURACIÓN ====================
     const SUPABASE_URL = 'https://zgzwhyywkervutpvazqp.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
+    const STORAGE_BUCKET = 'empresas';
     let currentUser = null;
 
     // Mapeo de pestañas a archivos de módulo
@@ -192,15 +287,10 @@
         resumen: 'resumen.html',
         clientes: 'clientes.html',
         productos: 'productos.html',
-        equipo: 'equipo.html',
-        proveedores: 'proveedores.html',
-        almacenes: 'almacenes.html',
-        inventario: 'inventario.html',
-        ventas: 'ventas.html',
-        compras: 'compras.html'
+        equipo: 'equipo.html'
     };
 
-    // --- Sesión ---
+    // ==================== SESIÓN ====================
     function verificarSesion() {
         const s = sessionStorage.getItem('currentUser');
         if (!s) { window.location.href = 'login.html'; return; }
@@ -214,39 +304,34 @@
     }
     function cerrarSesion() { sessionStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
 
-    // --- Carga dinámica de módulos ---
+    // ==================== CARGA DINÁMICA DE MÓDULOS ====================
     async function cargarModulo(tab) {
-        const contenedorId = 'tab-' + tab;
-        const contenedor = document.getElementById(contenedorId);
+        const contenedor = document.getElementById('tab-' + tab);
         if (!contenedor) return;
 
-        // Si ya tiene contenido, no recargar (opcional)
+        // Si ya tiene contenido, no recargar (cambiar a true si quieres forzar recarga)
         if (contenedor.innerHTML.trim() !== '') return;
 
         try {
             const respuesta = await fetch('modulos/' + moduloArchivo[tab]);
             if (!respuesta.ok) throw new Error('No se pudo cargar el módulo');
-            let html = await respuesta.text();
-
+            const html = await respuesta.text();
             contenedor.innerHTML = html;
 
-            // Ejecutar scripts que vengan dentro del HTML (porque innerHTML no los ejecuta)
+            // Re-ejecutar scripts dentro del fragmento
             const scripts = contenedor.querySelectorAll('script');
             scripts.forEach(script => {
                 const nuevoScript = document.createElement('script');
-                // Copiar atributos
-                Array.from(script.attributes).forEach(attr => {
-                    nuevoScript.setAttribute(attr.name, attr.value);
-                });
+                Array.from(script.attributes).forEach(attr => nuevoScript.setAttribute(attr.name, attr.value));
                 nuevoScript.textContent = script.textContent;
                 script.replaceWith(nuevoScript);
             });
         } catch (error) {
-            contenedor.innerHTML = `<p class="error">Error al cargar el módulo: ${error.message}</p>`;
+            contenedor.innerHTML = `<div class="card"><p>Error al cargar el módulo: ${error.message}</p></div>`;
         }
     }
 
-    // --- Navegación por pestañas ---
+    // Navegación por pestañas
     document.getElementById('tabs-nav').addEventListener('click', function(e) {
         const btn = e.target.closest('.tab-btn');
         if (!btn) return;
@@ -255,8 +340,7 @@
         btn.classList.add('active');
 
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        const tabId = 'tab-' + btn.dataset.tab;
-        const contenedor = document.getElementById(tabId);
+        const contenedor = document.getElementById('tab-' + btn.dataset.tab);
         contenedor.classList.add('active');
 
         cargarModulo(btn.dataset.tab);
@@ -269,10 +353,9 @@
         this.classList.add('active');
 
         document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById(`panel-${this.dataset.panel}`).classList.add('active');
+        document.getElementById('panel-' + this.dataset.panel).classList.add('active');
 
         if (this.dataset.panel === 'dashboard') {
-            // Cargar la pestaña activa por defecto
             const tabActivo = document.querySelector('#tabs-nav .tab-btn.active')?.dataset.tab;
             if (tabActivo) cargarModulo(tabActivo);
         } else if (this.dataset.panel === 'empresa') {
@@ -281,14 +364,12 @@
     }));
 
     function cargarModuloEmpresa() {
-        // Si quieres que "Mi Empresa" también sea un fragmento externo
         const contenedor = document.getElementById('panel-empresa-contenido');
         if (contenedor.innerHTML.trim() !== '') return;
         fetch('modulos/empresa.html')
             .then(res => res.text())
             .then(html => {
                 contenedor.innerHTML = html;
-                // Ejecutar scripts
                 const scripts = contenedor.querySelectorAll('script');
                 scripts.forEach(s => {
                     const ns = document.createElement('script');
@@ -301,13 +382,13 @@
     function recargarTodo() {
         const tab = document.querySelector('#tabs-nav .tab-btn.active')?.dataset.tab;
         if (tab) {
-            const contenedor = document.getElementById('tab-' + tab);
-            contenedor.innerHTML = ''; // fuerza recarga
+            document.getElementById('tab-' + tab).innerHTML = '';
             cargarModulo(tab);
         }
+        showNotification('Datos actualizados');
     }
 
-    // Notificación global
+    // ==================== FUNCIONES GLOBALES ====================
     function showNotification(m, t = 'success') {
         const n = document.getElementById('notification');
         n.querySelector('span').innerText = m;
@@ -316,9 +397,30 @@
         setTimeout(() => n.style.display = 'none', 4500);
     }
 
-    // --- Inicio ---
+    async function apiFetch(endpoint, method = 'GET', body = null) {
+        const headers = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
+        if (method === 'POST' || method === 'PATCH') headers['Prefer'] = 'return=representation';
+        if (body && !(body instanceof FormData)) headers['Content-Type'] = 'application/json';
+        const opts = { method, headers };
+        if (body) opts.body = body instanceof FormData ? body : JSON.stringify(body);
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, opts);
+        if (!res.ok) { const e = await res.text(); throw new Error(e); }
+        const txt = await res.text();
+        return txt ? JSON.parse(txt) : {};
+    }
+
+    async function uploadFile(file, folder) {
+        const name = `${folder}/${Date.now()}-${file.name}`;
+        const fd = new FormData(); fd.append('', file);
+        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${name}`, {
+            method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }, body: fd
+        });
+        if (!res.ok) throw new Error('Error al subir archivo');
+        return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${name}`;
+    }
+
+    // ==================== ARRANQUE ====================
     verificarSesion();
-    // Cargar la primera pestaña activa al abrir
     window.addEventListener('load', () => {
         cargarModulo('resumen');
     });
