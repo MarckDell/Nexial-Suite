@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Almacenes · Nexial Suite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter','Segoe UI',system-ui,sans-serif; background:#f4f6fb; color:#1a1f36; line-height:1.6; }
+        .container { max-width:1200px; margin:24px auto; padding:0 24px; }
+        .card { background:white; border-radius:24px; padding:28px; box-shadow:0 4px 20px rgba(0,0,0,0.03); margin-bottom:24px; border:1px solid #f0f2f5; }
+        .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:14px; }
+        .card-header h2 { font-size:1.4rem; font-weight:700; color:#0f172a; }
+        .table-wrapper { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; }
+        th, td { padding:12px 14px; text-align:left; border-bottom:1px solid #e2e8f0; font-size:0.88rem; }
+        th { background:#f8fafc; color:#475569; font-weight:600; text-transform:uppercase; font-size:0.73rem; }
+        tr:hover td { background:#f1f5f9; }
+        .action-buttons { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+        .btn-sm { padding:6px 12px; border-radius:18px; font-size:0.78rem; font-weight:600; border:none; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+        .btn-edit { background:#e0f2fe; color:#0369a1; }
+        .btn-delete { background:#fee2e2; color:#991b1b; }
+        .btn-remove-permanent { background:#ffedd5; color:#9a3412; }
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,18,0.8); backdrop-filter:blur(8px); z-index:2000; display:none; align-items:flex-start; justify-content:center; padding:24px; overflow-y:auto; }
+        .modal-overlay.active { display:flex; }
+        .modal { background:white; border-radius:28px; padding:36px 32px; max-width:600px; width:100%; box-shadow:0 30px 60px rgba(0,0,0,0.4); animation:modalIn 0.3s ease; }
+        .modal-sm { max-width:440px; padding:32px; text-align:center; }
+        @keyframes modalIn { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+        .modal-header h2 { font-size:1.7rem; font-weight:700; color:#0f172a; }
+        .close-modal { background:none; border:none; font-size:1.8rem; cursor:pointer; color:#64748b; }
+        .form-row { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:12px; }
+        .form-col { flex:1; min-width:160px; }
+        .form-group { margin-bottom:2px; }
+        .form-group label { font-size:0.73rem; font-weight:700; text-transform:uppercase; color:#334155; display:flex; align-items:center; gap:5px; margin-bottom:5px; }
+        .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:12px; font-size:0.88rem; font-family:'Inter',sans-serif; }
+        .form-group input:focus, .form-group select:focus { border-color:#1a56db; outline:none; box-shadow:0 0 0 3px rgba(26,86,219,0.08); }
+        .notification { position:fixed; top:24px; right:32px; background:#1a1f36; color:white; padding:14px 28px; border-radius:60px; font-weight:500; z-index:3000; box-shadow:0 12px 28px rgba(0,0,0,0.3); display:none; align-items:center; gap:10px; font-size:0.9rem; }
+        .notification.error { background:#c2412c; }
+        .notification.success { background:#2c6e49; }
+        .btn-outline { background:transparent; border:1.5px solid #cbd5e1; color:#1e293b; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
+        .btn-solid { background:#1a56db; border:none; color:white; padding:10px 24px; border-radius:40px; font-weight:600; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
+        .btn-solid:hover { background:#1340a0; }
+        .filtros { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+        .filtro-group { display:flex; align-items:center; gap:6px; background:#f8fafc; padding:4px 14px; border-radius:30px; border:1px solid #e2e8f0; }
+        .filtro-group label { font-size:0.8rem; font-weight:600; color:#475569; }
+        .filtro-group select, .filtro-group input { border:none; background:transparent; font-family:'Inter',sans-serif; font-size:0.84rem; }
+        .confirm-buttons { display:flex; gap:12px; justify-content:center; margin-top:24px; }
+    </style>
+</head>
+<body>
+    <div class="container" id="almacen-container"></div>
+
+    <!-- Modal Confirmación -->
+    <div class="modal-overlay" id="modal-confirm">
+        <div class="modal modal-sm">
+            <div class="modal-header" style="justify-content:center;"><h2>Confirmar acción</h2></div>
+            <p id="confirm-mensaje" style="color:#475569; font-size:0.95rem; margin-bottom:8px;"></p>
+            <div class="confirm-buttons">
+                <button class="btn-outline" onclick="cerrarModalConfirm(false)">Cancelar</button>
+                <button class="btn-solid" style="background:#c2412c;" onclick="cerrarModalConfirm(true)">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Almacén -->
+    <div class="modal-overlay" id="modal-almacen">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="titulo-modal-almacen">Nuevo Almacén</h2>
+                <button class="close-modal" onclick="cerrarModalAlmacen()">&times;</button>
+            </div>
+            <form id="form-almacen" autocomplete="off">
+                <input type="hidden" id="almacen-id">
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Código *</label><input id="alm-codigo" required oninput="this.value = this.value.toUpperCase()"></div></div>
+                    <div class="form-col"><div class="form-group"><label>Nombre *</label><input id="alm-nombre" required oninput="capitalizarInput(this)"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Dirección</label><input id="alm-direccion" oninput="capitalizarInput(this)"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Ciudad</label><input id="alm-ciudad" list="ciudad-list" oninput="capitalizarInput(this)"><datalist id="ciudad-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Estado/Provincia</label><input id="alm-estado" list="estado-list" oninput="capitalizarInput(this)"><datalist id="estado-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>País</label><input id="alm-pais" list="pais-list" oninput="capitalizarInput(this)"><datalist id="pais-list"></datalist></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Tipo de Almacén</label><input id="alm-tipo" list="tipo-list" oninput="capitalizarInput(this)"><datalist id="tipo-list"></datalist></div></div>
+                    <div class="form-col"><div class="form-group"><label>Capacidad Máxima</label><input id="alm-capacidad" type="number" step="1" min="0"></div></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col"><div class="form-group"><label>Imagen</label><input type="file" id="file-alm-imagen" accept="image/*"></div></div>
+                </div>
+                <div style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
+                    <button type="button" class="btn-outline" onclick="cerrarModalAlmacen()">Cancelar</button>
+                    <button type="submit" class="btn-solid"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"><i class="fas fa-circle-info"></i><span></span></div>
+
+    <script>
+        const SUPABASE_URL = 'https://zgzwhyywkervutpvazqp.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
+        const STORAGE_BUCKET = 'empresas';
+        let currentUser = null;
+        let confirmCallback = null;
+
+        function capitalizarInput(el) { let val=el.value, pos=el.selectionStart; val=val.replace(/(?:^|\s)(\p{L})/gu,(m,p)=>m.toUpperCase()); el.value=val; el.setSelectionRange(pos,pos); }
+
+        function verificarSesion() {
+            const s = sessionStorage.getItem('currentUser');
+            if (!s) { window.location.href = 'login.html'; return; }
+            currentUser = JSON.parse(s);
+            const allowedRoles = ['Supervisor Senior', 'Director General', 'Director Financiero', 'Gestor de Almacén', 'Director Corporativo'];
+            if (!allowedRoles.includes(currentUser.rol)) {
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            }
+        }
+
+        function showNotification(m, t = 'success') {
+            const n = document.getElementById('notification');
+            n.querySelector('span').innerText = m;
+            n.className = `notification ${t}`;
+            n.style.display = 'flex';
+            setTimeout(() => n.style.display = 'none', 4500);
+        }
+
+        function mostrarConfirmacion(mensaje, titulo, callback) {
+            document.getElementById('confirm-mensaje').innerText = mensaje;
+            document.getElementById('modal-confirm').classList.add('active');
+            confirmCallback = callback;
+        }
+
+        function cerrarModalConfirm(resultado) {
+            document.getElementById('modal-confirm').classList.remove('active');
+            if (confirmCallback && resultado) confirmCallback();
+            confirmCallback = null;
+        }
+
+        async function apiFetch(endpoint, method = 'GET', body = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`
+            };
+            if (method === 'POST' || method === 'PATCH') headers['Prefer'] = 'return=representation';
+            const opts = { method, headers };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, opts);
+            if (!res.ok) {
+                const e = await res.text();
+                throw new Error(e);
+            }
+            const txt = await res.text();
+            return txt ? JSON.parse(txt) : {};
+        }
+
+        async function uploadFile(file, folder) {
+            const name = `${folder}/${Date.now()}-${file.name}`;
+            const fd = new FormData();
+            fd.append('', file);
+            const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${name}`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                },
+                body: fd
+            });
+            if (!res.ok) throw new Error('Error al subir la imagen');
+            return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${name}`;
+        }
+
+        // Carga la lista principal de almacenes
+        async function cargarAlmacenes(filtro = {}) {
+            if (!currentUser || !currentUser.empresa_id) return;
+            const empId = currentUser.empresa_id;
+            let query = `almacenes?empresa_id=eq.${empId}&select=*&limit=1000`;
+            if (filtro.activo !== undefined) query += `&activo=eq.${filtro.activo}`;
+            if (filtro.tipo) query += `&tipo=eq.${encodeURIComponent(filtro.tipo)}`;
+            if (filtro.buscar) {
+                const term = encodeURIComponent(`*${filtro.buscar}*`);
+                query += `&or=(nombre.ilike.${term},codigo.ilike.${term},ciudad.ilike.${term})`;
+            }
+            const almacenes = await apiFetch(query);
+
+            // Obtener valores únicos para datalists
+            const todos = await apiFetch(`almacenes?empresa_id=eq.${empId}&select=ciudad,estado_provincia,pais,tipo&limit=1000`);
+            const ciudades = [...new Set(todos.map(a => a.ciudad).filter(Boolean))].sort();
+            const estados = [...new Set(todos.map(a => a.estado_provincia).filter(Boolean))].sort();
+            const paises = [...new Set(todos.map(a => a.pais).filter(Boolean))].sort();
+            const tipos = [...new Set(todos.map(a => a.tipo).filter(Boolean))].sort();
+
+            let filas = '';
+            almacenes.forEach(a => {
+                filas += `<tr>
+                    <td>${a.codigo}</td>
+                    <td>${a.nombre}</td>
+                    <td>${a.ciudad || '-'}</td>
+                    <td>${a.tipo || '-'}</td>
+                    <td>${a.capacidad_maxima || '-'}</td>
+                    <td>${a.activo ? '<span style="color:#2c6e49;">Activo</span>' : '<span style="color:#991b1b;">Inactivo</span>'}</td>
+                    <td class="action-buttons">
+                        <button class="btn-sm btn-edit" onclick="abrirModalAlmacen('${a.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn-sm btn-delete" onclick="desactivarAlmacen('${a.id}')"><i class="fas fa-ban"></i></button>
+                        <button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteAlmacen('${a.id}')"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>`;
+            });
+            if (!filas) filas = '<tr><td colspan="7" style="text-align:center;">No hay almacenes.</td></tr>';
+
+            document.getElementById('almacen-container').innerHTML = `
+            <div class="card">
+                <div class="card-header">
+                    <h2>Gestión de Almacenes</h2>
+                    <button class="btn-solid" onclick="abrirModalAlmacen()"><i class="fas fa-plus"></i> Nuevo Almacén</button>
+                </div>
+                <div class="filtros">
+                    <div class="filtro-group">
+                        <label>Estado:</label>
+                        <select id="filtro-activo" onchange="aplicarFiltros()">
+                            <option value="todos">Todos</option>
+                            <option value="true">Activos</option>
+                            <option value="false">Inactivos</option>
+                        </select>
+                    </div>
+                    <div class="filtro-group">
+                        <label>Tipo:</label>
+                        <select id="filtro-tipo" onchange="aplicarFiltros()">
+                            <option value="">Todos</option>
+                            ${tipos.map(t => `<option value="${t}">${t}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="filtro-group">
+                        <label>Buscar:</label>
+                        <input type="text" id="filtro-buscar" placeholder="Nombre, código, ciudad..." oninput="aplicarFiltros()">
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Código</th><th>Nombre</th><th>Ciudad</th><th>Tipo</th><th>Capacidad Máx</th><th>Estado</th><th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>${filas}</tbody>
+                    </table>
+                </div>
+            </div>`;
+
+            // Cargar datalists de ciudad, estado, país, tipo en el modal (para reutilizar)
+            cargarDatalistsAlmacenes(ciudades, estados, paises, tipos);
+        }
+
+        function aplicarFiltros() {
+            const activo = document.getElementById('filtro-activo')?.value;
+            const tipo = document.getElementById('filtro-tipo')?.value;
+            const buscar = document.getElementById('filtro-buscar')?.value.trim();
+            const filtro = {};
+            if (activo !== 'todos') filtro.activo = activo === 'true';
+            if (tipo) filtro.tipo = tipo;
+            if (buscar) filtro.buscar = buscar;
+            cargarAlmacenes(filtro);
+        }
+
+        function cargarDatalistsAlmacenes(ciudades, estados, paises, tipos) {
+            const listaIds = [
+                { id: 'ciudad-list', datos: ciudades },
+                { id: 'estado-list', datos: estados },
+                { id: 'pais-list', datos: paises },
+                { id: 'tipo-list', datos: tipos }
+            ];
+            listaIds.forEach(({ id, datos }) => {
+                const dl = document.getElementById(id);
+                if (!dl) return;
+                dl.innerHTML = '';
+                datos.forEach(val => {
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    dl.appendChild(opt);
+                });
+            });
+        }
+
+        function abrirModalAlmacen(id = null) {
+            document.getElementById('modal-almacen').classList.add('active');
+            document.getElementById('form-almacen').reset();
+            document.getElementById('almacen-id').value = '';
+            document.getElementById('titulo-modal-almacen').textContent = 'Nuevo Almacén';
+            // Cargar datalists con datos existentes (se llamará desde cargarAlmacenes, pero por si acaso)
+            if (id) {
+                editarAlmacen(id);
+            }
+        }
+
+        function cerrarModalAlmacen() {
+            document.getElementById('modal-almacen').classList.remove('active');
+        }
+
+        async function editarAlmacen(id) {
+            const res = await apiFetch(`almacenes?id=eq.${id}&select=*`);
+            if (!res.length) return;
+            const a = res[0];
+            document.getElementById('almacen-id').value = a.id;
+            document.getElementById('alm-codigo').value = a.codigo || '';
+            document.getElementById('alm-nombre').value = a.nombre || '';
+            document.getElementById('alm-direccion').value = a.direccion || '';
+            document.getElementById('alm-ciudad').value = a.ciudad || '';
+            document.getElementById('alm-estado').value = a.estado_provincia || '';
+            document.getElementById('alm-pais').value = a.pais || '';
+            document.getElementById('alm-tipo').value = a.tipo || '';
+            document.getElementById('alm-capacidad').value = a.capacidad_maxima || '';
+            document.getElementById('titulo-modal-almacen').textContent = 'Editar Almacén';
+            document.getElementById('modal-almacen').classList.add('active');
+        }
+
+        function desactivarAlmacen(id) {
+            mostrarConfirmacion('¿Desactivar este almacén? Los productos asociados no se verán afectados.', 'Desactivar Almacén', async () => {
+                await apiFetch(`almacenes?id=eq.${id}`, 'PATCH', { activo: false });
+                cargarAlmacenes({});
+                showNotification('Almacén desactivado');
+            });
+        }
+
+        function eliminarDefinitivamenteAlmacen(id) {
+            mostrarConfirmacion('¿Eliminar permanentemente este almacén? Se perderán todos los registros de inventario asociados.', 'Eliminar Almacén', async () => {
+                try {
+                    await apiFetch(`almacenes?id=eq.${id}`, 'DELETE');
+                    cargarAlmacenes({});
+                    showNotification('Almacén eliminado definitivamente');
+                } catch (e) {
+                    showNotification('Error al eliminar: ' + e.message, 'error');
+                }
+            });
+        }
+
+        document.getElementById('form-almacen').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const id = document.getElementById('almacen-id').value;
+            const payload = {
+                codigo: document.getElementById('alm-codigo').value.trim(),
+                nombre: document.getElementById('alm-nombre').value.trim(),
+                direccion: document.getElementById('alm-direccion').value.trim() || null,
+                ciudad: document.getElementById('alm-ciudad').value.trim() || null,
+                estado_provincia: document.getElementById('alm-estado').value.trim() || null,
+                pais: document.getElementById('alm-pais').value.trim() || null,
+                tipo: document.getElementById('alm-tipo').value.trim() || null,
+                capacidad_maxima: parseInt(document.getElementById('alm-capacidad').value) || null,
+                empresa_id: currentUser.empresa_id
+            };
+
+            try {
+                const fileInput = document.getElementById('file-alm-imagen');
+                if (fileInput.files[0]) {
+                    payload.imagen = await uploadFile(fileInput.files[0], 'almacenes');
+                }
+            } catch (err) {
+                showNotification('Error al subir imagen: ' + err.message, 'error');
+                return;
+            }
+
+            try {
+                if (id) {
+                    delete payload.empresa_id;
+                    await apiFetch(`almacenes?id=eq.${id}`, 'PATCH', payload);
+                    showNotification('Almacén actualizado');
+                } else {
+                    await apiFetch('almacenes', 'POST', payload);
+                    showNotification('Almacén creado');
+                }
+                cerrarModalAlmacen();
+                cargarAlmacenes({});
+            } catch (err) {
+                showNotification('Error: ' + err.message, 'error');
+            }
+        });
+
+        window.onload = async function () {
+            verificarSesion();
+            if (currentUser) {
+                cargarAlmacenes({});
+            }
+        };
+    </script>
+</body>
+</html>
