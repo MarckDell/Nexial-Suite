@@ -304,22 +304,36 @@
     }
     function cerrarSesion() { sessionStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
 
-    // ==================== CARGA DINÁMICA DE MÓDULOS ====================
+    // ==================== CARGA DINÁMICA DE MÓDULOS (CORREGIDA) ====================
+    /**
+     * Carga un módulo HTML externo en el contenedor correspondiente.
+     * Elimina automáticamente las redeclaraciones de constantes globales
+     * que ya existen en el ámbito principal, evitando el error:
+     * "Identifier 'SUPABASE_URL' has already been declared".
+     */
     async function cargarModulo(tab) {
         const contenedor = document.getElementById('tab-' + tab);
         if (!contenedor) return;
 
-        // Si ya tiene contenido, no recargar (cambiar a true si quieres forzar recarga)
+        // Si ya tiene contenido, no recargar (opcional)
         if (contenedor.innerHTML.trim() !== '') return;
 
         try {
-            // Carga el archivo directamente desde la misma carpeta
             const respuesta = await fetch(moduloArchivo[tab]);
             if (!respuesta.ok) throw new Error('No se pudo cargar el módulo ' + moduloArchivo[tab]);
-            const html = await respuesta.text();
+            let html = await respuesta.text();
+
+            // Limpiar las líneas que redeclaran las constantes globales
+            // para evitar conflictos con el script principal.
+            // Se eliminan las líneas que asignan a SUPABASE_URL, SUPABASE_KEY, STORAGE_BUCKET
+            // usando una expresión regular que respeta espacios.
+            html = html.replace(/const\s+SUPABASE_URL\s*=\s*['"][^'"]*['"];?/g, '');
+            html = html.replace(/const\s+SUPABASE_KEY\s*=\s*['"][^'"]*['"];?/g, '');
+            html = html.replace(/const\s+STORAGE_BUCKET\s*=\s*['"][^'"]*['"];?/g, '');
+
             contenedor.innerHTML = html;
 
-            // Re-ejecutar scripts dentro del fragmento (porque innerHTML no los ejecuta)
+            // Re-ejecutar los scripts que hayan quedado en el fragmento
             const scripts = contenedor.querySelectorAll('script');
             scripts.forEach(script => {
                 const nuevoScript = document.createElement('script');
@@ -370,6 +384,10 @@
         fetch('empresa.html')
             .then(res => res.text())
             .then(html => {
+                // Limpiar también las redeclaraciones en empresa.html
+                html = html.replace(/const\s+SUPABASE_URL\s*=\s*['"][^'"]*['"];?/g, '');
+                html = html.replace(/const\s+SUPABASE_KEY\s*=\s*['"][^'"]*['"];?/g, '');
+                html = html.replace(/const\s+STORAGE_BUCKET\s*=\s*['"][^'"]*['"];?/g, '');
                 contenedor.innerHTML = html;
                 const scripts = contenedor.querySelectorAll('script');
                 scripts.forEach(s => {
