@@ -155,8 +155,8 @@
         // CONFIGURACIÓN
         // ═══════════════════════════════════════════
 
-        // Módulos en el orden deseado
-        const MODULE_ORDER = ['inicio', 'metas', 'stock', 'clientes', 'catalogo', 'equipo', 'rutas', 'carga'];
+        // Módulos en el orden deseado (se agregó 'almacen' al final)
+        const MODULE_ORDER = ['inicio', 'metas', 'stock', 'clientes', 'catalogo', 'equipo', 'rutas', 'carga', 'almacen'];
 
         // Metadatos de cada módulo
         const MENU_ITEMS = {
@@ -167,7 +167,8 @@
             catalogo:{ icon: 'fa-box',         label: 'Catálogo' },
             equipo:  { icon: 'fa-users',       label: 'Equipo' },
             rutas:   { icon: 'fa-route',       label: 'Asignación de Rutas' },
-            carga:   { icon: 'fa-truck-loading', label: 'Asignación de Carga' }
+            carga:   { icon: 'fa-truck-loading', label: 'Asignación de Carga' },
+            almacen: { icon: 'fa-warehouse',   label: 'Almacén' } // Nuevo módulo
         };
 
         // Archivos HTML correspondientes (rutas relativas a la base)
@@ -179,18 +180,19 @@
             catalogo:'catalogo.html',
             equipo:  'equipo.html',
             rutas:   'asignacion_rutas.html',
-            carga:   'asignacion_carga.html'
+            carga:   'asignacion_carga.html',
+            almacen: 'almacen.html' // Archivo para el nuevo módulo
         };
 
-        // Permisos por rol (todos los módulos disponibles para todos los roles, puedes modificar)
+        // Permisos por rol (todos los módulos disponibles para todos los roles, se añade 'almacen' al final)
         const ROLE_PERMISSIONS = {
-            'Director Corporativo': MODULE_ORDER,
-            'Director General':    MODULE_ORDER,
-            'Director Financiero': MODULE_ORDER,
-            'Supervisor Senior':  MODULE_ORDER,
-            'Ejecutivo Comercial': MODULE_ORDER,
-            'Especialista Logístico': MODULE_ORDER,
-            'Gestor de Almacén':   MODULE_ORDER
+            'Director Corporativo': ['inicio', 'metas', 'stock', 'clientes', 'catalogo', 'equipo', 'rutas', 'carga', 'almacen'],
+            'Director General':    ['inicio', 'metas', 'stock', 'clientes', 'catalogo', 'equipo', 'rutas', 'carga', 'almacen'],
+            'Director Financiero': ['inicio', 'metas', 'stock', 'clientes', 'catalogo', 'equipo', 'rutas', 'carga', 'almacen'],
+            'Supervisor Senior':  ['inicio', 'metas', 'stock', 'clientes', 'catalogo', 'equipo', 'rutas', 'carga', 'almacen'],
+            'Ejecutivo Comercial': ['inicio', 'metas', 'stock', 'clientes', 'catalogo', 'equipo', 'rutas', 'carga', 'almacen'],
+            'Especialista Logístico': ['inicio', 'metas', 'stock', 'clientes', 'catalogo', 'equipo', 'rutas', 'carga', 'almacen'],
+            'Gestor de Almacén':   ['inicio', 'metas', 'stock', 'clientes', 'catalogo', 'equipo', 'rutas', 'carga', 'almacen']
         };
 
         let currentUser = null;
