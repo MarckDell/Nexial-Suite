@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<!-- Modal Usuario (FORMULARIO COMPLETO) -->
+<!-- Modal Usuario (FORMULARIO COMPLETO, idéntico al original) -->
 <div class="modal-overlay" id="modal-usuario">
     <div class="modal">
         <div class="modal-header">
@@ -55,8 +55,8 @@
             <!-- Email, Rol, Teléfonos -->
             <div class="form-row">
                 <div class="form-col"><div class="form-group"><label>Email *</label><input id="usr-email" type="email" required></div></div>
-                <div class="form-col"><div class="form-group"><label>Rol *</label><select id="usr-rol" required></select></div></div>
-                <div class="form-col"><div class="form-group"><label>Teléfonos</label>
+                <div class="form-col"><div class="form-group"><label>Rol * <span class="tooltip-trigger" data-tooltip="Define permisos: Ejecutivo Comercial (ventas), Especialista Logístico (distribución), Gestor de Almacén (inventario).">?</span></label><select id="usr-rol" required></select></div></div>
+                <div class="form-col"><div class="form-group"><label>Teléfonos <span class="tooltip-trigger" data-tooltip="Añada números con etiqueta (casa, trabajo, etc.). Se guardan como objetos.">?</span></label>
                     <div id="telefonos-container"></div>
                     <button type="button" class="btn-add-phone" onclick="agregarTelefono()" title="Agregar teléfono" style="margin-top:8px;"><i class="fas fa-plus"></i> Agregar teléfono</button>
                 </div></div>
@@ -76,7 +76,7 @@
             
             <!-- Documento, Fecha Nac. -->
             <div class="form-row">
-                <div class="form-col"><div class="form-group"><label>Tipo Documento</label><select id="usr-tipo-doc"></select></div></div>
+                <div class="form-col"><div class="form-group"><label>Tipo Documento <span class="tooltip-trigger" data-tooltip="Seleccione según país. Ej: CI - Cédula de Identidad.">?</span></label><select id="usr-tipo-doc"></select></div></div>
                 <div class="form-col"><div class="form-group"><label>Número Documento</label><input id="usr-num-doc"></div></div>
                 <div class="form-col"><div class="form-group"><label>Fecha Nacimiento</label><input id="usr-fecha-nac" type="date"></div></div>
             </div>
@@ -109,10 +109,10 @@
                 <div class="form-col"><div class="form-group"><label>Imagen</label><input type="file" id="file-usr-imagen" accept="image/*"></div></div>
             </div>
             
-            <!-- Capacidad Vehículo (solo para Logístico) -->
+            <!-- Capacidad Vehículo (solo visible si rol = Especialista Logístico) -->
             <div class="form-row" id="row-capacidad-vehiculo" style="display:none;">
-                <div class="form-col"><div class="form-group"><label>Capacidad Vehículo</label><input id="usr-capacidad-vehiculo" type="number" step="0.01" min="0" placeholder="Ej: 2.5"></div></div>
-                <div class="form-col"><div class="form-group"><label>Unidad Capacidad</label><input id="usr-unidad-capacidad" list="unidad-cap-list" placeholder="toneladas, kg, m³..."><datalist id="unidad-cap-list"></datalist></div></div>
+                <div class="form-col"><div class="form-group"><label>Capacidad Vehículo <span class="tooltip-trigger" data-tooltip="Capacidad de carga del vehículo. Ej: 2.5 (toneladas).">?</span></label><input id="usr-capacidad-vehiculo" type="number" step="0.01" min="0" placeholder="Ej: 2.5"></div></div>
+                <div class="form-col"><div class="form-group"><label>Unidad Capacidad <span class="tooltip-trigger" data-tooltip="Unidad: toneladas, kg, m³, litros.">?</span></label><input id="usr-unidad-capacidad" list="unidad-cap-list" placeholder="toneladas, kg, m³..."><datalist id="unidad-cap-list"></datalist></div></div>
             </div>
             
             <div style="margin-top:16px; display:flex; gap:12px; justify-content:flex-end;">
@@ -128,13 +128,13 @@
 
 <script>
 (function() {
-    // Esperar a que el entorno global (SUPABASE, currentUser, etc.) esté disponible
+    // Esperar hasta que el entorno global esté completamente cargado
     if (typeof apiFetch !== 'function' || typeof currentUser === 'undefined') {
         setTimeout(arguments.callee, 50);
         return;
     }
 
-    // Constantes
+    // Constantes internas (copiadas del original)
     const rolesDisponibles = ['Ejecutivo Comercial', 'Especialista Logístico', 'Gestor de Almacén'];
     const puestoPorRol = {
         'Ejecutivo Comercial':'Ejecutivo Comercial',
@@ -176,14 +176,14 @@
 
     let tabActivo = 'comercial';
 
-    // Inicializar datalists y eventos
+    // Inicialización de datalists y eventos
     llenarDatalists();
     llenarRolesSelect();
     document.getElementById('usr-pais').addEventListener('input', onPaisChange);
     document.getElementById('usr-estado').addEventListener('input', onEstadoChange);
     document.getElementById('usr-rol').addEventListener('change', onRolChange);
 
-    // Tabs
+    // Pestañas
     document.querySelectorAll('#equipo-tabs .tab-btn-compact').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('#equipo-tabs .tab-btn-compact').forEach(b => b.classList.remove('active'));
@@ -193,15 +193,16 @@
         });
     });
 
-    // Cargar primera vista
+    // Carga inicial
     cargarEquipo('comercial');
 
-    /* ===== FUNCIONES PÚBLICAS (expuestas al scope global) ===== */
+    /* ========================
+       FUNCIONES PÚBLICAS
+       ======================== */
     window.abrirModalUsuario = function(id, tab) {
         const modal = document.getElementById('modal-usuario');
         modal.classList.add('active');
-        const form = document.getElementById('form-usuario');
-        form.reset();
+        document.getElementById('form-usuario').reset();
         document.getElementById('usuario-id').value = '';
         document.getElementById('empleado-id').value = '';
         document.getElementById('password-fields').style.display = 'flex';
@@ -324,7 +325,7 @@
         agregarTelefonoGenerico('#telefonos-container');
     };
 
-    // Envío del formulario
+    // Envío del formulario (IDÉNTICO al original)
     document.getElementById('form-usuario').addEventListener('submit', async function(e) {
         e.preventDefault();
         const userId = document.getElementById('usuario-id').value;
@@ -383,12 +384,12 @@
         }
 
         const monSal = document.getElementById('usr-moneda-salario').value.trim();
-        if (monSal) payloadEmpleado.moneda_salario_id = await window.ensureCurrency(monSal);
+        if (monSal) payloadEmpleado.moneda_salario_id = await ensureCurrency(monSal);
 
         try {
             const file = document.getElementById('file-usr-imagen').files[0];
             if (file) {
-                const url = await window.uploadFile(file, 'empleados');
+                const url = await uploadFile(file, 'empleados');
                 payloadUsuario.imagen = url;
                 payloadEmpleado.imagen = url;
             }
@@ -423,7 +424,9 @@
         }
     });
 
-    /* ===== FUNCIONES PRIVADAS ===== */
+    /* ========================
+       FUNCIONES PRIVADAS
+       ======================== */
     async function cargarEquipo(tab) {
         if (!currentUser || !currentUser.empresa_id) return;
         tabActivo = tab;
@@ -576,7 +579,7 @@
         }
     }
 
-    /* Teléfonos dinámicos */
+    // Teléfonos dinámicos (exactamente como el original)
     function llenarInputsTelefonoDesdeJson(containerSelector, telefonos) {
         const container = document.querySelector(containerSelector);
         if (!container) return;
@@ -647,7 +650,7 @@
         return arr.map(item => typeof item === 'string' ? item : (item.numero || '')).filter(Boolean).join(', ');
     }
 
-    /* WhatsApp */
+    // WhatsApp (igual que el original)
     function generarBotonWhatsApp(telefonosJson) {
         const numeros = [];
         if (Array.isArray(telefonosJson)) {
