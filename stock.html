@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Distribución · Nexial Suite</title>
+    <title>Distribución & Stock · Nexial Suite</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
@@ -11,7 +11,7 @@
         body { font-family:'Inter',sans-serif; background:#f4f6fb; color:#1a1f36; line-height:1.6; }
         .container { max-width:1200px; margin:24px auto; padding:0 24px; }
         .card { background:white; border-radius:24px; padding:28px; box-shadow:0 4px 20px rgba(0,0,0,0.03); margin-bottom:24px; border:1px solid #f0f2f5; }
-        .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
         .card-header h2 { font-size:1.4rem; font-weight:700; color:#0f172a; }
         .table-wrapper { overflow-x:auto; }
         table { width:100%; border-collapse:collapse; }
@@ -27,6 +27,8 @@
         .distribucion-stock-info { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:12px 16px; margin-bottom:16px; font-size:0.85rem; }
         .meta-editable-table input[type="number"] { width:100px; padding:6px 8px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; }
         .meta-editable-table input[type="text"] { width:150px; padding:6px 8px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; }
+        .stock-editable-table input[type="number"] { width:80px; padding:6px 8px; border-radius:8px; border:1px solid #e2e8f0; font-family:'Inter',sans-serif; }
+        .stock-badge { background:#e0f2fe; color:#0369a1; padding:2px 10px; border-radius:30px; font-size:0.8rem; font-weight:500; }
         .notification { position:fixed; top:24px; right:32px; background:#1a1f36; color:white; padding:14px 28px; border-radius:60px; font-weight:500; z-index:3000; box-shadow:0 12px 28px rgba(0,0,0,0.3); display:none; align-items:center; gap:10px; font-size:0.9rem; }
         .notification.error { background:#c2412c; }
         .notification.success { background:#2c6e49; }
@@ -34,6 +36,7 @@
 </head>
 <body>
     <div class="container" id="distribucion-container"></div>
+    <div class="container" id="stock-container"></div>
     <div id="notification" class="notification"><i class="fas fa-circle-info"></i><span></span></div>
 
     <script>
@@ -80,6 +83,7 @@
             return txt ? JSON.parse(txt) : {};
         }
 
+        // ===================== DISTRIBUCIÓN =====================
         async function cargarDistribucion() {
             if (!currentUser || !currentUser.empresa_id) return;
             const now = new Date();
@@ -87,12 +91,10 @@
             const anioActual = now.getFullYear();
             const empId = currentUser.empresa_id;
 
-            // Obtener productos activos para el selector
             const productos = await apiFetch(`productos?empresa_id=eq.${empId}&activo=eq.true&select=id,sku,nombre&order=nombre&limit=1000`);
             let productosOptions = '';
             productos.forEach(p => { productosOptions += `<option value="${p.id}">${p.sku} - ${p.nombre}</option>`; });
 
-            // Obtener almacenes
             const almacenes = await apiFetch(`almacenes?empresa_id=eq.${empId}&activo=eq.true&select=id,nombre&limit=1000`);
             let almacenesOptions = '';
             almacenes.forEach(a => { almacenesOptions += `<option value="${a.id}">${a.nombre}</option>`; });
@@ -137,24 +139,21 @@
 
             const empId = currentUser.empresa_id;
 
-            // Stock disponible del producto seleccionado
             let stockDisponible = 0;
             const inventario = await apiFetch(`inventario?empresa_id=eq.${empId}&producto_id=eq.${productoId}&select=cantidad,cantidad_reservada&limit=1000`);
             stockDisponible = inventario.reduce((sum, inv) => sum + (inv.cantidad - (inv.cantidad_reservada || 0)), 0);
             const prodInfo = await apiFetch(`productos?id=eq.${productoId}&select=nombre,sku&limit=1`);
             const productoNombre = prodInfo.length ? `${prodInfo[0].sku} - ${prodInfo[0].nombre}` : 'Producto';
 
-            // Vendedores activos: empleados con puesto "Ejecutivo Comercial"
             const vendedores = await apiFetch(`empleados?empresa_id=eq.${empId}&activo=eq.true&puesto=eq.Ejecutivo%20Comercial&select=id,nombres,apellido_paterno,email&limit=1000`);
 
             if (!vendedores.length) {
-                document.getElementById('dist-tabla-container').innerHTML = '<p style="color:#64748b;">No hay vendedores activos.</p>';
+                document.getElementById('dist-tabla-container').innerHTML = '<p style="color:#64748b;">No hay vendedores activos con el puesto "Ejecutivo Comercial".</p>';
                 document.getElementById('dist-guardar-area').hidden = true;
                 document.getElementById('dist-stock-info').style.display = 'none';
                 return;
             }
 
-            // Objetivos del mes para cada vendedor
             const empleadoIds = vendedores.map(v => `"${v.id}"`).join(',');
             const objetivos = await apiFetch(`objetivos_empleado?empleado_id=in.(${encodeURIComponent(empleadoIds)})&mes=eq.${mes}&anio=eq.${anio}&activo=eq.true&select=empleado_id,monto_objetivo,cantidad_objetivo&limit=1000`);
             const objMap = {};
@@ -169,7 +168,6 @@
                 }
             });
 
-            // Asignaciones existentes
             const asignaciones = await apiFetch(`asignaciones_producto_vendedor?empresa_id=eq.${empId}&mes=eq.${mes}&anio=eq.${anio}&empleado_id=in.(${encodeURIComponent(empleadoIds)})&producto_id=eq.${productoId}&select=*&limit=1000`);
             const asigMap = {};
             asignaciones.forEach(a => {
@@ -262,10 +260,141 @@
             }
         }
 
+        // ===================== GESTIÓN DE STOCK =====================
+        async function cargarStock() {
+            if (!currentUser || !currentUser.empresa_id) return;
+            const empId = currentUser.empresa_id;
+
+            const almacenes = await apiFetch(`almacenes?empresa_id=eq.${empId}&activo=eq.true&select=id,nombre&order=nombre&limit=1000`);
+            let almacenesOptions = '<option value="">Todos los almacenes</option>';
+            almacenes.forEach(a => { almacenesOptions += `<option value="${a.id}">${a.nombre}</option>`; });
+
+            let html = `
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-warehouse"></i> Stock de Productos por Almacén</h2>
+                    <button class="btn-solid" onclick="guardarStock()"><i class="fas fa-save"></i> Guardar Cambios de Stock</button>
+                </div>
+                <div class="info-banner"><i class="fas fa-info-circle"></i> Esta sección muestra el inventario actual. Puede editar directamente las columnas <strong>Cantidad</strong> y <strong>Reservado</strong>. Los cambios se aplican al presionar <strong>Guardar Cambios de Stock</strong>. El campo Lote y Vencimiento son informativos y no se pueden modificar aquí (use movimientos de inventario para ajustes).</div>
+                <div class="filtros">
+                    <div class="filtro-group">
+                        <label><i class="fas fa-filter"></i> Almacén:</label>
+                        <select id="stock-almacen-filter" onchange="cargarTablaStock()">${almacenesOptions}</select>
+                    </div>
+                    <div class="filtro-group">
+                        <label><i class="fas fa-search"></i> Buscar producto:</label>
+                        <input type="text" id="stock-search" placeholder="SKU o nombre..." oninput="filtrarTablaStock()">
+                    </div>
+                </div>
+                <div class="table-wrapper" id="stock-tabla-container">
+                    <p style="color:#64748b;">Cargando inventario...</p>
+                </div>
+            </div>`;
+            document.getElementById('stock-container').innerHTML = html;
+            cargarTablaStock();
+        }
+
+        async function cargarTablaStock() {
+            if (!currentUser || !currentUser.empresa_id) return;
+            const empId = currentUser.empresa_id;
+            const almacenFilter = document.getElementById('stock-almacen-filter')?.value || '';
+
+            let queryInv = `inventario?empresa_id=eq.${empId}&select=id,producto_id,almacen_id,lote,fecha_vencimiento,cantidad,cantidad_reservada&limit=1000`;
+            if (almacenFilter) queryInv += `&almacen_id=eq.${almacenFilter}`;
+
+            const inventario = await apiFetch(queryInv);
+            if (!inventario.length) {
+                document.getElementById('stock-tabla-container').innerHTML = '<p style="color:#64748b;">No hay registros de inventario.</p>';
+                return;
+            }
+
+            // Obtener productos y almacenes para mostrar nombres
+            const productoIds = [...new Set(inventario.map(i => i.producto_id))];
+            const almacenIds = [...new Set(inventario.map(i => i.almacen_id))];
+
+            const [productos, almacenes] = await Promise.all([
+                apiFetch(`productos?id=in.(${encodeURIComponent(productoIds.map(id=>`"${id}"`).join(','))})&select=id,sku,nombre&limit=1000`),
+                apiFetch(`almacenes?id=in.(${encodeURIComponent(almacenIds.map(id=>`"${id}"`).join(','))})&select=id,nombre&limit=1000`)
+            ]);
+
+            const prodMap = {};
+            productos.forEach(p => { prodMap[p.id] = p; });
+            const almMap = {};
+            almacenes.forEach(a => { almMap[a.id] = a; });
+
+            let tablaHtml = `<table class="stock-editable-table" id="stock-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Almacén</th>
+                        <th>Lote</th>
+                        <th>Vencimiento</th>
+                        <th>Cantidad</th>
+                        <th>Reservado</th>
+                        <th>Disponible</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            inventario.forEach(inv => {
+                const prod = prodMap[inv.producto_id] || { sku: '?', nombre: 'Desconocido' };
+                const alm = almMap[inv.almacen_id] || { nombre: '?' };
+                const disponible = (inv.cantidad || 0) - (inv.cantidad_reservada || 0);
+                tablaHtml += `<tr data-inventario-id="${inv.id}">
+                    <td><span class="stock-badge">${prod.sku}</span> ${prod.nombre}</td>
+                    <td>${alm.nombre}</td>
+                    <td>${inv.lote || '—'}</td>
+                    <td>${inv.fecha_vencimiento || '—'}</td>
+                    <td><input type="number" step="1" min="0" class="stock-cantidad" value="${inv.cantidad || 0}"></td>
+                    <td><input type="number" step="1" min="0" class="stock-reservado" value="${inv.cantidad_reservada || 0}"></td>
+                    <td><strong>${disponible}</strong></td>
+                </tr>`;
+            });
+            tablaHtml += `</tbody></table>`;
+            document.getElementById('stock-tabla-container').innerHTML = tablaHtml;
+        }
+
+        function filtrarTablaStock() {
+            const search = (document.getElementById('stock-search')?.value || '').toLowerCase();
+            const filas = document.querySelectorAll('#stock-table tbody tr');
+            filas.forEach(fila => {
+                const textoFila = fila.innerText.toLowerCase();
+                fila.style.display = textoFila.includes(search) ? '' : 'none';
+            });
+        }
+
+        async function guardarStock() {
+            const filas = document.querySelectorAll('#stock-table tbody tr[data-inventario-id]');
+            if (!filas.length) return;
+
+            const operaciones = [];
+            for (const fila of filas) {
+                const id = fila.dataset.inventarioId;
+                const cantidad = parseInt(fila.querySelector('.stock-cantidad')?.value || '0');
+                const reservado = parseInt(fila.querySelector('.stock-reservado')?.value || '0');
+
+                const payload = {
+                    cantidad: cantidad,
+                    cantidad_reservada: reservado,
+                    actualizado_en: new Date().toISOString()
+                };
+
+                operaciones.push(apiFetch(`inventario?id=eq.${id}`, 'PATCH', payload));
+            }
+
+            try {
+                await Promise.all(operaciones);
+                showNotification('Stock actualizado correctamente');
+                cargarTablaStock();
+            } catch (err) {
+                showNotification('Error al guardar stock: ' + err.message, 'error');
+            }
+        }
+
         window.onload = async function() {
             verificarSesion();
             if (currentUser) {
                 cargarDistribucion();
+                cargarStock();
             }
         };
     </script>
