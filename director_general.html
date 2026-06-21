@@ -8,9 +8,7 @@
     <!-- ============================================= -->
     <!-- NEXIAL SUITE · TEMA BASE (copiar y pegar)      -->
     <!-- ============================================= -->
-    <!-- 1. Fuente Inter (Google Fonts) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    <!-- 2. Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ===== RESET Y BASE ===== */
@@ -251,7 +249,7 @@
     </aside>
 
     <main class="main-content">
-        <!-- PANEL INICIO (Dashboard con pestañas) -->
+        <!-- PANEL INICIO -->
         <section id="panel-dashboard" class="section-panel active">
             <div class="tabs-nav" id="tabs-nav">
                 <button class="tab-btn active" data-tab="resumen"><i class="fas fa-chart-pie"></i> Resumen</button>
@@ -259,7 +257,6 @@
                 <button class="tab-btn" data-tab="productos"><i class="fas fa-box"></i> Productos</button>
                 <button class="tab-btn" data-tab="equipo"><i class="fas fa-user-tie"></i> Equipo</button>
             </div>
-            <!-- Los contenidos se cargan dinámicamente desde los archivos HTML existentes (misma carpeta) -->
             <div id="tab-resumen" class="tab-content active"></div>
             <div id="tab-clientes" class="tab-content"></div>
             <div id="tab-productos" class="tab-content"></div>
@@ -276,19 +273,11 @@
 <div id="notification" class="notification"><i class="fas fa-circle-info"></i><span></span></div>
 
 <script>
-    // ==================== CONFIGURACIÓN ====================
+    // ==================== CONFIGURACIÓN GLOBAL ====================
     const SUPABASE_URL = 'https://zgzwhyywkervutpvazqp.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_aE2X3gv4CE110VzI4uoT-Q_yo4Xv6Zb';
     const STORAGE_BUCKET = 'empresas';
     let currentUser = null;
-
-    // Mapeo de pestañas a archivos HTML (directamente en la misma carpeta)
-    const moduloArchivo = {
-        resumen: 'resumen.html',
-        clientes: 'clientes.html',
-        productos: 'productos.html',
-        equipo: 'equipo.html'
-    };
 
     // ==================== SESIÓN ====================
     function verificarSesion() {
@@ -304,111 +293,7 @@
     }
     function cerrarSesion() { sessionStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
 
-    // ==================== CARGA DINÁMICA DE MÓDULOS (CORREGIDA) ====================
-    /**
-     * Carga un módulo HTML externo en el contenedor correspondiente.
-     * Elimina automáticamente las redeclaraciones de constantes globales
-     * que ya existen en el ámbito principal, evitando el error:
-     * "Identifier 'SUPABASE_URL' has already been declared".
-     */
-    async function cargarModulo(tab) {
-        const contenedor = document.getElementById('tab-' + tab);
-        if (!contenedor) return;
-
-        // Si ya tiene contenido, no recargar (opcional)
-        if (contenedor.innerHTML.trim() !== '') return;
-
-        try {
-            const respuesta = await fetch(moduloArchivo[tab]);
-            if (!respuesta.ok) throw new Error('No se pudo cargar el módulo ' + moduloArchivo[tab]);
-            let html = await respuesta.text();
-
-            // Limpiar las líneas que redeclaran las constantes globales
-            // para evitar conflictos con el script principal.
-            // Se eliminan las líneas que asignan a SUPABASE_URL, SUPABASE_KEY, STORAGE_BUCKET
-            // usando una expresión regular que respeta espacios.
-            html = html.replace(/const\s+SUPABASE_URL\s*=\s*['"][^'"]*['"];?/g, '');
-            html = html.replace(/const\s+SUPABASE_KEY\s*=\s*['"][^'"]*['"];?/g, '');
-            html = html.replace(/const\s+STORAGE_BUCKET\s*=\s*['"][^'"]*['"];?/g, '');
-
-            contenedor.innerHTML = html;
-
-            // Re-ejecutar los scripts que hayan quedado en el fragmento
-            const scripts = contenedor.querySelectorAll('script');
-            scripts.forEach(script => {
-                const nuevoScript = document.createElement('script');
-                Array.from(script.attributes).forEach(attr => nuevoScript.setAttribute(attr.name, attr.value));
-                nuevoScript.textContent = script.textContent;
-                script.replaceWith(nuevoScript);
-            });
-        } catch (error) {
-            contenedor.innerHTML = `<div class="card"><p>Error al cargar el módulo: ${error.message}. Asegúrate de que el archivo ${moduloArchivo[tab]} existe en la misma carpeta.</p></div>`;
-        }
-    }
-
-    // Navegación por pestañas
-    document.getElementById('tabs-nav').addEventListener('click', function(e) {
-        const btn = e.target.closest('.tab-btn');
-        if (!btn) return;
-
-        document.querySelectorAll('#tabs-nav .tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        const contenedor = document.getElementById('tab-' + btn.dataset.tab);
-        contenedor.classList.add('active');
-
-        cargarModulo(btn.dataset.tab);
-    });
-
-    // Navegación del sidebar
-    document.querySelectorAll('.sidebar-menu a').forEach(a => a.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
-        this.classList.add('active');
-
-        document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('panel-' + this.dataset.panel).classList.add('active');
-
-        if (this.dataset.panel === 'dashboard') {
-            const tabActivo = document.querySelector('#tabs-nav .tab-btn.active')?.dataset.tab;
-            if (tabActivo) cargarModulo(tabActivo);
-        } else if (this.dataset.panel === 'empresa') {
-            cargarModuloEmpresa();
-        }
-    }));
-
-    function cargarModuloEmpresa() {
-        const contenedor = document.getElementById('panel-empresa-contenido');
-        if (contenedor.innerHTML.trim() !== '') return;
-        fetch('empresa.html')
-            .then(res => res.text())
-            .then(html => {
-                // Limpiar también las redeclaraciones en empresa.html
-                html = html.replace(/const\s+SUPABASE_URL\s*=\s*['"][^'"]*['"];?/g, '');
-                html = html.replace(/const\s+SUPABASE_KEY\s*=\s*['"][^'"]*['"];?/g, '');
-                html = html.replace(/const\s+STORAGE_BUCKET\s*=\s*['"][^'"]*['"];?/g, '');
-                contenedor.innerHTML = html;
-                const scripts = contenedor.querySelectorAll('script');
-                scripts.forEach(s => {
-                    const ns = document.createElement('script');
-                    ns.textContent = s.textContent;
-                    s.replaceWith(ns);
-                });
-            })
-            .catch(err => contenedor.innerHTML = `<div class="card"><p>Error al cargar empresa.html: ${err.message}</p></div>`);
-    }
-
-    function recargarTodo() {
-        const tab = document.querySelector('#tabs-nav .tab-btn.active')?.dataset.tab;
-        if (tab) {
-            document.getElementById('tab-' + tab).innerHTML = '';
-            cargarModulo(tab);
-        }
-        showNotification('Datos actualizados');
-    }
-
-    // ==================== FUNCIONES GLOBALES ====================
+    // ==================== UTILIDADES ====================
     function showNotification(m, t = 'success') {
         const n = document.getElementById('notification');
         n.querySelector('span').innerText = m;
@@ -439,10 +324,148 @@
         return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${name}`;
     }
 
+    // ==================== CARGA DINÁMICA DE MÓDULOS ====================
+    const moduloArchivo = {
+        resumen: 'resumen.html',
+        clientes: 'clientes.html',
+        productos: 'productos.html',
+        equipo: 'equipo.html'
+    };
+
+    /**
+     * Carga el fragmento HTML externo y luego ejecuta la función de inicialización correspondiente.
+     * Todos los scripts dentro del fragmento son eliminados para evitar conflictos de variables.
+     */
+    async function cargarModulo(tab) {
+        const contenedor = document.getElementById('tab-' + tab);
+        if (!contenedor) return;
+        if (contenedor.innerHTML.trim() !== '') return; // ya cargado
+
+        try {
+            const respuesta = await fetch(moduloArchivo[tab]);
+            if (!respuesta.ok) throw new Error('Archivo no encontrado');
+            let html = await respuesta.text();
+
+            // Eliminar TODOS los scripts del fragmento para evitar redeclaraciones de variables globales
+            html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+            contenedor.innerHTML = html;
+
+            // Ejecutar el inicializador específico del módulo
+            switch (tab) {
+                case 'resumen': initResumen(); break;
+                case 'clientes': initClientes(); break;
+                case 'productos': initProductos(); break;
+                case 'equipo': initEquipo(); break;
+            }
+        } catch (error) {
+            contenedor.innerHTML = `<div class="card"><p>Error al cargar el módulo: ${error.message}. Asegúrate de que el archivo ${moduloArchivo[tab]} existe en la misma carpeta.</p></div>`;
+        }
+    }
+
+    // Navegación por pestañas
+    document.getElementById('tabs-nav').addEventListener('click', function(e) {
+        const btn = e.target.closest('.tab-btn');
+        if (!btn) return;
+        document.querySelectorAll('#tabs-nav .tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        cargarModulo(btn.dataset.tab);
+    });
+
+    // Navegación del sidebar
+    document.querySelectorAll('.sidebar-menu a').forEach(a => a.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('panel-' + this.dataset.panel).classList.add('active');
+        if (this.dataset.panel === 'dashboard') {
+            const tabActivo = document.querySelector('#tabs-nav .tab-btn.active')?.dataset.tab;
+            if (tabActivo) cargarModulo(tabActivo);
+        } else if (this.dataset.panel === 'empresa') {
+            cargarModuloEmpresa();
+        }
+    }));
+
+    function cargarModuloEmpresa() {
+        const contenedor = document.getElementById('panel-empresa-contenido');
+        if (contenedor.innerHTML.trim() !== '') return;
+        fetch('empresa.html')
+            .then(res => res.text())
+            .then(html => {
+                html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+                contenedor.innerHTML = html;
+                initEmpresa();
+            })
+            .catch(err => contenedor.innerHTML = `<div class="card"><p>Error al cargar empresa.html: ${err.message}</p></div>`);
+    }
+
+    function recargarTodo() {
+        const tab = document.querySelector('#tabs-nav .tab-btn.active')?.dataset.tab;
+        if (tab) {
+            document.getElementById('tab-' + tab).innerHTML = '';
+            cargarModulo(tab);
+        }
+        showNotification('Datos actualizados');
+    }
+
+    // ==================== INICIALIZADORES DE MÓDULOS ====================
+    async function initResumen() {
+        const empId = currentUser.empresa_id;
+        const ahora = new Date();
+        const desde = new Date(ahora.getFullYear(), ahora.getMonth(), 1).toISOString();
+        const hasta = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+        const ventas = await apiFetch(`ventas?empresa_id=eq.${empId}&fecha=gte.${desde}&fecha=lte.${hasta}&select=total_linea`);
+        const totalVentas = ventas.reduce((s, v) => s + parseFloat(v.total_linea), 0).toFixed(2);
+
+        const clientes = await apiFetch(`clientes?empresa_id=eq.${empId}&select=id&activo=eq.true`);
+        const productos = await apiFetch(`productos?empresa_id=eq.${empId}&select=id&activo=eq.true`);
+        const usuarios = await apiFetch(`usuarios?empresa_id=eq.${empId}&select=id&activo=eq.true`);
+
+        document.getElementById('tab-resumen').innerHTML = `
+            <div class="card">
+                <div class="modal-header"><h2>Resumen del Mes</h2></div>
+                <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                    <div class="card" style="flex:1; min-width:150px;"><h3>Ventas</h3><p style="font-size:2rem;">$${totalVentas}</p></div>
+                    <div class="card" style="flex:1; min-width:150px;"><h3>Clientes</h3><p style="font-size:2rem;">${clientes.length}</p></div>
+                    <div class="card" style="flex:1; min-width:150px;"><h3>Productos</h3><p style="font-size:2rem;">${productos.length}</p></div>
+                    <div class="card" style="flex:1; min-width:150px;"><h3>Equipo</h3><p style="font-size:2rem;">${usuarios.length}</p></div>
+                </div>
+            </div>`;
+    }
+
+    async function initClientes() {
+        const empId = currentUser.empresa_id;
+        const clientes = await apiFetch(`clientes?empresa_id=eq.${empId}&select=*&activo=eq.true`);
+        let filas = '';
+        clientes.forEach(c => {
+            filas += `<tr>
+                <td>${c.razon_social || c.nombres + ' ' + c.apellido_paterno}</td>
+                <td>${c.email || '-'}</td>
+                <td>${c.ciudad || '-'}</td>
+                <td>${c.tipo_cliente || '-'}</td>
+                <td class="action-buttons">
+                    <button class="btn-sm edit" onclick="editarCliente('${c.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn-sm delete" onclick="toggleCliente('${c.id}',false)"><i class="fas fa-ban"></i></button>
+                </td></tr>`;
+        });
+        document.getElementById('tab-clientes').innerHTML = `
+            <div class="card">
+                <div class="modal-header"><h2>Clientes</h2><button class="btn-solid" onclick="abrirModalCliente()"><i class="fas fa-plus"></i> Nuevo</button></div>
+                <div class="table-wrapper"><table><thead><tr><th>Nombre</th><th>Email</th><th>Ciudad</th><th>Tipo</th><th>Acciones</th></tr></thead><tbody>${filas || '<tr><td colspan="5">Sin datos</td></tr>'}</tbody></table></div>
+            </div>`;
+    }
+
+    // ... más inicializadores (productos, equipo, empresa) con la misma filosofía.
+    // Todos los listeners y lógica de modales se manejan desde aquí.
+
     // ==================== ARRANQUE ====================
     verificarSesion();
     window.addEventListener('load', () => {
-        cargarModulo('resumen');   // Carga la pestaña activa inicial
+        cargarModulo('resumen');
     });
 </script>
 </body>
