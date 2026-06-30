@@ -275,7 +275,7 @@
         </div>
     </div>
 
-    <!-- Modal Resultado de la Visita (antes Reportar Resultado) -->
+    <!-- Modal Resultado de la Visita -->
     <div class="modal-overlay" id="modal-resultado">
         <div class="modal">
             <div class="modal-header">
@@ -1023,6 +1023,7 @@
             }).join('');
         }
 
+        // MODIFICADO: Validación estricta de stock al seleccionar producto
         function seleccionarProducto(productId) {
             const producto = allProducts.find(p => p.id === productId);
             if(!producto) return;
@@ -1033,11 +1034,12 @@
             }
             const yaExiste = pedidoLineas.find(l => l.producto_id === productId);
             if(yaExiste) {
-                if(yaExiste.cantidad + 1 > stock) {
-                    showNotification('Stock insuficiente', 'error');
+                const nuevaCantidad = yaExiste.cantidad + 1;
+                if(nuevaCantidad > stock) {
+                    showNotification(`Stock insuficiente. Máximo disponible: ${stock}`, 'error');
                     return;
                 }
-                yaExiste.cantidad++;
+                yaExiste.cantidad = nuevaCantidad;
             } else {
                 pedidoLineas.push({
                     producto_id: productId,
@@ -1063,7 +1065,7 @@
                 return `<div class="order-line">
                     <span>${l.nombre} <small style="color:#64748b;">(Stock: ${stock})</small></span>
                     <span>${empresaCurrencySymbol}${l.precio.toFixed(2)}</span>
-                    <input class="qty" type="number" value="${l.cantidad}" min="1" max="${stock}" onchange="actualizarCantidad(${i}, this.value)">
+                    <input class="qty" type="number" value="${l.cantidad}" min="1" max="${stock}" onchange="actualizarCantidad(${i}, this.value, this)">
                     <span>${empresaCurrencySymbol}${(l.precio * l.cantidad).toFixed(2)}</span>
                     <button class="btn-sm danger" onclick="pedidoLineas.splice(${i},1); renderizarLineasPedido();"><i class="fas fa-trash"></i></button>
                 </div>`;
@@ -1071,13 +1073,15 @@
             actualizarTotalPedido();
         }
 
-        function actualizarCantidad(index, val) {
+        // CORREGIDO: ajustar cantidad automáticamente al stock si se excede
+        function actualizarCantidad(index, val, inputElement) {
             const stock = stockMap[pedidoLineas[index].producto_id] || 0;
-            const nueva = parseInt(val) || 1;
-            if(nueva > stock) {
-                showNotification('Stock insuficiente', 'error');
-                renderizarLineasPedido();
-                return;
+            let nueva = parseInt(val);
+            if (isNaN(nueva) || nueva < 1) nueva = 1;
+            if (nueva > stock) {
+                nueva = stock;
+                showNotification(`Stock insuficiente. Se ajustó a ${stock}`, 'error');
+                if (inputElement) inputElement.value = stock; // Reflejar en el input
             }
             pedidoLineas[index].cantidad = nueva;
             renderizarLineasPedido();
@@ -1092,12 +1096,15 @@
         async function enviarPedido() {
             const clienteId = document.getElementById('venta-cliente').value;
             if(pedidoLineas.length === 0) return showNotification('Agregue al menos un producto', 'error');
-            // Validar stock antes de enviar
+            // Validación final estricta de stock antes de enviar
             for(const l of pedidoLineas) {
                 const stock = stockMap[l.producto_id] || 0;
                 if(l.cantidad > stock) {
-                    showNotification(`Stock insuficiente para ${l.nombre}`, 'error');
-                    return;
+                    showNotification(`Stock insuficiente para ${l.nombre}. Máximo: ${stock}`, 'error');
+                    // Ajustar automáticamente al máximo
+                    l.cantidad = stock;
+                    renderizarLineasPedido();
+                    return; // Detener el envío
                 }
             }
 
@@ -1245,7 +1252,6 @@
                 });
                 const total = lineas.reduce((s, l) => s + parseFloat(l.total_linea), 0);
                 html += `<tr class="total-row"><td colspan="3" style="text-align:right;">Total:</td><td>${empresaCurrencySymbol}${total.toFixed(2)}</td></tr></tbody></table>`;
-                // Se ha eliminado el código del pedido
                 container.innerHTML = html;
                 document.getElementById('modal-preview-pedido').classList.add('active');
                 pushModalState();
