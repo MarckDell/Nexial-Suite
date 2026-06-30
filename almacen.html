@@ -50,8 +50,51 @@
             color: #0f172a;
         }
 
+        .almacen-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .almacen-dato {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.88rem;
+            color: #334155;
+        }
+
+        .almacen-dato i {
+            color: #64748b;
+            width: 18px;
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
         .table-wrapper {
             overflow-x: auto;
+            margin-top: 12px;
         }
 
         table {
@@ -61,10 +104,10 @@
 
         th,
         td {
-            padding: 12px 14px;
+            padding: 10px 12px;
             text-align: left;
             border-bottom: 1px solid #e2e8f0;
-            font-size: 0.88rem;
+            font-size: 0.85rem;
         }
 
         th {
@@ -72,7 +115,7 @@
             color: #475569;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.73rem;
+            font-size: 0.7rem;
         }
 
         tr:hover td {
@@ -89,7 +132,7 @@
         .btn-sm {
             padding: 6px 12px;
             border-radius: 18px;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 600;
             border: none;
             cursor: pointer;
@@ -105,7 +148,7 @@
             color: #0369a1;
         }
 
-        .btn-inventory {
+        .btn-toggle-inv {
             background: #d1fae5;
             color: #065f46;
         }
@@ -118,6 +161,15 @@
         .btn-remove-permanent {
             background: #ffedd5;
             color: #9a3412;
+        }
+
+        .btn-save-inline {
+            background: #1a56db;
+            color: white;
+        }
+
+        .btn-save-inline:hover {
+            background: #1340a0;
         }
 
         .modal-overlay {
@@ -144,7 +196,7 @@
             background: white;
             border-radius: 28px;
             padding: 36px 32px;
-            max-width: 950px;
+            max-width: 700px;
             width: 100%;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
             animation: modalIn 0.3s ease;
@@ -352,28 +404,34 @@
             gap: 10px;
         }
 
-        .section-divider {
-            margin: 28px 0 20px;
-            border: none;
-            border-top: 2px dashed #e2e8f0;
+        .inv-section {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 12px;
+            border: 1px solid #e2e8f0;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        .inv-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
         }
 
-        .badge-success {
-            background: #d1fae5;
-            color: #065f46;
+        .inline-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-family: 'Inter', sans-serif;
         }
 
-        .badge-danger {
-            background: #fee2e2;
-            color: #991b1b;
+        .inline-input:focus {
+            border-color: #1a56db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(26, 86, 219, 0.08);
         }
     </style>
 </head>
@@ -498,93 +556,6 @@
         </div>
     </div>
 
-    <!-- Modal Inventario (Gestión de productos en almacén) -->
-    <div class="modal-overlay" id="modal-inventario">
-        <div class="modal" style="max-width:1000px;">
-            <div class="modal-header">
-                <h2 id="titulo-modal-inventario">Inventario del Almacén</h2>
-                <button class="close-modal" onclick="cerrarModalInventario()">&times;</button>
-            </div>
-            <div class="info-banner">
-                <i class="fas fa-boxes"></i>
-                <span>Gestione los productos y sus existencias en este almacén. Puede agregar lotes y fechas de vencimiento si aplica.</span>
-            </div>
-
-            <!-- Formulario para agregar/editar producto en inventario -->
-            <form id="form-inventario" autocomplete="off">
-                <input type="hidden" id="inv-id">
-                <input type="hidden" id="inv-almacen-id">
-                <div class="form-row">
-                    <div class="form-col" style="flex:2;">
-                        <div class="form-group">
-                            <label>Producto * <i class="fas fa-box"></i></label>
-                            <select id="inv-producto-id" required style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:12px; font-size:0.88rem; font-family:'Inter',sans-serif;">
-                                <option value="">-- Seleccione un producto --</option>
-                            </select>
-                            <span class="help-text">Elija el producto que desea agregar al inventario de este almacén.</span>
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label>Cantidad * <i class="fas fa-hashtag"></i></label>
-                            <input id="inv-cantidad" type="number" step="1" min="0" required placeholder="Ej: 100">
-                            <span class="help-text">Cantidad de unidades disponibles de este producto.</span>
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label>Cantidad Reservada <i class="fas fa-lock"></i></label>
-                            <input id="inv-cantidad-reservada" type="number" step="1" min="0" value="0" placeholder="0">
-                            <span class="help-text">Unidades apartadas para pedidos o procesos (no disponibles para venta).</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label>Lote <i class="fas fa-barcode"></i></label>
-                            <input id="inv-lote" placeholder="Ej: L-2026-05" oninput="this.value = this.value.toUpperCase()">
-                            <span class="help-text">Número de lote de fabricación (si el producto maneja lotes).</span>
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label>Fecha de Vencimiento <i class="fas fa-calendar-alt"></i></label>
-                            <input id="inv-fecha-vencimiento" type="date">
-                            <span class="help-text">Fecha límite para utilizar o vender este producto (si aplica).</span>
-                        </div>
-                    </div>
-                </div>
-                <div style="margin-top:8px; display:flex; gap:12px;">
-                    <button type="submit" class="btn-solid" id="btn-inv-guardar"><i class="fas fa-plus-circle"></i> Agregar Producto</button>
-                    <button type="button" class="btn-outline" id="btn-inv-cancelar" style="display:none;" onclick="cancelarEdicionInventario()">Cancelar Edición</button>
-                </div>
-            </form>
-
-            <hr class="section-divider">
-
-            <!-- Tabla de inventario actual del almacén -->
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>SKU</th>
-                            <th>Lote</th>
-                            <th>Vencimiento</th>
-                            <th>Cantidad</th>
-                            <th>Reservado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-inventario">
-                        <tr><td colspan="7" style="text-align:center;">Cargando inventario...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
     <div id="notification" class="notification"><i class="fas fa-circle-info"></i><span></span></div>
 
     <script>
@@ -593,7 +564,7 @@
         const STORAGE_BUCKET = 'empresas';
         let currentUser = null;
         let confirmCallback = null;
-        let almacenSeleccionadoId = null;
+        let todosLosProductosCache = [];
 
         function capitalizarInput(el) {
             let val = el.value,
@@ -673,7 +644,20 @@
             return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${name}`;
         }
 
-        // ==================== LISTA DE ALMACENES ====================
+        // Cargar todos los productos una sola vez para usar en selects
+        async function cargarProductosCache() {
+            if (!currentUser || !currentUser.empresa_id) return;
+            todosLosProductosCache = await apiFetch(
+                `productos?empresa_id=eq.${currentUser.empresa_id}&activo=eq.true&select=id,nombre,sku&limit=1000`);
+        }
+
+        function generarOpcionesProductos() {
+            return todosLosProductosCache.map(p =>
+                `<option value="${p.id}">${p.nombre} (${p.sku})</option>`
+            ).join('');
+        }
+
+        // ==================== LISTA DE ALMACENES CON INVENTARIO INTEGRADO ====================
         async function cargarAlmacenes(filtro = {}) {
             if (!currentUser || !currentUser.empresa_id) return;
             const empId = currentUser.empresa_id;
@@ -686,7 +670,7 @@
             }
             const almacenes = await apiFetch(query);
 
-            // Obtener valores únicos para datalists
+            // Obtener valores únicos para datalists (del modal)
             const todos = await apiFetch(
                 `almacenes?empresa_id=eq.${empId}&select=ciudad,estado_provincia,pais,tipo&limit=1000`);
             const ciudades = [...new Set(todos.map(a => a.ciudad).filter(Boolean))].sort();
@@ -694,33 +678,111 @@
             const paises = [...new Set(todos.map(a => a.pais).filter(Boolean))].sort();
             const tipos = [...new Set(todos.map(a => a.tipo).filter(Boolean))].sort();
 
-            let filas = '';
-            almacenes.forEach(a => {
-                const estadoBadge = a.activo ?
+            // Construir HTML de cada almacén como tarjeta
+            let almacenesHTML = almacenes.map(almacen => {
+                const estadoBadge = almacen.activo ?
                     '<span class="badge badge-success">Activo</span>' :
                     '<span class="badge badge-danger">Inactivo</span>';
-                filas += `<tr>
-                    <td><strong>${a.codigo}</strong></td>
-                    <td>${a.nombre}</td>
-                    <td>${a.ciudad || '-'}</td>
-                    <td>${a.tipo || '-'}</td>
-                    <td>${a.capacidad_maxima || '-'}</td>
-                    <td>${estadoBadge}</td>
-                    <td class="action-buttons">
-                        <button class="btn-sm btn-inventory" onclick="abrirModalInventario('${a.id}')"><i class="fas fa-boxes"></i> Inventario</button>
-                        <button class="btn-sm btn-edit" onclick="abrirModalAlmacen('${a.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn-sm btn-delete" onclick="desactivarAlmacen('${a.id}')"><i class="fas fa-ban"></i></button>
-                        <button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteAlmacen('${a.id}')"><i class="fas fa-trash-alt"></i></button>
-                    </td>
-                </tr>`;
-            });
-            if (!filas) filas = '<tr><td colspan="7" style="text-align:center;">No hay almacenes registrados.</td></tr>';
+                return `
+                <div class="card" id="almacen-card-${almacen.id}">
+                    <div class="almacen-info">
+                        <div class="almacen-dato"><i class="fas fa-tag"></i><strong>${almacen.codigo}</strong></div>
+                        <div class="almacen-dato"><i class="fas fa-warehouse"></i>${almacen.nombre}</div>
+                        <div class="almacen-dato"><i class="fas fa-city"></i>${almacen.ciudad || '-'}</div>
+                        <div class="almacen-dato"><i class="fas fa-boxes"></i>${almacen.tipo || '-'}</div>
+                        <div class="almacen-dato"><i class="fas fa-weight-hanging"></i>Capacidad: ${almacen.capacidad_maxima || 'Sin límite'}</div>
+                        <div class="almacen-dato">${estadoBadge}</div>
+                        <div class="action-buttons" style="margin-left:auto;">
+                            <button class="btn-sm btn-toggle-inv" onclick="toggleInventario('${almacen.id}')">
+                                <i class="fas fa-boxes"></i> Inventario
+                            </button>
+                            <button class="btn-sm btn-edit" onclick="abrirModalAlmacen('${almacen.id}')">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn-sm btn-delete" onclick="desactivarAlmacen('${almacen.id}')">
+                                <i class="fas fa-ban"></i> Desactivar
+                            </button>
+                            <button class="btn-sm btn-remove-permanent" onclick="eliminarDefinitivamenteAlmacen('${almacen.id}')">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Sección de inventario (inicialmente oculta) -->
+                    <div id="inv-section-${almacen.id}" class="inv-section" style="display:none;">
+                        <h3>Inventario de ${almacen.nombre}</h3>
+                        <div class="info-banner" style="margin-bottom:16px;">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Aquí puede agregar productos y editar sus existencias. Los cambios se guardan individualmente con el botón <strong>"Guardar"</strong> de cada fila.</span>
+                        </div>
+                        <!-- Formulario para agregar nuevo producto al inventario -->
+                        <div class="form-row" style="align-items:flex-end;">
+                            <div class="form-col" style="flex:2;">
+                                <div class="form-group">
+                                    <label>Producto *</label>
+                                    <select id="select-prod-${almacen.id}" class="inline-input" style="width:100%;">
+                                        <option value="">-- Seleccione --</option>
+                                        ${generarOpcionesProductos()}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>Cantidad *</label>
+                                    <input type="number" id="nueva-cant-${almacen.id}" class="inline-input" placeholder="0" min="0" step="1" value="0">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>Cant. Reservada</label>
+                                    <input type="number" id="nueva-res-${almacen.id}" class="inline-input" placeholder="0" min="0" step="1" value="0">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>Lote</label>
+                                    <input type="text" id="nueva-lote-${almacen.id}" class="inline-input" placeholder="Opcional">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>Fecha Venc.</label>
+                                    <input type="date" id="nueva-fecha-${almacen.id}" class="inline-input">
+                                </div>
+                            </div>
+                            <div class="form-col" style="flex:0 0 auto;">
+                                <button class="btn-sm btn-save-inline" onclick="agregarProductoInventario('${almacen.id}')">
+                                    <i class="fas fa-plus"></i> Agregar
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Tabla de inventario existente (se llena dinámicamente) -->
+                        <div class="table-wrapper" style="margin-top:20px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>SKU</th>
+                                        <th>Cantidad *</th>
+                                        <th>Cant. Reservada</th>
+                                        <th>Lote</th>
+                                        <th>Fecha Vencimiento</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-inv-${almacen.id}">
+                                    <tr><td colspan="7" style="text-align:center;">Cargando inventario...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
 
             document.getElementById('almacen-container').innerHTML = `
             <div class="card">
                 <div class="card-header">
-                    <h2><i class="fas fa-warehouse"></i> Gesti&oacute;n de Almacenes</h2>
-                    <button class="btn-solid" onclick="abrirModalAlmacen()"><i class="fas fa-plus"></i> Nuevo Almac&eacute;n</button>
+                    <h2><i class="fas fa-warehouse"></i> Gestión de Almacenes</h2>
+                    <button class="btn-solid" onclick="abrirModalAlmacen()"><i class="fas fa-plus"></i> Nuevo Almacén</button>
                 </div>
                 <div class="filtros">
                     <div class="filtro-group">
@@ -740,20 +802,11 @@
                     </div>
                     <div class="filtro-group">
                         <label>Buscar:</label>
-                        <input type="text" id="filtro-buscar" placeholder="Nombre, c&oacute;digo, ciudad..." oninput="aplicarFiltros()">
+                        <input type="text" id="filtro-buscar" placeholder="Nombre, código, ciudad..." oninput="aplicarFiltros()">
                     </div>
                 </div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>C&oacute;digo</th><th>Nombre</th><th>Ciudad</th><th>Tipo</th><th>Capacidad M&aacute;x</th><th>Estado</th><th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>${filas}</tbody>
-                    </table>
-                </div>
-            </div>`;
+            </div>
+            ${almacenesHTML || '<div class="card"><p style="text-align:center;">No hay almacenes registrados.</p></div>'}`;
 
             // Cargar datalists para el modal de almacén
             cargarDatalistsAlmacenes(ciudades, estados, paises, tipos);
@@ -787,6 +840,152 @@
                     dl.appendChild(opt);
                 });
             });
+        }
+
+        // ==================== TOGGLE Y CARGA DE INVENTARIO POR ALMACÉN ====================
+        async function toggleInventario(almacenId) {
+            const section = document.getElementById(`inv-section-${almacenId}`);
+            if (!section) return;
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                await cargarInventarioAlmacen(almacenId);
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        async function cargarInventarioAlmacen(almacenId) {
+            const tbody = document.getElementById(`tbody-inv-${almacenId}`);
+            if (!tbody) return;
+            try {
+                const inventario = await apiFetch(
+                    `inventario?almacen_id=eq.${almacenId}&select=*,productos(nombre,sku)&limit=1000`);
+                if (!inventario.length) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="7" style="text-align:center;">No hay productos en este almacén. Use el formulario superior para agregar.</td></tr>';
+                    return;
+                }
+                let filas = '';
+                inventario.forEach(inv => {
+                    const prod = inv.productos || {};
+                    filas += `
+                    <tr id="fila-inv-${inv.id}">
+                        <td>${prod.nombre || 'Sin nombre'}</td>
+                        <td>${prod.sku || '-'}</td>
+                        <td><input type="number" class="inline-input" id="cant-${inv.id}" value="${inv.cantidad}" min="0" step="1"></td>
+                        <td><input type="number" class="inline-input" id="res-${inv.id}" value="${inv.cantidad_reservada || 0}" min="0" step="1"></td>
+                        <td><input type="text" class="inline-input" id="lote-${inv.id}" value="${inv.lote || ''}" placeholder="Sin lote"></td>
+                        <td><input type="date" class="inline-input" id="fecha-${inv.id}" value="${inv.fecha_vencimiento || ''}"></td>
+                        <td class="action-buttons">
+                            <button class="btn-sm btn-save-inline" onclick="guardarCambiosInventario('${inv.id}', '${almacenId}')">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                            <button class="btn-sm btn-delete" onclick="eliminarProductoInventario('${inv.id}', '${almacenId}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+                tbody.innerHTML = filas;
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Error: ${e.message}</td></tr>`;
+            }
+        }
+
+        async function guardarCambiosInventario(invId, almacenId) {
+            const cantidad = document.getElementById(`cant-${invId}`)?.value;
+            const reservada = document.getElementById(`res-${invId}`)?.value;
+            const lote = document.getElementById(`lote-${invId}`)?.value.trim();
+            const fecha = document.getElementById(`fecha-${invId}`)?.value;
+            if (cantidad === '' || isNaN(parseInt(cantidad)) || parseInt(cantidad) < 0) {
+                showNotification('La cantidad debe ser un número válido mayor o igual a 0.', 'error');
+                return;
+            }
+            const payload = {
+                cantidad: parseInt(cantidad),
+                cantidad_reservada: parseInt(reservada) || 0,
+                lote: lote || null,
+                fecha_vencimiento: fecha || null
+            };
+            try {
+                await apiFetch(`inventario?id=eq.${invId}`, 'PATCH', payload);
+                showNotification('Inventario actualizado correctamente');
+                // Refrescar la tabla de ese almacén
+                await cargarInventarioAlmacen(almacenId);
+            } catch (e) {
+                showNotification('Error al guardar: ' + e.message, 'error');
+            }
+        }
+
+        async function eliminarProductoInventario(invId, almacenId) {
+            mostrarConfirmacion('¿Eliminar este producto del inventario? Se perderá el registro de existencias.',
+                'Eliminar producto',
+                async () => {
+                    await apiFetch(`inventario?id=eq.${invId}`, 'DELETE');
+                    showNotification('Producto eliminado del inventario');
+                    await cargarInventarioAlmacen(almacenId);
+                });
+        }
+
+        async function agregarProductoInventario(almacenId) {
+            const select = document.getElementById(`select-prod-${almacenId}`);
+            const productoId = select?.value;
+            const cantidad = parseInt(document.getElementById(`nueva-cant-${almacenId}`)?.value);
+            const reservada = parseInt(document.getElementById(`nueva-res-${almacenId}`)?.value) || 0;
+            const lote = document.getElementById(`nueva-lote-${almacenId}`)?.value.trim() || null;
+            const fecha = document.getElementById(`nueva-fecha-${almacenId}`)?.value || null;
+
+            if (!productoId) {
+                showNotification('Debe seleccionar un producto', 'error');
+                return;
+            }
+            if (isNaN(cantidad) || cantidad < 0) {
+                showNotification('La cantidad debe ser un número válido', 'error');
+                return;
+            }
+
+            const payload = {
+                empresa_id: currentUser.empresa_id,
+                producto_id: productoId,
+                almacen_id: almacenId,
+                cantidad: cantidad,
+                cantidad_reservada: reservada,
+                lote: lote,
+                fecha_vencimiento: fecha
+            };
+
+            try {
+                // Verificar duplicados según la restricción UNIQUE
+                let checkQuery =
+                    `inventario?almacen_id=eq.${almacenId}&producto_id=eq.${productoId}&select=id,cantidad`;
+                if (lote) checkQuery += `&lote=eq.${encodeURIComponent(lote)}`;
+                else checkQuery += `&lote=is.null`;
+                if (fecha) checkQuery += `&fecha_vencimiento=eq.${encodeURIComponent(fecha)}`;
+                else checkQuery += `&fecha_vencimiento=is.null`;
+
+                const existente = await apiFetch(checkQuery);
+                if (existente.length > 0) {
+                    // Actualizar sumando cantidad
+                    const nuevaCant = existente[0].cantidad + cantidad;
+                    await apiFetch(`inventario?id=eq.${existente[0].id}`, 'PATCH', {
+                        cantidad: nuevaCant,
+                        cantidad_reservada: reservada
+                    });
+                    showNotification('El producto ya existía con ese lote/vencimiento. Se sumó la cantidad.');
+                } else {
+                    await apiFetch('inventario', 'POST', payload);
+                    showNotification('Producto agregado al inventario');
+                }
+                // Limpiar formulario
+                document.getElementById(`select-prod-${almacenId}`).value = '';
+                document.getElementById(`nueva-cant-${almacenId}`).value = 0;
+                document.getElementById(`nueva-res-${almacenId}`).value = 0;
+                document.getElementById(`nueva-lote-${almacenId}`).value = '';
+                document.getElementById(`nueva-fecha-${almacenId}`).value = '';
+                await cargarInventarioAlmacen(almacenId);
+            } catch (e) {
+                showNotification('Error: ' + e.message, 'error');
+            }
         }
 
         // ==================== MODAL ALMACÉN (CREAR/EDITAR) ====================
@@ -839,7 +1038,6 @@
                 'Eliminar Almacén',
                 async () => {
                     try {
-                        // Eliminar inventario asociado primero para evitar problemas de FK
                         await apiFetch(`inventario?almacen_id=eq.${id}`, 'DELETE');
                         await apiFetch(`almacenes?id=eq.${id}`, 'DELETE');
                         cargarAlmacenes({});
@@ -877,220 +1075,25 @@
             }
 
             try {
-                let nuevoId = id;
                 if (id) {
                     delete payload.empresa_id;
                     await apiFetch(`almacenes?id=eq.${id}`, 'PATCH', payload);
                     showNotification('Almacén actualizado correctamente');
                 } else {
                     const result = await apiFetch('almacenes', 'POST', payload);
-                    if (Array.isArray(result) && result.length > 0) {
-                        nuevoId = result[0].id;
-                    } else if (result.id) {
-                        nuevoId = result.id;
-                    }
                     showNotification('Almacén creado correctamente');
                 }
                 cerrarModalAlmacen();
                 cargarAlmacenes({});
-                // Si es nuevo, abrir automáticamente el inventario para agregar productos
-                if (!id && nuevoId) {
-                    setTimeout(() => abrirModalInventario(nuevoId), 500);
-                }
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
-            }
-        });
-
-        // ==================== MODAL INVENTARIO ====================
-        async function abrirModalInventario(almacenId) {
-            almacenSeleccionadoId = almacenId;
-            document.getElementById('inv-almacen-id').value = almacenId;
-            document.getElementById('modal-inventario').classList.add('active');
-            document.getElementById('form-inventario').reset();
-            document.getElementById('inv-id').value = '';
-            document.getElementById('btn-inv-guardar').innerHTML = '<i class="fas fa-plus-circle"></i> Agregar Producto';
-            document.getElementById('btn-inv-cancelar').style.display = 'none';
-
-            // Obtener nombre del almacén para el título
-            const almacen = await apiFetch(`almacenes?id=eq.${almacenId}&select=nombre`);
-            const nombreAlmacen = almacen.length > 0 ? almacen[0].nombre : 'Almacén';
-            document.getElementById('titulo-modal-inventario').textContent = `Inventario: ${nombreAlmacen}`;
-
-            // Cargar lista de productos de la empresa
-            await cargarProductosEnSelect();
-            // Cargar inventario actual
-            await cargarInventarioActual();
-        }
-
-        function cerrarModalInventario() {
-            document.getElementById('modal-inventario').classList.remove('active');
-            almacenSeleccionadoId = null;
-            cargarAlmacenes({}); // Refrescar lista por si hubo cambios
-        }
-
-        async function cargarProductosEnSelect() {
-            const select = document.getElementById('inv-producto-id');
-            select.innerHTML = '<option value="">-- Seleccione un producto --</option>';
-            if (!currentUser || !currentUser.empresa_id) return;
-            const productos = await apiFetch(
-                `productos?empresa_id=eq.${currentUser.empresa_id}&activo=eq.true&select=id,nombre,sku&limit=1000`);
-            productos.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p.id;
-                opt.textContent = `${p.nombre} (${p.sku})`;
-                select.appendChild(opt);
-            });
-        }
-
-        async function cargarInventarioActual() {
-            const tbody = document.getElementById('tbody-inventario');
-            const almacenId = document.getElementById('inv-almacen-id').value;
-            if (!almacenId) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No se ha seleccionado almacén.</td></tr>';
-                return;
-            }
-            try {
-                const inventario = await apiFetch(
-                    `inventario?almacen_id=eq.${almacenId}&select=*,productos(nombre,sku)&limit=1000`);
-                if (!inventario.length) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="7" style="text-align:center;">No hay productos en este almacén. Agregue productos usando el formulario superior.</td></tr>';
-                    return;
-                }
-                let filas = '';
-                inventario.forEach(inv => {
-                    const producto = inv.productos || {};
-                    filas += `<tr>
-                        <td>${producto.nombre || 'Sin nombre'}</td>
-                        <td>${producto.sku || '-'}</td>
-                        <td>${inv.lote || '-'}</td>
-                        <td>${inv.fecha_vencimiento || '-'}</td>
-                        <td>${inv.cantidad}</td>
-                        <td>${inv.cantidad_reservada || 0}</td>
-                        <td class="action-buttons">
-                            <button class="btn-sm btn-edit" onclick="editarInventario('${inv.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn-sm btn-delete" onclick="eliminarInventario('${inv.id}')"><i class="fas fa-trash-alt"></i></button>
-                        </td>
-                    </tr>`;
-                });
-                tbody.innerHTML = filas;
-            } catch (e) {
-                tbody.innerHTML =
-                    `<tr><td colspan="7" style="text-align:center;">Error al cargar inventario: ${e.message}</td></tr>`;
-            }
-        }
-
-        async function editarInventario(invId) {
-            const res = await apiFetch(`inventario?id=eq.${invId}&select=*`);
-            if (!res.length) return;
-            const inv = res[0];
-            document.getElementById('inv-id').value = inv.id;
-            document.getElementById('inv-producto-id').value = inv.producto_id;
-            document.getElementById('inv-cantidad').value = inv.cantidad;
-            document.getElementById('inv-cantidad-reservada').value = inv.cantidad_reservada || 0;
-            document.getElementById('inv-lote').value = inv.lote || '';
-            document.getElementById('inv-fecha-vencimiento').value = inv.fecha_vencimiento || '';
-            document.getElementById('btn-inv-guardar').innerHTML =
-            '<i class="fas fa-save"></i> Actualizar Producto';
-            document.getElementById('btn-inv-cancelar').style.display = 'inline-flex';
-        }
-
-        function cancelarEdicionInventario() {
-            document.getElementById('form-inventario').reset();
-            document.getElementById('inv-id').value = '';
-            document.getElementById('btn-inv-guardar').innerHTML =
-                '<i class="fas fa-plus-circle"></i> Agregar Producto';
-            document.getElementById('btn-inv-cancelar').style.display = 'none';
-        }
-
-        async function eliminarInventario(invId) {
-            mostrarConfirmacion('¿Eliminar este registro de inventario? Se perderá la cantidad registrada de este producto en el almacén.',
-                'Eliminar Producto del Inventario',
-                async () => {
-                    await apiFetch(`inventario?id=eq.${invId}`, 'DELETE');
-                    await cargarInventarioActual();
-                    showNotification('Producto eliminado del inventario');
-                }
-            );
-        }
-
-        document.getElementById('form-inventario').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const invId = document.getElementById('inv-id').value;
-            const almacenId = document.getElementById('inv-almacen-id').value;
-            const productoId = document.getElementById('inv-producto-id').value;
-            const cantidad = parseInt(document.getElementById('inv-cantidad').value);
-            const cantidadReservada = parseInt(document.getElementById('inv-cantidad-reservada').value) || 0;
-            const lote = document.getElementById('inv-lote').value.trim() || null;
-            const fechaVencimiento = document.getElementById('inv-fecha-vencimiento').value || null;
-
-            if (!productoId) {
-                showNotification('Debe seleccionar un producto', 'error');
-                return;
-            }
-            if (isNaN(cantidad) || cantidad < 0) {
-                showNotification('La cantidad debe ser un número válido mayor o igual a 0', 'error');
-                return;
-            }
-
-            const payload = {
-                empresa_id: currentUser.empresa_id,
-                producto_id: productoId,
-                almacen_id: almacenId,
-                cantidad: cantidad,
-                cantidad_reservada: cantidadReservada,
-                lote: lote,
-                fecha_vencimiento: fechaVencimiento
-            };
-
-            try {
-                if (invId) {
-                    // Actualizar registro existente
-                    delete payload.empresa_id;
-                    await apiFetch(`inventario?id=eq.${invId}`, 'PATCH', payload);
-                    showNotification('Inventario actualizado correctamente');
-                    cancelarEdicionInventario();
-                } else {
-                    // Verificar si ya existe un registro con la misma combinación única
-                    let checkQuery =
-                        `inventario?almacen_id=eq.${almacenId}&producto_id=eq.${productoId}&select=id,cantidad`;
-                    if (lote) checkQuery += `&lote=eq.${encodeURIComponent(lote)}`;
-                    else checkQuery += `&lote=is.null`;
-                    if (fechaVencimiento) checkQuery +=
-                        `&fecha_vencimiento=eq.${encodeURIComponent(fechaVencimiento)}`;
-                    else checkQuery += `&fecha_vencimiento=is.null`;
-
-                    const existente = await apiFetch(checkQuery);
-                    if (existente.length > 0) {
-                        // Actualizar sumando la cantidad
-                        const nuevaCantidad = existente[0].cantidad + cantidad;
-                        await apiFetch(`inventario?id=eq.${existente[0].id}`, 'PATCH', {
-                            cantidad: nuevaCantidad,
-                            cantidad_reservada: cantidadReservada
-                        });
-                        showNotification(
-                            'El producto ya existía en este almacén con ese lote/vencimiento. Se ha sumado la cantidad.'
-                        );
-                    } else {
-                        await apiFetch('inventario', 'POST', payload);
-                        showNotification('Producto agregado al inventario correctamente');
-                    }
-                }
-                document.getElementById('form-inventario').reset();
-                document.getElementById('inv-id').value = '';
-                document.getElementById('btn-inv-guardar').innerHTML =
-                    '<i class="fas fa-plus-circle"></i> Agregar Producto';
-                document.getElementById('btn-inv-cancelar').style.display = 'none';
-                await cargarInventarioActual();
-            } catch (err) {
-                showNotification('Error al guardar inventario: ' + err.message, 'error');
             }
         });
 
         window.onload = async function() {
             verificarSesion();
             if (currentUser) {
+                await cargarProductosCache();
                 await cargarAlmacenes({});
             }
         };
