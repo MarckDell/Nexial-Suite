@@ -122,6 +122,15 @@
             background: #f1f5f9;
         }
 
+        .sin-inventario td {
+            background-color: #fff5f5;
+            color: #991b1b;
+        }
+
+        .sin-inventario:hover td {
+            background-color: #fee2e2;
+        }
+
         .action-buttons {
             display: flex;
             gap: 6px;
@@ -644,17 +653,10 @@
             return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${name}`;
         }
 
-        // Cargar todos los productos una sola vez para usar en selects
         async function cargarProductosCache() {
             if (!currentUser || !currentUser.empresa_id) return;
             todosLosProductosCache = await apiFetch(
                 `productos?empresa_id=eq.${currentUser.empresa_id}&activo=eq.true&select=id,nombre,sku&limit=1000`);
-        }
-
-        function generarOpcionesProductos() {
-            return todosLosProductosCache.map(p =>
-                `<option value="${p.id}">${p.nombre} (${p.sku})</option>`
-            ).join('');
         }
 
         // ==================== LISTA DE ALMACENES CON INVENTARIO INTEGRADO ====================
@@ -670,7 +672,6 @@
             }
             const almacenes = await apiFetch(query);
 
-            // Obtener valores únicos para datalists (del modal)
             const todos = await apiFetch(
                 `almacenes?empresa_id=eq.${empId}&select=ciudad,estado_provincia,pais,tipo&limit=1000`);
             const ciudades = [...new Set(todos.map(a => a.ciudad).filter(Boolean))].sort();
@@ -678,7 +679,6 @@
             const paises = [...new Set(todos.map(a => a.pais).filter(Boolean))].sort();
             const tipos = [...new Set(todos.map(a => a.tipo).filter(Boolean))].sort();
 
-            // Construir HTML de cada almacén como tarjeta
             let almacenesHTML = almacenes.map(almacen => {
                 const estadoBadge = almacen.activo ?
                     '<span class="badge badge-success">Activo</span>' :
@@ -707,56 +707,13 @@
                             </button>
                         </div>
                     </div>
-                    <!-- Sección de inventario (inicialmente oculta) -->
                     <div id="inv-section-${almacen.id}" class="inv-section" style="display:none;">
                         <h3>Inventario de ${almacen.nombre}</h3>
                         <div class="info-banner" style="margin-bottom:16px;">
                             <i class="fas fa-info-circle"></i>
-                            <span>Aquí puede agregar productos y editar sus existencias. Los cambios se guardan individualmente con el botón <strong>"Guardar"</strong> de cada fila.</span>
+                            <span>Tabla de todos los productos de la empresa. <strong>Los productos sin existencias aparecen en rojo.</strong> Edite los campos y presione "Guardar" para actualizar o crear inventario.</span>
                         </div>
-                        <!-- Formulario para agregar nuevo producto al inventario -->
-                        <div class="form-row" style="align-items:flex-end;">
-                            <div class="form-col" style="flex:2;">
-                                <div class="form-group">
-                                    <label>Producto *</label>
-                                    <select id="select-prod-${almacen.id}" class="inline-input" style="width:100%;">
-                                        <option value="">-- Seleccione --</option>
-                                        ${generarOpcionesProductos()}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label>Cantidad *</label>
-                                    <input type="number" id="nueva-cant-${almacen.id}" class="inline-input" placeholder="0" min="0" step="1" value="0">
-                                </div>
-                            </div>
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label>Cant. Reservada</label>
-                                    <input type="number" id="nueva-res-${almacen.id}" class="inline-input" placeholder="0" min="0" step="1" value="0">
-                                </div>
-                            </div>
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label>Lote</label>
-                                    <input type="text" id="nueva-lote-${almacen.id}" class="inline-input" placeholder="Opcional">
-                                </div>
-                            </div>
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label>Fecha Venc.</label>
-                                    <input type="date" id="nueva-fecha-${almacen.id}" class="inline-input">
-                                </div>
-                            </div>
-                            <div class="form-col" style="flex:0 0 auto;">
-                                <button class="btn-sm btn-save-inline" onclick="agregarProductoInventario('${almacen.id}')">
-                                    <i class="fas fa-plus"></i> Agregar
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Tabla de inventario existente (se llena dinámicamente) -->
-                        <div class="table-wrapper" style="margin-top:20px;">
+                        <div class="table-wrapper">
                             <table>
                                 <thead>
                                     <tr>
@@ -808,7 +765,6 @@
             </div>
             ${almacenesHTML || '<div class="card"><p style="text-align:center;">No hay almacenes registrados.</p></div>'}`;
 
-            // Cargar datalists para el modal de almacén
             cargarDatalistsAlmacenes(ciudades, estados, paises, tipos);
         }
 
@@ -842,150 +798,147 @@
             });
         }
 
-        // ==================== TOGGLE Y CARGA DE INVENTARIO POR ALMACÉN ====================
+        // ==================== INVENTARIO POR ALMACÉN (TODOS LOS PRODUCTOS) ====================
         async function toggleInventario(almacenId) {
             const section = document.getElementById(`inv-section-${almacenId}`);
             if (!section) return;
             if (section.style.display === 'none') {
                 section.style.display = 'block';
-                await cargarInventarioAlmacen(almacenId);
+                await cargarInventarioCompleto(almacenId);
             } else {
                 section.style.display = 'none';
             }
         }
 
-        async function cargarInventarioAlmacen(almacenId) {
+        async function cargarInventarioCompleto(almacenId) {
             const tbody = document.getElementById(`tbody-inv-${almacenId}`);
             if (!tbody) return;
             try {
+                // Obtener inventario actual del almacén
                 const inventario = await apiFetch(
-                    `inventario?almacen_id=eq.${almacenId}&select=*,productos(nombre,sku)&limit=1000`);
-                if (!inventario.length) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="7" style="text-align:center;">No hay productos en este almacén. Use el formulario superior para agregar.</td></tr>';
-                    return;
-                }
-                let filas = '';
+                    `inventario?almacen_id=eq.${almacenId}&select=*&limit=1000`);
+                // Mapear inventario por producto_id (para simplificar, usamos solo el primer registro por producto,
+                // pero la tabla permite múltiples lotes; para esta vista, mostraremos todas las líneas de inventario existentes
+                // y además agregaremos los productos que no tienen ningún registro)
+                const productosConInventario = new Map(); // key: producto_id, value: array de registros
                 inventario.forEach(inv => {
-                    const prod = inv.productos || {};
-                    filas += `
-                    <tr id="fila-inv-${inv.id}">
-                        <td>${prod.nombre || 'Sin nombre'}</td>
-                        <td>${prod.sku || '-'}</td>
-                        <td><input type="number" class="inline-input" id="cant-${inv.id}" value="${inv.cantidad}" min="0" step="1"></td>
-                        <td><input type="number" class="inline-input" id="res-${inv.id}" value="${inv.cantidad_reservada || 0}" min="0" step="1"></td>
-                        <td><input type="text" class="inline-input" id="lote-${inv.id}" value="${inv.lote || ''}" placeholder="Sin lote"></td>
-                        <td><input type="date" class="inline-input" id="fecha-${inv.id}" value="${inv.fecha_vencimiento || ''}"></td>
-                        <td class="action-buttons">
-                            <button class="btn-sm btn-save-inline" onclick="guardarCambiosInventario('${inv.id}', '${almacenId}')">
-                                <i class="fas fa-save"></i> Guardar
-                            </button>
-                            <button class="btn-sm btn-delete" onclick="eliminarProductoInventario('${inv.id}', '${almacenId}')">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </td>
-                    </tr>`;
+                    if (!productosConInventario.has(inv.producto_id)) {
+                        productosConInventario.set(inv.producto_id, []);
+                    }
+                    productosConInventario.get(inv.producto_id).push(inv);
                 });
+
+                let filas = '';
+                // Recorrer todos los productos de la empresa
+                todosLosProductosCache.forEach(producto => {
+                    const registros = productosConInventario.get(producto.id);
+                    if (registros && registros.length > 0) {
+                        // Mostrar cada registro existente
+                        registros.forEach(inv => {
+                            filas += construirFilaInventario(producto, inv, almacenId);
+                        });
+                    } else {
+                        // Producto sin inventario: fila en rojo con datos vacíos
+                        filas += construirFilaInventario(producto, null, almacenId);
+                    }
+                });
+
+                if (!filas) {
+                    filas = '<tr><td colspan="7" style="text-align:center;">No hay productos en la empresa.</td></tr>';
+                }
                 tbody.innerHTML = filas;
             } catch (e) {
                 tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Error: ${e.message}</td></tr>`;
             }
         }
 
-        async function guardarCambiosInventario(invId, almacenId) {
-            const cantidad = document.getElementById(`cant-${invId}`)?.value;
-            const reservada = document.getElementById(`res-${invId}`)?.value;
-            const lote = document.getElementById(`lote-${invId}`)?.value.trim();
-            const fecha = document.getElementById(`fecha-${invId}`)?.value;
-            if (cantidad === '' || isNaN(parseInt(cantidad)) || parseInt(cantidad) < 0) {
+        function construirFilaInventario(producto, invRecord, almacenId) {
+            const tieneInv = invRecord !== null;
+            const clase = tieneInv ? '' : 'sin-inventario';
+            const invId = tieneInv ? invRecord.id : '';
+            const cantidad = tieneInv ? invRecord.cantidad : 0;
+            const reservada = tieneInv ? (invRecord.cantidad_reservada || 0) : 0;
+            const lote = tieneInv ? (invRecord.lote || '') : '';
+            const fecha = tieneInv ? (invRecord.fecha_vencimiento || '') : '';
+            const disabledEliminar = tieneInv ? '' : 'disabled';
+            return `
+            <tr class="${clase}" data-inv-id="${invId}" data-producto-id="${producto.id}">
+                <td>${producto.nombre}</td>
+                <td>${producto.sku}</td>
+                <td><input type="number" class="inline-input cant-inv" value="${cantidad}" min="0" step="1"></td>
+                <td><input type="number" class="inline-input res-inv" value="${reservada}" min="0" step="1"></td>
+                <td><input type="text" class="inline-input lote-inv" value="${lote}" placeholder="Sin lote"></td>
+                <td><input type="date" class="inline-input fecha-inv" value="${fecha}"></td>
+                <td class="action-buttons">
+                    <button class="btn-sm btn-save-inline" onclick="guardarCambiosInventario(this, '${almacenId}')"><i class="fas fa-save"></i> Guardar</button>
+                    <button class="btn-sm btn-delete" onclick="eliminarProductoInventario(this, '${almacenId}')" ${disabledEliminar}><i class="fas fa-trash-alt"></i></button>
+                </td>
+            </tr>`;
+        }
+
+        async function guardarCambiosInventario(btn, almacenId) {
+            const fila = btn.closest('tr');
+            const invId = fila.dataset.invId;
+            const productoId = fila.dataset.productoId;
+            const cantidad = parseInt(fila.querySelector('.cant-inv').value);
+            const reservada = parseInt(fila.querySelector('.res-inv').value) || 0;
+            const lote = fila.querySelector('.lote-inv').value.trim() || null;
+            const fecha = fila.querySelector('.fecha-inv').value || null;
+
+            if (isNaN(cantidad) || cantidad < 0) {
                 showNotification('La cantidad debe ser un número válido mayor o igual a 0.', 'error');
                 return;
             }
-            const payload = {
-                cantidad: parseInt(cantidad),
-                cantidad_reservada: parseInt(reservada) || 0,
-                lote: lote || null,
-                fecha_vencimiento: fecha || null
-            };
+
             try {
-                await apiFetch(`inventario?id=eq.${invId}`, 'PATCH', payload);
-                showNotification('Inventario actualizado correctamente');
-                // Refrescar la tabla de ese almacén
-                await cargarInventarioAlmacen(almacenId);
+                if (invId) {
+                    // Actualizar registro existente
+                    await apiFetch(`inventario?id=eq.${invId}`, 'PATCH', {
+                        cantidad: cantidad,
+                        cantidad_reservada: reservada,
+                        lote: lote,
+                        fecha_vencimiento: fecha
+                    });
+                    showNotification('Inventario actualizado correctamente');
+                } else {
+                    // Crear nuevo registro solo si la cantidad es mayor que 0
+                    if (cantidad > 0) {
+                        await apiFetch('inventario', 'POST', {
+                            empresa_id: currentUser.empresa_id,
+                            producto_id: productoId,
+                            almacen_id: almacenId,
+                            cantidad: cantidad,
+                            cantidad_reservada: reservada,
+                            lote: lote,
+                            fecha_vencimiento: fecha
+                        });
+                        showNotification('Producto agregado al inventario');
+                    } else {
+                        showNotification('La cantidad debe ser mayor a 0 para crear un nuevo registro.', 'error');
+                        return;
+                    }
+                }
+                // Refrescar la tabla de inventario
+                await cargarInventarioCompleto(almacenId);
             } catch (e) {
                 showNotification('Error al guardar: ' + e.message, 'error');
             }
         }
 
-        async function eliminarProductoInventario(invId, almacenId) {
+        async function eliminarProductoInventario(btn, almacenId) {
+            const fila = btn.closest('tr');
+            const invId = fila.dataset.invId;
+            if (!invId) {
+                showNotification('No hay registro de inventario para eliminar.', 'error');
+                return;
+            }
             mostrarConfirmacion('¿Eliminar este producto del inventario? Se perderá el registro de existencias.',
                 'Eliminar producto',
                 async () => {
                     await apiFetch(`inventario?id=eq.${invId}`, 'DELETE');
                     showNotification('Producto eliminado del inventario');
-                    await cargarInventarioAlmacen(almacenId);
+                    await cargarInventarioCompleto(almacenId);
                 });
-        }
-
-        async function agregarProductoInventario(almacenId) {
-            const select = document.getElementById(`select-prod-${almacenId}`);
-            const productoId = select?.value;
-            const cantidad = parseInt(document.getElementById(`nueva-cant-${almacenId}`)?.value);
-            const reservada = parseInt(document.getElementById(`nueva-res-${almacenId}`)?.value) || 0;
-            const lote = document.getElementById(`nueva-lote-${almacenId}`)?.value.trim() || null;
-            const fecha = document.getElementById(`nueva-fecha-${almacenId}`)?.value || null;
-
-            if (!productoId) {
-                showNotification('Debe seleccionar un producto', 'error');
-                return;
-            }
-            if (isNaN(cantidad) || cantidad < 0) {
-                showNotification('La cantidad debe ser un número válido', 'error');
-                return;
-            }
-
-            const payload = {
-                empresa_id: currentUser.empresa_id,
-                producto_id: productoId,
-                almacen_id: almacenId,
-                cantidad: cantidad,
-                cantidad_reservada: reservada,
-                lote: lote,
-                fecha_vencimiento: fecha
-            };
-
-            try {
-                // Verificar duplicados según la restricción UNIQUE
-                let checkQuery =
-                    `inventario?almacen_id=eq.${almacenId}&producto_id=eq.${productoId}&select=id,cantidad`;
-                if (lote) checkQuery += `&lote=eq.${encodeURIComponent(lote)}`;
-                else checkQuery += `&lote=is.null`;
-                if (fecha) checkQuery += `&fecha_vencimiento=eq.${encodeURIComponent(fecha)}`;
-                else checkQuery += `&fecha_vencimiento=is.null`;
-
-                const existente = await apiFetch(checkQuery);
-                if (existente.length > 0) {
-                    // Actualizar sumando cantidad
-                    const nuevaCant = existente[0].cantidad + cantidad;
-                    await apiFetch(`inventario?id=eq.${existente[0].id}`, 'PATCH', {
-                        cantidad: nuevaCant,
-                        cantidad_reservada: reservada
-                    });
-                    showNotification('El producto ya existía con ese lote/vencimiento. Se sumó la cantidad.');
-                } else {
-                    await apiFetch('inventario', 'POST', payload);
-                    showNotification('Producto agregado al inventario');
-                }
-                // Limpiar formulario
-                document.getElementById(`select-prod-${almacenId}`).value = '';
-                document.getElementById(`nueva-cant-${almacenId}`).value = 0;
-                document.getElementById(`nueva-res-${almacenId}`).value = 0;
-                document.getElementById(`nueva-lote-${almacenId}`).value = '';
-                document.getElementById(`nueva-fecha-${almacenId}`).value = '';
-                await cargarInventarioAlmacen(almacenId);
-            } catch (e) {
-                showNotification('Error: ' + e.message, 'error');
-            }
         }
 
         // ==================== MODAL ALMACÉN (CREAR/EDITAR) ====================
