@@ -269,6 +269,8 @@
             <div style="text-align:right; margin:8px 0; font-weight:700; font-size:1.1rem;">Total: <span id="currency-symbol-total"></span><span id="total-pedido">0.00</span></div>
             <button class="btn-solid" id="btn-enviar-pedido" onclick="enviarPedido()" style="width:100%; justify-content:center;">Registrar pedido</button>
             <button class="btn-solid danger" id="btn-eliminar-pedido-modal" style="width:100%; justify-content:center; margin-top:8px; display:none;" onclick="eliminarPedidoDesdeModal()"><i class="fas fa-trash-alt"></i> Eliminar pedido</button>
+            <!-- NUEVO: Botón para previsualizar/compartir pedido existente (visible solo en edición) -->
+            <button class="btn-solid" id="btn-previsualizar-pedido" style="width:100%; justify-content:center; margin-top:8px; display:none; background:#f59e0b;" onclick="previsualizarPedidoActual()"><i class="fas fa-table"></i> Previsualizar / Compartir pedido</button>
             <div id="post-pedido-actions" style="display:none; margin-top:12px;"></div>
         </div>
     </div>
@@ -962,7 +964,9 @@
             const titulo = document.getElementById('titulo-modal-venta');
             const btnEnviar = document.getElementById('btn-enviar-pedido');
             const btnEliminar = document.getElementById('btn-eliminar-pedido-modal');
+            const btnPreview = document.getElementById('btn-previsualizar-pedido');
             btnEliminar.style.display = modoEdicion ? 'flex' : 'none';
+            btnPreview.style.display = modoEdicion ? 'flex' : 'none'; // Mostrar solo en edición
             if (modoEdicion) {
                 titulo.textContent = 'Editar Pedido'; btnEnviar.textContent = 'Actualizar pedido';
             } else {
@@ -1181,6 +1185,12 @@
             container.style.display = 'block';
             container.innerHTML = `<button class="btn-sm whatsapp" onclick="compartirPedidoWhatsApp('${documento}','${clienteId}')"><i class="fab fa-whatsapp"></i> Enviar pedido por WhatsApp</button>
             <button class="btn-sm" style="margin-left:8px; background:#f0f9ff; color:#0369a1;" onclick="abrirPreviewPedido('${documento}')"><i class="fas fa-table"></i> Previsualizar pedido</button>`;
+        }
+
+        // NUEVA: Función para previsualizar el pedido actual desde el modal de edición
+        async function previsualizarPedidoActual() {
+            if (!documentoEditando) return;
+            abrirPreviewPedido(documentoEditando);
         }
 
         async function compartirPedidoWhatsApp(documento, clienteId) {
