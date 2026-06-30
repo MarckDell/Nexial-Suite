@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- html2canvas para generar imágenes de pedidos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         html { overscroll-behavior: none; }
@@ -107,6 +109,12 @@
         .progress-item .bar-bg { background:#e2e8f0; height:24px; border-radius:12px; overflow:hidden; margin:4px 0; }
         .progress-item .bar-fill { height:100%; border-radius:12px; transition:width 0.5s; }
         .progress-item .details { font-size:0.8rem; color:#475569; }
+        /* Estilos para la previsualización del pedido */
+        .pedido-preview { padding:16px; background:#f8fafc; border-radius:16px; border:2px solid #1a56db; margin:16px 0; max-width:600px; margin-left:auto; margin-right:auto; }
+        .pedido-preview table { width:100%; border-collapse:collapse; background:white; }
+        .pedido-preview th, .pedido-preview td { padding:10px; border-bottom:1px solid #e2e8f0; font-size:0.9rem; }
+        .pedido-preview th { background:#1a56db; color:white; font-weight:600; }
+        .pedido-preview .total-row td { font-weight:700; background:#f0f9ff; }
     </style>
 </head>
 <body>
@@ -281,6 +289,21 @@
         </div>
     </div>
 
+    <!-- Modal Previsualización del Pedido (imagen para compartir) -->
+    <div class="modal-overlay" id="modal-preview-pedido">
+        <div class="modal" style="max-width:700px; border-radius:28px; max-height:90vh;">
+            <div class="modal-header">
+                <h2>Previsualizar Pedido</h2>
+                <button class="close-modal" onclick="cerrarModalPreview()">&times;</button>
+            </div>
+            <div id="preview-table-container" class="pedido-preview"></div>
+            <div style="display:flex; gap:12px; justify-content:center; margin-top:20px;">
+                <button class="btn-solid" onclick="generarImagenYCompartir()"><i class="fas fa-share-alt"></i> Compartir como imagen</button>
+                <button class="btn-outline" style="color:#1e293b; border-color:#cbd5e1;" onclick="cerrarModalPreview()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="notification" class="notification"></div>
     <div class="floating-location-btns" id="floating-location-btns" style="display:none;">
         <button class="save-btn" id="btn-save-location"><i class="fas fa-save"></i> Guardar ubicación</button>
@@ -321,6 +344,9 @@
 
         let draggingMarker = null, dragStartCoords = null, dragClienteId = null, pendingReopenModal = false;
         let tempLocationMarker = null, currentLocationConfirmCallback = null;
+
+        // Variables para el preview del pedido
+        let documentoPreviewActual = '';
 
         const DAY_COLORS = {
             'Lunes': '#e74c3c', 'Martes': '#e67e22', 'Miércoles': '#f1c40f',
@@ -390,6 +416,7 @@
             document.getElementById('modal-cliente').classList.remove('active');
             document.getElementById('modal-venta').classList.remove('active');
             document.getElementById('modal-resultado').classList.remove('active');
+            document.getElementById('modal-preview-pedido').classList.remove('active');
             document.getElementById('acciones-panel').classList.remove('active');
             document.getElementById('confirm-overlay').classList.remove('active');
             if (draggingMarker) cancelarArrastreUbicacion();
@@ -413,12 +440,14 @@
             const modalCliente = document.getElementById('modal-cliente');
             const modalVenta = document.getElementById('modal-venta');
             const modalResultado = document.getElementById('modal-resultado');
+            const modalPreview = document.getElementById('modal-preview-pedido');
             const accionesPanel = document.getElementById('acciones-panel');
             const confirmOverlay = document.getElementById('confirm-overlay');
 
             if (confirmOverlay.classList.contains('active')) { cerrarConfirm(false); return true; }
             if (draggingMarker) { cancelarArrastreUbicacion(); return true; }
             if (tempLocationMarker) { cancelarSeleccionUbicacionTemporal(); return true; }
+            if (modalPreview.classList.contains('active')) { cerrarModalPreview(); return true; }
             if (modalResultado.classList.contains('active')) { cerrarModalResultado(); return true; }
             if (accionesPanel.classList.contains('active')) { cerrarAccionesPanel(); return true; }
             if (modalVenta.classList.contains('active')) { 
@@ -1150,7 +1179,8 @@
         function mostrarOpcionCompartir(documento, clienteId) {
             const container = document.getElementById('post-pedido-actions');
             container.style.display = 'block';
-            container.innerHTML = `<button class="btn-sm whatsapp" onclick="compartirPedidoWhatsApp('${documento}','${clienteId}')"><i class="fab fa-whatsapp"></i> Enviar pedido por WhatsApp</button>`;
+            container.innerHTML = `<button class="btn-sm whatsapp" onclick="compartirPedidoWhatsApp('${documento}','${clienteId}')"><i class="fab fa-whatsapp"></i> Enviar pedido por WhatsApp</button>
+            <button class="btn-sm" style="margin-left:8px; background:#f0f9ff; color:#0369a1;" onclick="abrirPreviewPedido('${documento}')"><i class="fas fa-table"></i> Previsualizar pedido</button>`;
         }
 
         async function compartirPedidoWhatsApp(documento, clienteId) {
@@ -1166,7 +1196,6 @@
                 const total = lineas.reduce((s, l) => s + parseFloat(l.total_linea), 0);
                 mensaje += `\n*Total: ${empresaCurrencySymbol}${total.toFixed(2)}*`;
 
-                // Intentar obtener teléfono del cliente
                 const cliente = await apiFetch(`clientes?id=eq.${clienteId}&select=telefonos`);
                 let numero = '';
                 if(cliente && cliente.length && cliente[0].telefonos && cliente[0].telefonos.length) {
@@ -1182,6 +1211,65 @@
                 }
             } catch(e) {
                 showNotification('Error al compartir', 'error');
+            }
+        }
+
+        async function abrirPreviewPedido(documento) {
+            documentoPreviewActual = documento;
+            const container = document.getElementById('preview-table-container');
+            try {
+                const lineas = await apiFetch(`ventas?documento_venta=eq.${documento}&select=producto_id,cantidad,precio_unitario,total_linea`);
+                const productos = await apiFetch(`productos?empresa_id=eq.${empresaId}&select=id,nombre`);
+                const prodMap = {};
+                productos.forEach(p => prodMap[p.id] = p.nombre);
+                let html = `<table>
+                    <thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>`;
+                lineas.forEach(l => {
+                    html += `<tr><td>${prodMap[l.producto_id] || 'Producto'}</td><td>${l.cantidad}</td><td>${empresaCurrencySymbol}${parseFloat(l.precio_unitario).toFixed(2)}</td><td>${empresaCurrencySymbol}${parseFloat(l.total_linea).toFixed(2)}</td></tr>`;
+                });
+                const total = lineas.reduce((s, l) => s + parseFloat(l.total_linea), 0);
+                html += `<tr class="total-row"><td colspan="3" style="text-align:right;">Total:</td><td>${empresaCurrencySymbol}${total.toFixed(2)}</td></tr></tbody></table>`;
+                html += `<div style="text-align:center; margin-top:8px; font-size:0.8rem;">Pedido ${documento}</div>`;
+                container.innerHTML = html;
+                document.getElementById('modal-preview-pedido').classList.add('active');
+                pushModalState();
+            } catch(e) {
+                showNotification('Error al cargar pedido para previsualizar: ' + e.message, 'error');
+            }
+        }
+
+        function cerrarModalPreview() {
+            document.getElementById('modal-preview-pedido').classList.remove('active');
+            documentoPreviewActual = '';
+        }
+
+        async function generarImagenYCompartir() {
+            const container = document.getElementById('preview-table-container');
+            if (!container) return;
+            try {
+                const canvas = await html2canvas(container, { scale: 2, backgroundColor: '#ffffff' });
+                canvas.toBlob(async (blob) => {
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'pedido.png', { type: 'image/png' })] })) {
+                        try {
+                            await navigator.share({
+                                files: [new File([blob], 'pedido.png', { type: 'image/png' })],
+                                title: 'Pedido ' + documentoPreviewActual,
+                                text: 'Detalle de pedido'
+                            });
+                        } catch(e) {
+                            if (e.name !== 'AbortError') showNotification('Error al compartir: ' + e.message, 'error');
+                        }
+                    } else {
+                        // Fallback: descargar imagen
+                        const link = document.createElement('a');
+                        link.download = `pedido-${documentoPreviewActual}.png`;
+                        link.href = URL.createObjectURL(blob);
+                        link.click();
+                        showNotification('Imagen generada y descargada. Compártela manualmente.');
+                    }
+                }, 'image/png');
+            } catch(e) {
+                showNotification('Error al generar imagen: ' + e.message, 'error');
             }
         }
 
