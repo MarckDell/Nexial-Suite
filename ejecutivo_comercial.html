@@ -269,17 +269,17 @@
             <div style="text-align:right; margin:8px 0; font-weight:700; font-size:1.1rem;">Total: <span id="currency-symbol-total"></span><span id="total-pedido">0.00</span></div>
             <button class="btn-solid" id="btn-enviar-pedido" onclick="enviarPedido()" style="width:100%; justify-content:center;">Registrar pedido</button>
             <button class="btn-solid danger" id="btn-eliminar-pedido-modal" style="width:100%; justify-content:center; margin-top:8px; display:none;" onclick="eliminarPedidoDesdeModal()"><i class="fas fa-trash-alt"></i> Eliminar pedido</button>
-            <!-- NUEVO: Botón para previsualizar/compartir pedido existente (visible solo en edición) -->
+            <!-- Botón para previsualizar/compartir pedido existente (visible solo en edición) -->
             <button class="btn-solid" id="btn-previsualizar-pedido" style="width:100%; justify-content:center; margin-top:8px; display:none; background:#f59e0b;" onclick="previsualizarPedidoActual()"><i class="fas fa-table"></i> Previsualizar / Compartir pedido</button>
             <div id="post-pedido-actions" style="display:none; margin-top:12px;"></div>
         </div>
     </div>
 
-    <!-- Modal Reportar Resultado -->
+    <!-- Modal Resultado de la Visita (antes Reportar Resultado) -->
     <div class="modal-overlay" id="modal-resultado">
         <div class="modal">
             <div class="modal-header">
-                <h2>Reportar Resultado de Visita</h2>
+                <h2>Resultado de la Visita</h2>
                 <button class="close-modal" onclick="cerrarModalResultado()">&times;</button>
             </div>
             <form id="form-resultado" autocomplete="off">
@@ -862,8 +862,12 @@
             const panel = document.getElementById('acciones-panel');
             let html = `<div style="font-weight:600; padding:8px 0; font-size:1.1rem;">${nombreCliente || 'Cliente'}</div>`;
             html += `<button onclick="accionPanel('vender')"><i class="fas fa-shopping-cart"></i> Registrar Venta</button>`;
-            html += `<button onclick="accionPanel('reportar_resultado')"><i class="fas fa-clipboard-check"></i> Reportar Resultado</button>`;
+            html += `<button onclick="accionPanel('reportar_resultado')"><i class="fas fa-clipboard-check"></i> Resultado de la Visita</button>`;
             html += `<button onclick="accionPanel('editar_pedido')"><i class="fas fa-pencil-alt"></i> Editar Pedido</button>`;
+            // Nuevo botón para previsualizar/compartir el pedido existente
+            if (ultimoPedidoClienteMap[clienteId]) {
+                html += `<button onclick="abrirPreviewPedido('${ultimoPedidoClienteMap[clienteId]}'); cerrarAccionesPanel();"><i class="fas fa-table"></i> Previsualizar / Compartir pedido</button>`;
+            }
             html += `<button onclick="accionPanel('editar_cliente')"><i class="fas fa-edit"></i> Editar Datos del Cliente</button>`;
             try {
                 const gestiones = await apiFetch(`gestiones_cliente?cliente_id=eq.${clienteId}&order=fecha_gestion.desc&limit=3&select=*`);
@@ -1187,7 +1191,7 @@
             <button class="btn-sm" style="margin-left:8px; background:#f0f9ff; color:#0369a1;" onclick="abrirPreviewPedido('${documento}')"><i class="fas fa-table"></i> Previsualizar pedido</button>`;
         }
 
-        // NUEVA: Función para previsualizar el pedido actual desde el modal de edición
+        // Función para previsualizar el pedido actual desde el modal de edición
         async function previsualizarPedidoActual() {
             if (!documentoEditando) return;
             abrirPreviewPedido(documentoEditando);
@@ -1232,14 +1236,16 @@
                 const productos = await apiFetch(`productos?empresa_id=eq.${empresaId}&select=id,nombre`);
                 const prodMap = {};
                 productos.forEach(p => prodMap[p.id] = p.nombre);
-                let html = `<table>
+                // Encabezado con el nombre del ejecutivo comercial
+                let html = `<div style="font-weight:600; margin-bottom:12px; text-align:center; font-size:1rem;">Vendedor: ${currentUser.nombres} ${currentUser.apellido_paterno}</div>`;
+                html += `<table>
                     <thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>`;
                 lineas.forEach(l => {
                     html += `<tr><td>${prodMap[l.producto_id] || 'Producto'}</td><td>${l.cantidad}</td><td>${empresaCurrencySymbol}${parseFloat(l.precio_unitario).toFixed(2)}</td><td>${empresaCurrencySymbol}${parseFloat(l.total_linea).toFixed(2)}</td></tr>`;
                 });
                 const total = lineas.reduce((s, l) => s + parseFloat(l.total_linea), 0);
                 html += `<tr class="total-row"><td colspan="3" style="text-align:right;">Total:</td><td>${empresaCurrencySymbol}${total.toFixed(2)}</td></tr></tbody></table>`;
-                html += `<div style="text-align:center; margin-top:8px; font-size:0.8rem;">Pedido ${documento}</div>`;
+                // Se ha eliminado el código del pedido
                 container.innerHTML = html;
                 document.getElementById('modal-preview-pedido').classList.add('active');
                 pushModalState();
@@ -1263,7 +1269,7 @@
                         try {
                             await navigator.share({
                                 files: [new File([blob], 'pedido.png', { type: 'image/png' })],
-                                title: 'Pedido ' + documentoPreviewActual,
+                                title: 'Pedido',
                                 text: 'Detalle de pedido'
                             });
                         } catch(e) {
@@ -1272,7 +1278,7 @@
                     } else {
                         // Fallback: descargar imagen
                         const link = document.createElement('a');
-                        link.download = `pedido-${documentoPreviewActual}.png`;
+                        link.download = `pedido.png`;
                         link.href = URL.createObjectURL(blob);
                         link.click();
                         showNotification('Imagen generada y descargada. Compártela manualmente.');
