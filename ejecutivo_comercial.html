@@ -33,7 +33,6 @@
         .tab-btn.active { background:#1a56db; color:white; }
         .sub-tabs { display:flex; gap:8px; padding:8px 16px 12px; background:#f4f6fb; flex-wrap:wrap; align-items:center; }
         .sub-tab-select { padding:6px 12px; border-radius:20px; border:1px solid #e2e8f0; font-size:0.75rem; font-weight:600; background:white; color:#1e293b; cursor:pointer; font-family:'Inter',sans-serif; }
-        .sub-tab-select option { font-weight:500; }
         .filter-extras { display:flex; align-items:center; gap:8px; margin-left:auto; }
         .refresh-btn { background:white; border:1px solid #e2e8f0; border-radius:20px; padding:6px 12px; font-size:0.9rem; cursor:pointer; color:#1e293b; display:flex; align-items:center; gap:4px; }
         .tab-content { flex:1; overflow-y:auto; padding:0 16px 16px; display:none; }
@@ -53,6 +52,7 @@
         .badge-success { background:#dcfce7; color:#166534; } .badge-danger { background:#fee2e2; color:#991b1b; }
         .btn-sm { padding:6px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; border:none; background:#e0f2fe; color:#0369a1; display:inline-flex; align-items:center; gap:4px; cursor:pointer; }
         .btn-sm.danger { background:#fee2e2; color:#991b1b; }
+        .btn-sm.whatsapp { background:#dcfce7; color:#075e54; }
         .btn-add { background:#1a56db; color:white; border:none; padding:10px 18px; border-radius:30px; font-weight:600; font-size:0.9rem; display:inline-flex; align-items:center; gap:6px; margin-bottom:12px; cursor:pointer; }
         .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,18,0.8); backdrop-filter:blur(8px); z-index:2000; display:none; align-items:flex-end; justify-content:center; }
         .modal-overlay.active { display:flex; }
@@ -93,6 +93,9 @@
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(66,133,244, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(66,133,244, 0); } 100% { box-shadow: 0 0 0 0 rgba(66,133,244, 0); } }
         .producto-busqueda-item { padding:10px 12px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
         .producto-busqueda-item:active { background:#e0f2fe; }
+        .producto-busqueda-item.sin-stock { color:#dc2626; }
+        .producto-busqueda-item .stock-info { font-size:0.75rem; color:#475569; }
+        .producto-busqueda-item.sin-stock .stock-info { color:#dc2626; font-weight:600; }
         .venta-header-compact { display:flex; align-items:center; gap:8px; }
         .venta-lista-scroll { flex:1; overflow-y:auto; margin:8px 0; }
         .floating-location-btns { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); display:flex; gap:12px; z-index:5000; }
@@ -145,14 +148,12 @@
             <button class="tab-btn" onclick="cambiarTab('lista')">📋 Lista</button>
         </div>
         <div class="sub-tabs" id="sub-tabs-container">
-            <!-- Desplegable de Clientes -->
             <select id="filtro-clientes" class="sub-tab-select" onchange="filtrarClientes(this.value)">
                 <option value="no_atendidos">No atendidos</option>
                 <option value="atendidos">Atendidos</option>
                 <option value="sin_compras">Sin compras</option>
                 <option value="todos">Todos</option>
             </select>
-            <!-- Desplegable de Zonas -->
             <select id="filtro-zonas" class="sub-tab-select" onchange="aplicarFiltroZona(this.value)">
                 <option value="todas">Todas las zonas</option>
                 <option value="zona1">🔴 Zona 1 (Lunes)</option>
@@ -176,7 +177,6 @@
             <button class="btn-add" onclick="abrirModalCliente(null)"><i class="fas fa-plus"></i> Nuevo cliente</button>
             <div id="clientes-lista"></div>
         </div>
-        <!-- Panel de acciones inferior -->
         <div class="acciones-panel" id="acciones-panel"></div>
     </div>
 
@@ -215,52 +215,9 @@
                 <div class="form-group"><label>Tipo Documento</label><select id="cli-tipo-doc"></select></div>
                 <div class="form-group"><label>Número Documento</label><input id="cli-num-doc"></div>
                 <div class="form-group"><label>Nombre Comercial</label><input id="cli-nombre-comercial" placeholder="Ej: Tienda, Farmacia..."></div>
-                <div class="form-group">
-                    <label>Tipo Cliente</label>
-                    <select id="cli-tipo-cliente">
-                        <option value="">Seleccione...</option>
-                        <option>Distribuidor</option>
-                        <option>Mayorista</option>
-                        <option>Minorista</option>
-                        <option>Mayorista-Distribuidor</option>
-                        <option>Cuenta Clave (Key Account)</option>
-                        <option>Institucional</option>
-                        <option>HORECA</option>
-                        <option>Consumidor Final</option>
-                        <option>E-commerce (Marketplace)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Segmento Mercado</label>
-                    <select id="cli-segmento">
-                        <option value="">Seleccione...</option>
-                        <option>Moderno – Hipermercado</option>
-                        <option>Moderno – Supermercado</option>
-                        <option>Moderno – Discount</option>
-                        <option>Moderno – Conveniencia</option>
-                        <option>Tradicional – Tienda de barrio</option>
-                        <option>Tradicional – Canal Mayorista</option>
-                        <option>Industrial / B2B</option>
-                        <option>Institucional</option>
-                        <option>HORECA</option>
-                        <option>Digital</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Canal Venta</label>
-                    <select id="cli-canal">
-                        <option value="">Seleccione...</option>
-                        <option>Venta Directa – Fuerza Propia</option>
-                        <option>Venta Directa – Preventa</option>
-                        <option>Venta Directa – Autoventa</option>
-                        <option>Distribuidor Exclusivo</option>
-                        <option>Televenta</option>
-                        <option>E-commerce B2B</option>
-                        <option>E-commerce B2C</option>
-                        <option>Mayorista / Cash & Carry</option>
-                        <option>Retail Moderno</option>
-                    </select>
-                </div>
+                <div class="form-group"><label>Tipo Cliente</label><select id="cli-tipo-cliente"><option value="">Seleccione...</option><option>Distribuidor</option><option>Mayorista</option><option>Minorista</option><option>Mayorista-Distribuidor</option><option>Cuenta Clave (Key Account)</option><option>Institucional</option><option>HORECA</option><option>Consumidor Final</option><option>E-commerce (Marketplace)</option></select></div>
+                <div class="form-group"><label>Segmento Mercado</label><select id="cli-segmento"><option value="">Seleccione...</option><option>Moderno – Hipermercado</option><option>Moderno – Supermercado</option><option>Moderno – Discount</option><option>Moderno – Conveniencia</option><option>Tradicional – Tienda de barrio</option><option>Tradicional – Canal Mayorista</option><option>Industrial / B2B</option><option>Institucional</option><option>HORECA</option><option>Digital</option></select></div>
+                <div class="form-group"><label>Canal Venta</label><select id="cli-canal"><option value="">Seleccione...</option><option>Venta Directa – Fuerza Propia</option><option>Venta Directa – Preventa</option><option>Venta Directa – Autoventa</option><option>Distribuidor Exclusivo</option><option>Televenta</option><option>E-commerce B2B</option><option>E-commerce B2C</option><option>Mayorista / Cash & Carry</option><option>Retail Moderno</option></select></div>
                 <div class="form-group"><label>Día de Visita</label><select id="cli-dia-visita"><option value="">Seleccione día</option><option value="Lunes">Lunes</option><option value="Martes">Martes</option><option value="Miércoles">Miércoles</option><option value="Jueves">Jueves</option><option value="Viernes">Viernes</option><option value="Sábado">Sábado</option><option value="Domingo">Domingo</option></select></div>
                 <div class="form-group"><label>Email</label><input id="cli-email" type="email"></div>
                 <div class="form-group"><label>Teléfonos</label><div id="cli-telefonos-container"></div><button type="button" class="btn-phone-add" onclick="agregarTelefonoCliente()">+ Teléfono</button></div>
@@ -304,6 +261,7 @@
             <div style="text-align:right; margin:8px 0; font-weight:700; font-size:1.1rem;">Total: <span id="currency-symbol-total"></span><span id="total-pedido">0.00</span></div>
             <button class="btn-solid" id="btn-enviar-pedido" onclick="enviarPedido()" style="width:100%; justify-content:center;">Registrar pedido</button>
             <button class="btn-solid danger" id="btn-eliminar-pedido-modal" style="width:100%; justify-content:center; margin-top:8px; display:none;" onclick="eliminarPedidoDesdeModal()"><i class="fas fa-trash-alt"></i> Eliminar pedido</button>
+            <div id="post-pedido-actions" style="display:none; margin-top:12px;"></div>
         </div>
     </div>
 
@@ -316,24 +274,8 @@
             </div>
             <form id="form-resultado" autocomplete="off">
                 <input type="hidden" id="resultado-cliente-id">
-                <div class="form-group">
-                    <label>Motivo de No Compra / Situación</label>
-                    <select id="resultado-motivo" required>
-                        <option value="">Seleccione un motivo</option>
-                        <option value="Sin capital disponible">Sin capital disponible</option>
-                        <option value="Insatisfacción con producto">Insatisfacción con producto</option>
-                        <option value="Insatisfacción con atención">Insatisfacción con atención</option>
-                        <option value="Cliente ausente">Cliente ausente</option>
-                        <option value="Exceso de inventario">Exceso de inventario</option>
-                        <option value="Indisponibilidad para recepción">Indisponibilidad para recepción</option>
-                        <option value="Encargado ausente">Encargado ausente</option>
-                        <option value="Otros motivos">Otros motivos</option>
-                    </select>
-                </div>
-                <div class="form-group" id="motivo-otros-group" style="display:none;">
-                    <label>Especifique el motivo</label>
-                    <textarea id="resultado-otros-texto" rows="2"></textarea>
-                </div>
+                <div class="form-group"><label>Motivo de No Compra / Situación</label><select id="resultado-motivo" required><option value="">Seleccione un motivo</option><option value="Sin capital disponible">Sin capital disponible</option><option value="Insatisfacción con producto">Insatisfacción con producto</option><option value="Insatisfacción con atención">Insatisfacción con atención</option><option value="Cliente ausente">Cliente ausente</option><option value="Exceso de inventario">Exceso de inventario</option><option value="Indisponibilidad para recepción">Indisponibilidad para recepción</option><option value="Encargado ausente">Encargado ausente</option><option value="Otros motivos">Otros motivos</option></select></div>
+                <div class="form-group" id="motivo-otros-group" style="display:none;"><label>Especifique el motivo</label><textarea id="resultado-otros-texto" rows="2"></textarea></div>
                 <button type="submit" class="btn-solid" style="width:100%; justify-content:center;">Guardar resultado</button>
             </form>
         </div>
@@ -361,7 +303,7 @@
         let map, clientMarkers = [], zoneOverlays = [], miUbicacionMarker = null, locationWatcher = null;
         let currentTab = 'mapa';
         let currentFilter = 'no_atendidos';
-        let currentZonaFilter = 'todas'; // 'todas' o 'zona1', 'zona2', etc.
+        let currentZonaFilter = 'todas';
         let allProducts = [], pedidoLineas = [];
         let clienteSeleccionadoParaAccion = null;
         let ultimoPedidoClienteMap = {};
@@ -371,29 +313,23 @@
         let pedidoTemporalDoc = null;
         let flujoNuevoClientePendiente = false;
         let ultimaGestionMap = {};
+        let stockMap = {}; // producto_id -> stock disponible (cantidad - cantidad_reservada)
 
         // Variables globales para la moneda de la empresa
         let empresaCurrencySymbol = '$';
         let empresaCurrencyCode = 'USD';
 
-        let draggingMarker = null;
-        let dragStartCoords = null;
-        let dragClienteId = null;
-        let pendingReopenModal = false;
-        let tempLocationMarker = null;
-        let currentLocationConfirmCallback = null;
+        let draggingMarker = null, dragStartCoords = null, dragClienteId = null, pendingReopenModal = false;
+        let tempLocationMarker = null, currentLocationConfirmCallback = null;
 
         const DAY_COLORS = {
             'Lunes': '#e74c3c', 'Martes': '#e67e22', 'Miércoles': '#f1c40f',
             'Jueves': '#2ecc71', 'Viernes': '#3498db', 'Sábado': '#9b59b6', 'Domingo': '#e84393'
         };
-
-        const DAY_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
         const ZONA_TO_DAY = {
             'zona1': 'Lunes', 'zona2': 'Martes', 'zona3': 'Miércoles',
             'zona4': 'Jueves', 'zona5': 'Viernes', 'zona6': 'Sábado', 'zona7': 'Domingo'
         };
-
         const tiposDocPorPais = {
             'Bolivia':['CI','Pasaporte','NIT'], 'Argentina':['DNI','Pasaporte','CUIT'],
             'Perú':['DNI','Pasaporte','RUC'], 'Chile':['RUN','Pasaporte','RUT'],
@@ -402,7 +338,6 @@
             'México':['INE','Pasaporte','RFC'], 'España':['DNI','Pasaporte','NIE'],
             'Estados Unidos':['Pasaporte','SSN','Driver License']
         };
-
         const MOTIVO_TIPO_MAP = {
             'Sin capital disponible': 'no_compra',
             'Insatisfacción con producto': 'no_compra',
@@ -413,7 +348,6 @@
             'Encargado ausente': 'ausente',
             'Otros motivos': 'no_compra'
         };
-
         const METRICAS_AVANCE = [
             { key: 'monto_objetivo', label: 'Volumen de venta (Monto)', tipo: 'dinero', monedaKey: 'moneda_objetivo_id', ayuda: 'Monto total de ventas esperado.' },
             { key: 'cantidad_objetivo', label: 'Unidades vendidas (Cantidad)', tipo: 'cantidad', unidadKey: 'unidad_objetivo_id', ayuda: 'Cantidad total de unidades.' },
@@ -559,6 +493,19 @@
             return text ? JSON.parse(text) : null;
         }
 
+        async function cargarStock() {
+            try {
+                const inventario = await apiFetch(`inventario?empresa_id=eq.${empresaId}&select=producto_id,cantidad,cantidad_reservada&limit=5000`);
+                stockMap = {};
+                inventario.forEach(item => {
+                    const disponible = (item.cantidad || 0) - (item.cantidad_reservada || 0);
+                    stockMap[item.producto_id] = (stockMap[item.producto_id] || 0) + disponible;
+                });
+            } catch (e) {
+                console.warn('Error al cargar inventario', e);
+            }
+        }
+
         async function cargarConfiguracionMoneda() {
             try {
                 const empresa = await apiFetch(`empresas?id=eq.${empresaId}&select=moneda_principal_id`);
@@ -624,6 +571,7 @@
             document.getElementById('nombre-completo').textContent = nombreCompleto;
             await cargarConfiguracionMoneda();
             await obtenerEmpleadoId();
+            await cargarStock();
             // Seleccionar la zona correspondiente al día actual por defecto
             const today = getCurrentDayName();
             const zonaEntry = Object.entries(ZONA_TO_DAY).find(([k,v]) => v === today);
@@ -682,6 +630,7 @@
 
         function recargarDatos() {
             if(currentEmployeeId) {
+                cargarStock();
                 cargarDatosMapa();
                 cargarClientesLista();
                 showNotification('Datos actualizados');
@@ -787,8 +736,12 @@
                         const paths = z.geometria.coordinates[0].map(c => new google.maps.LatLng(c[1], c[0]));
                         const color = DAY_COLORS[z.dia_semana] || '#1a56db';
                         const polygon = new google.maps.Polygon({
-                            paths: paths, fillColor: color, fillOpacity: 0.2,
-                            strokeColor: color, strokeWeight: 2, map: map
+                            paths: paths,
+                            fillColor: color,
+                            fillOpacity: 0,      // Sin relleno, solo trazos
+                            strokeColor: color,
+                            strokeWeight: 2,
+                            map: map
                         });
                         zoneOverlays.push(polygon);
                     }
@@ -1001,6 +954,7 @@
             document.getElementById('panel-busqueda-producto').style.display = 'none';
             document.getElementById('resultados-busqueda').innerHTML = '';
             document.getElementById('lineas-pedido').innerHTML = '';
+            document.getElementById('post-pedido-actions').style.display = 'none';
             document.getElementById('currency-symbol-total').textContent = empresaCurrencySymbol + ' ';
             renderizarLineasPedido(); actualizarTotalPedido();
         }
@@ -1021,21 +975,39 @@
             const termino = document.getElementById('busqueda-producto').value.toLowerCase().trim();
             const resultadosDiv = document.getElementById('resultados-busqueda');
             const filtrados = termino ? allProducts.filter(p => p.nombre.toLowerCase().includes(termino)) : allProducts;
-            resultadosDiv.innerHTML = filtrados.map(p => `
-                <div class="producto-busqueda-item" onclick="seleccionarProducto('${p.id}')">
-                    <span>${p.nombre}</span><span style="color:#475569;">${empresaCurrencySymbol}${parseFloat(p.precio_venta_base).toFixed(2)}</span>
-                </div>`).join('');
+            resultadosDiv.innerHTML = filtrados.map(p => {
+                const stock = stockMap[p.id] || 0;
+                const sinStock = stock <= 0;
+                return `<div class="producto-busqueda-item ${sinStock ? 'sin-stock' : ''}" onclick="seleccionarProducto('${p.id}')">
+                    <span>${p.nombre}</span>
+                    <span style="color:#475569;">${empresaCurrencySymbol}${parseFloat(p.precio_venta_base).toFixed(2)}</span>
+                    <span class="stock-info">Stock: ${stock}</span>
+                </div>`;
+            }).join('');
         }
 
         function seleccionarProducto(productId) {
             const producto = allProducts.find(p => p.id === productId);
             if(!producto) return;
+            const stock = stockMap[productId] || 0;
+            if(stock <= 0) {
+                showNotification('Producto sin stock disponible', 'error');
+                return;
+            }
             const yaExiste = pedidoLineas.find(l => l.producto_id === productId);
-            if(yaExiste) { yaExiste.cantidad++; } 
-            else {
+            if(yaExiste) {
+                if(yaExiste.cantidad + 1 > stock) {
+                    showNotification('Stock insuficiente', 'error');
+                    return;
+                }
+                yaExiste.cantidad++;
+            } else {
                 pedidoLineas.push({
-                    producto_id: productId, nombre: producto.nombre,
-                    precio: producto.precio_venta_base, impuesto: producto.impuesto_porcentaje||0, cantidad: 1
+                    producto_id: productId,
+                    nombre: producto.nombre,
+                    precio: producto.precio_venta_base,
+                    impuesto: producto.impuesto_porcentaje || 0,
+                    cantidad: 1
                 });
             }
             document.getElementById('busqueda-producto').value = '';
@@ -1049,17 +1021,31 @@
 
         function renderizarLineasPedido() {
             const container = document.getElementById('lineas-pedido');
-            container.innerHTML = pedidoLineas.map((l, i) => `
-                <div class="order-line">
-                    <span>${l.nombre}</span><span>${empresaCurrencySymbol}${l.precio.toFixed(2)}</span>
-                    <input class="qty" type="number" value="${l.cantidad}" min="1" onchange="actualizarCantidad(${i}, this.value)">
+            container.innerHTML = pedidoLineas.map((l, i) => {
+                const stock = stockMap[l.producto_id] || 0;
+                return `<div class="order-line">
+                    <span>${l.nombre} <small style="color:#64748b;">(Stock: ${stock})</small></span>
+                    <span>${empresaCurrencySymbol}${l.precio.toFixed(2)}</span>
+                    <input class="qty" type="number" value="${l.cantidad}" min="1" max="${stock}" onchange="actualizarCantidad(${i}, this.value)">
                     <span>${empresaCurrencySymbol}${(l.precio * l.cantidad).toFixed(2)}</span>
                     <button class="btn-sm danger" onclick="pedidoLineas.splice(${i},1); renderizarLineasPedido();"><i class="fas fa-trash"></i></button>
-                </div>`).join('');
+                </div>`;
+            }).join('');
             actualizarTotalPedido();
         }
 
-        function actualizarCantidad(index, val) { pedidoLineas[index].cantidad = parseInt(val) || 1; renderizarLineasPedido(); }
+        function actualizarCantidad(index, val) {
+            const stock = stockMap[pedidoLineas[index].producto_id] || 0;
+            const nueva = parseInt(val) || 1;
+            if(nueva > stock) {
+                showNotification('Stock insuficiente', 'error');
+                renderizarLineasPedido();
+                return;
+            }
+            pedidoLineas[index].cantidad = nueva;
+            renderizarLineasPedido();
+        }
+
         function actualizarTotalPedido() {
             const total = pedidoLineas.reduce((sum, l) => sum + (l.precio * l.cantidad), 0);
             document.getElementById('total-pedido').textContent = total.toFixed(2);
@@ -1068,7 +1054,16 @@
 
         async function enviarPedido() {
             const clienteId = document.getElementById('venta-cliente').value;
-            if(pedidoLineas.length===0) return showNotification('Agregue al menos un producto', 'error');
+            if(pedidoLineas.length === 0) return showNotification('Agregue al menos un producto', 'error');
+            // Validar stock antes de enviar
+            for(const l of pedidoLineas) {
+                const stock = stockMap[l.producto_id] || 0;
+                if(l.cantidad > stock) {
+                    showNotification(`Stock insuficiente para ${l.nombre}`, 'error');
+                    return;
+                }
+            }
+
             if(!clienteId && flujoNuevoClientePendiente) {
                 try {
                     let coords = '';
@@ -1082,7 +1077,8 @@
                     const [lat, lng] = coords.split(',').map(Number);
                     const geo = await geocodificarInversa(lat, lng);
                     const nuevoCliente = await apiFetch('clientes', 'POST', {
-                        empresa_id: empresaId, vendedor_asignado_id: currentEmployeeId,
+                        empresa_id: empresaId,
+                        vendedor_asignado_id: currentEmployeeId,
                         nombres: null, apellido_paterno: null, apellido_materno: null, razon_social: null,
                         direcciones_entrega: [{etiqueta:'Principal', coordenadas: coords}],
                         pais: geo.pais || null,
@@ -1108,14 +1104,17 @@
                     showNotification('Pedido registrado. Ahora complete los datos del cliente.');
                     flujoNuevoClientePendiente = true;
                     editarCliente(nuevoId);
+                    // Mostrar opción para compartir
+                    mostrarOpcionCompartir(doc, nuevoId);
                 } catch(e) { showNotification('Error al crear cliente: '+e.message, 'error'); }
                 return;
             }
             if(!clienteId) return showNotification('Seleccione un cliente', 'error');
-            await procesarEnvioPedido(clienteId);
+            const doc = await procesarEnvioPedido(clienteId);
             cerrarModalVenta();
             showNotification(documentoEditando ? 'Pedido actualizado' : 'Pedido registrado');
             aplicarFiltroActual();
+            mostrarOpcionCompartir(doc, clienteId);
         }
 
         async function procesarEnvioPedido(clienteId) {
@@ -1130,13 +1129,60 @@
             for(let i=0; i<pedidoLineas.length; i++) {
                 const l = pedidoLineas[i];
                 await apiFetch('ventas', 'POST', {
-                    documento_venta: documento, linea: i+1, empresa_id: empresaId,
-                    fecha: new Date().toISOString(), cliente_id: clienteId, vendedor_id: currentEmployeeId,
-                    moneda_id: moneda, estado: 'pendiente', producto_id: l.producto_id,
-                    cantidad: l.cantidad, precio_unitario: l.precio, descuento_porcentaje: 0, impuesto_porcentaje: l.impuesto
+                    documento_venta: documento,
+                    linea: i+1,
+                    empresa_id: empresaId,
+                    fecha: new Date().toISOString(),
+                    cliente_id: clienteId,
+                    vendedor_id: currentEmployeeId,
+                    moneda_id: moneda,
+                    estado: 'pendiente',
+                    producto_id: l.producto_id,
+                    cantidad: l.cantidad,
+                    precio_unitario: l.precio,
+                    descuento_porcentaje: 0,
+                    impuesto_porcentaje: l.impuesto
                 });
             }
             return documento;
+        }
+
+        function mostrarOpcionCompartir(documento, clienteId) {
+            const container = document.getElementById('post-pedido-actions');
+            container.style.display = 'block';
+            container.innerHTML = `<button class="btn-sm whatsapp" onclick="compartirPedidoWhatsApp('${documento}','${clienteId}')"><i class="fab fa-whatsapp"></i> Enviar pedido por WhatsApp</button>`;
+        }
+
+        async function compartirPedidoWhatsApp(documento, clienteId) {
+            try {
+                const lineas = await apiFetch(`ventas?documento_venta=eq.${documento}&select=producto_id,cantidad,precio_unitario,total_linea`);
+                const productos = await apiFetch(`productos?empresa_id=eq.${empresaId}&select=id,nombre`);
+                const prodMap = {};
+                productos.forEach(p => prodMap[p.id] = p.nombre);
+                let mensaje = `*Pedido ${documento}*\n`;
+                lineas.forEach(l => {
+                    mensaje += `- ${prodMap[l.producto_id] || 'Producto'} x${l.cantidad}: ${empresaCurrencySymbol}${parseFloat(l.total_linea).toFixed(2)}\n`;
+                });
+                const total = lineas.reduce((s, l) => s + parseFloat(l.total_linea), 0);
+                mensaje += `\n*Total: ${empresaCurrencySymbol}${total.toFixed(2)}*`;
+
+                // Intentar obtener teléfono del cliente
+                const cliente = await apiFetch(`clientes?id=eq.${clienteId}&select=telefonos`);
+                let numero = '';
+                if(cliente && cliente.length && cliente[0].telefonos && cliente[0].telefonos.length) {
+                    const tels = cliente[0].telefonos;
+                    const primerTel = Array.isArray(tels) ? (typeof tels[0] === 'string' ? tels[0] : tels[0]?.numero) : '';
+                    numero = primerTel || '';
+                }
+                if(numero) {
+                    window.open(`https://wa.me/${numero.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(mensaje)}`, '_blank');
+                } else {
+                    await navigator.clipboard.writeText(mensaje);
+                    showNotification('Pedido copiado al portapapeles. Compártelo manualmente.');
+                }
+            } catch(e) {
+                showNotification('Error al compartir', 'error');
+            }
         }
 
         async function editarPedidoExistente(documento) {
@@ -1147,7 +1193,9 @@
                 pedidoLineas = lineas.map(l => ({
                     producto_id: l.producto_id,
                     nombre: allProducts.find(p => p.id === l.producto_id)?.nombre || 'Producto desconocido',
-                    precio: l.precio_unitario, impuesto: l.impuesto_porcentaje || 0, cantidad: l.cantidad
+                    precio: l.precio_unitario,
+                    impuesto: l.impuesto_porcentaje || 0,
+                    cantidad: l.cantidad
                 }));
                 documentoEditando = documento;
                 const clienteId = lineas[0].cliente_id;
@@ -1160,8 +1208,10 @@
             mostrarConfirmacion('¿Eliminar este pedido?', 'Eliminar pedido', async () => {
                 try {
                     await apiFetch(`ventas?documento_venta=eq.${documentoEditando}`, 'DELETE');
-                    cerrarModalVenta(); showNotification('Pedido eliminado');
-                    aplicarFiltroActual(); cargarClientesLista();
+                    cerrarModalVenta();
+                    showNotification('Pedido eliminado');
+                    aplicarFiltroActual();
+                    cargarClientesLista();
                 } catch(e) { showNotification('Error: '+e.message, 'error'); }
             });
         }
@@ -1192,7 +1242,8 @@
             document.getElementById('cli-tipo-cliente').value = '';
             document.getElementById('cli-segmento').value = '';
             document.getElementById('cli-canal').value = '';
-            agregarTelefonoCliente(); agregarPuntoGPS();
+            agregarTelefonoCliente();
+            agregarPuntoGPS();
             actualizarTipoDocPorPais();
             if(!id) {
                 document.getElementById('cli-dia-visita').value = getCurrentDayName();
@@ -1202,6 +1253,7 @@
             }
             pushModalState();
         }
+
         function cerrarModalCliente() { 
             document.getElementById('modal-cliente').classList.remove('active'); 
         }
@@ -1211,22 +1263,28 @@
             document.getElementById('natural-fields').style.display = tipo==='natural'?'block':'none';
             document.getElementById('juridica-fields').style.display = tipo==='juridica'?'block':'none';
         }
+
         function agregarTelefonoCliente() {
-            const row = document.createElement('div'); row.className='phone-input-row';
+            const row = document.createElement('div');
+            row.className = 'phone-input-row';
             row.innerHTML = `<input class="tag-input" placeholder="Etiqueta"><input placeholder="Número">`;
             document.getElementById('cli-telefonos-container').appendChild(row);
         }
+
         function agregarPuntoGPS() {
-            const row = document.createElement('div'); row.className='gps-input-row';
+            const row = document.createElement('div');
+            row.className = 'gps-input-row';
             row.innerHTML = `<input class="tag-input" placeholder="Etiqueta"><input placeholder="lat, lng">`;
             document.getElementById('gps-entrega-container').appendChild(row);
         }
+
         function obtenerTelefonos() {
             return Array.from(document.querySelectorAll('#cli-telefonos-container .phone-input-row')).map(r => ({
                 etiqueta: r.querySelector('.tag-input').value.trim(),
                 numero: r.querySelector('input:not(.tag-input)').value.trim()
             }));
         }
+
         function obtenerCoordenadas() {
             return Array.from(document.querySelectorAll('#gps-entrega-container .gps-input-row')).map(r => ({
                 etiqueta: r.querySelector('.tag-input').value.trim(),
@@ -1254,7 +1312,8 @@
                 const cli = (await apiFetch(`clientes?id=eq.${id}&select=*`))[0];
                 if(!cli) return;
                 document.getElementById('cliente-id').value = cli.id;
-                document.getElementById('cli-tipo-persona').value = cli.razon_social?'juridica':'natural'; toggleClientePersona();
+                document.getElementById('cli-tipo-persona').value = cli.razon_social ? 'juridica' : 'natural';
+                toggleClientePersona();
                 document.getElementById('cli-nombres').value = (cli.nombres === 'Nuevo' || cli.nombres === 'null' || !cli.nombres) ? '' : cli.nombres;
                 document.getElementById('cli-ap').value = (cli.apellido_paterno === 'Cliente' || cli.apellido_paterno === 'null' || !cli.apellido_paterno) ? '' : cli.apellido_paterno;
                 document.getElementById('cli-am').value = cli.apellido_materno || '';
@@ -1273,14 +1332,16 @@
                 document.getElementById('cli-segmento').value = cli.segmento_mercado || '';
                 document.getElementById('cli-canal').value = cli.canal_venta || '';
                 document.getElementById('cli-telefonos-container').innerHTML = '';
-                (cli.telefonos?.length ? cli.telefonos : [{etiqueta:'',numero:''}]).forEach(t => {
-                    const row = document.createElement('div'); row.className='phone-input-row';
+                (cli.telefonos?.length ? cli.telefonos : [{etiqueta:'', numero:''}]).forEach(t => {
+                    const row = document.createElement('div');
+                    row.className = 'phone-input-row';
                     row.innerHTML = `<input class="tag-input" value="${t.etiqueta||''}"><input value="${t.numero||''}">`;
                     document.getElementById('cli-telefonos-container').appendChild(row);
                 });
                 document.getElementById('gps-entrega-container').innerHTML = '';
-                (cli.direcciones_entrega?.length ? cli.direcciones_entrega : [{etiqueta:'',coordenadas:''}]).forEach(p => {
-                    const row = document.createElement('div'); row.className='gps-input-row';
+                (cli.direcciones_entrega?.length ? cli.direcciones_entrega : [{etiqueta:'', coordenadas:''}]).forEach(p => {
+                    const row = document.createElement('div');
+                    row.className = 'gps-input-row';
                     row.innerHTML = `<input class="tag-input" value="${p.etiqueta||''}"><input value="${p.coordenadas||''}" placeholder="lat, lng">`;
                     document.getElementById('gps-entrega-container').appendChild(row);
                 });
@@ -1298,7 +1359,9 @@
             mostrarConfirmacion('¿Eliminar cliente permanentemente?', 'Eliminar cliente', async () => {
                 try {
                     await apiFetch(`clientes?id=eq.${id}`, 'DELETE');
-                    cerrarModalCliente(); cargarClientesLista(); aplicarFiltroActual();
+                    cerrarModalCliente();
+                    cargarClientesLista();
+                    aplicarFiltroActual();
                     showNotification('Cliente eliminado');
                 } catch(e) {
                     if(e.message.includes('23503')) showNotification('No se puede eliminar: tiene pedidos', 'error');
@@ -1329,9 +1392,11 @@
             document.getElementById('motivo-otros-group').style.display = 'none';
             pushModalState();
         }
+
         function cerrarModalResultado() {
             document.getElementById('modal-resultado').classList.remove('active');
         }
+
         document.getElementById('resultado-motivo').addEventListener('change', function() {
             const grupo = document.getElementById('motivo-otros-group');
             grupo.style.display = this.value === 'Otros motivos' ? 'block' : 'none';
@@ -1382,6 +1447,7 @@
             currentLocationConfirmCallback = null;
         }
 
+        // Funciones de ubicación temporal y arrastre (conservadas completas)
         async function seleccionarUbicacionParaNuevoCliente() {
             if(!map) { showNotification('Mapa no disponible', 'error'); return; }
             document.getElementById('modal-cliente').classList.remove('active');
@@ -1501,44 +1567,64 @@
             const id = document.getElementById('cliente-id').value;
             const tipo = document.getElementById('cli-tipo-persona').value;
             const payload = {
-                empresa_id: empresaId, vendedor_asignado_id: currentEmployeeId,
-                tipo_documento: document.getElementById('cli-tipo-doc').value||null,
-                numero_documento: document.getElementById('cli-num-doc').value||null,
-                nombre_comercial: document.getElementById('cli-nombre-comercial').value.trim()||null,
+                empresa_id: empresaId,
+                vendedor_asignado_id: currentEmployeeId,
+                tipo_documento: document.getElementById('cli-tipo-doc').value || null,
+                numero_documento: document.getElementById('cli-num-doc').value || null,
+                nombre_comercial: document.getElementById('cli-nombre-comercial').value.trim() || null,
                 dia_visita: document.getElementById('cli-dia-visita').value || null,
                 tipo_cliente: document.getElementById('cli-tipo-cliente').value || null,
                 segmento_mercado: document.getElementById('cli-segmento').value || null,
                 canal_venta: document.getElementById('cli-canal').value || null,
-                nombres: tipo==='natural'? document.getElementById('cli-nombres').value.trim():null,
-                apellido_paterno: tipo==='natural'? document.getElementById('cli-ap').value.trim():null,
-                apellido_materno: tipo==='natural'? document.getElementById('cli-am').value.trim():null,
-                razon_social: tipo==='juridica'? document.getElementById('cli-razon-social').value.trim():null,
-                email: document.getElementById('cli-email').value.trim()||null,
+                nombres: tipo === 'natural' ? document.getElementById('cli-nombres').value.trim() : null,
+                apellido_paterno: tipo === 'natural' ? document.getElementById('cli-ap').value.trim() : null,
+                apellido_materno: tipo === 'natural' ? document.getElementById('cli-am').value.trim() : null,
+                razon_social: tipo === 'juridica' ? document.getElementById('cli-razon-social').value.trim() : null,
+                email: document.getElementById('cli-email').value.trim() || null,
                 telefonos: obtenerTelefonos(),
-                direccion: document.getElementById('cli-direccion').value.trim()||null,
-                pais: document.getElementById('cli-pais-hidden').value.trim()||null,
-                estado_provincia: document.getElementById('cli-estado-hidden').value.trim()||null,
-                ciudad: document.getElementById('cli-ciudad-hidden').value.trim()||null,
+                direccion: document.getElementById('cli-direccion').value.trim() || null,
+                pais: document.getElementById('cli-pais-hidden').value.trim() || null,
+                estado_provincia: document.getElementById('cli-estado-hidden').value.trim() || null,
+                ciudad: document.getElementById('cli-ciudad-hidden').value.trim() || null,
                 direcciones_entrega: obtenerCoordenadas(),
                 activo: true
             };
             try {
                 const file = document.getElementById('file-cli-imagen').files[0];
-                if(file) { const url = await uploadFile(file, 'clientes'); payload.imagen = url; }
-                if(id) { delete payload.empresa_id; await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload); }
-                else await apiFetch('clientes', 'POST', payload);
+                if(file) {
+                    const url = await uploadFile(file, 'clientes');
+                    payload.imagen = url;
+                }
+                if(id) {
+                    delete payload.empresa_id;
+                    await apiFetch(`clientes?id=eq.${id}`, 'PATCH', payload);
+                } else {
+                    await apiFetch('clientes', 'POST', payload);
+                }
                 limpiarEstadoFlujo();
                 if (tempLocationMarker) { tempLocationMarker.setMap(null); tempLocationMarker = null; }
                 ocultarBotonesFlotantes();
-                cerrarModalCliente(); cargarClientesLista(); aplicarFiltroActual();
+                cerrarModalCliente();
+                cargarClientesLista();
+                aplicarFiltroActual();
                 showNotification('Cliente guardado');
-            } catch(err) { showNotification('Error: '+err.message,'error'); }
+                // Si hay un pedido temporal pendiente, ofrecer compartir
+                if(flujoNuevoClientePendiente && pedidoTemporalDoc) {
+                    mostrarOpcionCompartir(pedidoTemporalDoc, clienteTemporalId || id);
+                    flujoNuevoClientePendiente = false;
+                }
+            } catch(err) { showNotification('Error: '+err.message, 'error'); }
         });
 
         async function uploadFile(file, folder) {
             const name = `${folder}/${Date.now()}-${file.name}`;
-            const fd = new FormData(); fd.append('', file);
-            const res = await fetch(`${SUPABASE_URL}/storage/v1/object/empresas/${name}`, { method:'POST', headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}, body:fd });
+            const fd = new FormData();
+            fd.append('', file);
+            const res = await fetch(`${SUPABASE_URL}/storage/v1/object/empresas/${name}`, {
+                method: 'POST',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+                body: fd
+            });
             if(!res.ok) throw new Error('Error al subir imagen');
             return `${SUPABASE_URL}/storage/v1/object/public/empresas/${name}`;
         }
@@ -1571,7 +1657,7 @@
 
                 if (productosSet.size > 0) {
                     try {
-                        const prods = await apiFetch(`productos?empresa_id=eq.${empresaId}&id=in.(${[...productosSet].map(id=>`"${id}"`).join(',')})&select=id,peso,volumen`);
+                        const prods = await apiFetch(`productos?empresa_id=eq.${empresaId}&id=in.(${[...productosSet].map(id => `"${id}"`).join(',')})&select=id,peso,volumen`);
                         const prodMap = {};
                         prods.forEach(p => { prodMap[p.id] = { peso: parseFloat(p.peso)||0, volumen: parseFloat(p.volumen)||0 }; });
                         ventasCompleta.forEach(v => {
