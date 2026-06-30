@@ -1023,7 +1023,6 @@
             }).join('');
         }
 
-        // MODIFICADO: Validación estricta de stock al seleccionar producto
         function seleccionarProducto(productId) {
             const producto = allProducts.find(p => p.id === productId);
             if(!producto) return;
@@ -1034,12 +1033,11 @@
             }
             const yaExiste = pedidoLineas.find(l => l.producto_id === productId);
             if(yaExiste) {
-                const nuevaCantidad = yaExiste.cantidad + 1;
-                if(nuevaCantidad > stock) {
-                    showNotification(`Stock insuficiente. Máximo disponible: ${stock}`, 'error');
+                if(yaExiste.cantidad + 1 > stock) {
+                    showNotification('Stock insuficiente', 'error');
                     return;
                 }
-                yaExiste.cantidad = nuevaCantidad;
+                yaExiste.cantidad++;
             } else {
                 pedidoLineas.push({
                     producto_id: productId,
@@ -1065,7 +1063,7 @@
                 return `<div class="order-line">
                     <span>${l.nombre} <small style="color:#64748b;">(Stock: ${stock})</small></span>
                     <span>${empresaCurrencySymbol}${l.precio.toFixed(2)}</span>
-                    <input class="qty" type="number" value="${l.cantidad}" min="1" max="${stock}" onchange="actualizarCantidad(${i}, this.value, this)">
+                    <input class="qty" type="number" value="${l.cantidad}" min="1" max="${stock}" onchange="actualizarCantidad(${i}, this.value)">
                     <span>${empresaCurrencySymbol}${(l.precio * l.cantidad).toFixed(2)}</span>
                     <button class="btn-sm danger" onclick="pedidoLineas.splice(${i},1); renderizarLineasPedido();"><i class="fas fa-trash"></i></button>
                 </div>`;
@@ -1073,15 +1071,13 @@
             actualizarTotalPedido();
         }
 
-        // CORREGIDO: ajustar cantidad automáticamente al stock si se excede
-        function actualizarCantidad(index, val, inputElement) {
+        function actualizarCantidad(index, val) {
             const stock = stockMap[pedidoLineas[index].producto_id] || 0;
-            let nueva = parseInt(val);
-            if (isNaN(nueva) || nueva < 1) nueva = 1;
-            if (nueva > stock) {
-                nueva = stock;
-                showNotification(`Stock insuficiente. Se ajustó a ${stock}`, 'error');
-                if (inputElement) inputElement.value = stock; // Reflejar en el input
+            const nueva = parseInt(val) || 1;
+            if(nueva > stock) {
+                showNotification('Stock insuficiente', 'error');
+                renderizarLineasPedido();
+                return;
             }
             pedidoLineas[index].cantidad = nueva;
             renderizarLineasPedido();
@@ -1093,20 +1089,23 @@
             document.getElementById('currency-symbol-total').textContent = empresaCurrencySymbol + ' ';
         }
 
+        // ***** ENVÍO DE PEDIDO CON VALIDACIÓN ESTRICTA DE STOCK ACTUALIZADO *****
         async function enviarPedido() {
-            const clienteId = document.getElementById('venta-cliente').value;
             if(pedidoLineas.length === 0) return showNotification('Agregue al menos un producto', 'error');
-            // Validación final estricta de stock antes de enviar
+
+            // Recargar el stock más reciente antes de validar
+            await cargarStock();
+
+            // Validar stock actualizado para cada línea
             for(const l of pedidoLineas) {
                 const stock = stockMap[l.producto_id] || 0;
                 if(l.cantidad > stock) {
-                    showNotification(`Stock insuficiente para ${l.nombre}. Máximo: ${stock}`, 'error');
-                    // Ajustar automáticamente al máximo
-                    l.cantidad = stock;
-                    renderizarLineasPedido();
-                    return; // Detener el envío
+                    showNotification(`Stock insuficiente para ${l.nombre}. Disponible: ${stock}`, 'error');
+                    return;
                 }
             }
+
+            const clienteId = document.getElementById('venta-cliente').value;
 
             if(!clienteId && flujoNuevoClientePendiente) {
                 try {
